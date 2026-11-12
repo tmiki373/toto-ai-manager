@@ -7,6 +7,8 @@ on:
     - cron: '30 13 * * *'
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'data.json'
   workflow_dispatch:
 
 permissions:
@@ -23,6 +25,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -30,17 +34,22 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install beautifulsoup4
+        run: pip install beautifulsoup4 requests
 
       - name: Fetch latest toto and J-League data
         run: python fetch_toto.py
 
-- name: Commit updated data.json
+      - name: Commit updated data.json
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Dynamic update data.json" && git pull --rebase && git push)
+          if ! git diff --staged --quiet; then
+            git commit -m "Dynamic update data.json"
+            git fetch origin main
+            git rebase -X theirs origin/main || git rebase --abort
+            git push origin main
+          fi
 
       - name: Inject SHA-256 PIN Hash from GitHub Secrets into build artifact
         env:
