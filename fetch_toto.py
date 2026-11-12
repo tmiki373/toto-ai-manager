@@ -7,29 +7,26 @@ from bs4 import BeautifulSoup
 DATA_FILE = "data.json"
 
 
-def fetch_url_smart(target_url, timeout=15):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Accept-Language": "ja,en-US;q=0.9,en;q=0.8"
-    }
+def fetch_url(url, timeout=12):
+    headers = {"User-Agent": "Mozilla/5.0"}
     try:
-        req = urllib.request.Request(target_url, headers=headers)
+        req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req, timeout=timeout) as res:
             raw = res.read()
             for enc in ["utf-8", "shift_jis", "cp932", "euc-jp"]:
                 try:
-                    text = raw.decode(enc)
-                    if len(text) > 500:
-                        return text
+                    txt = raw.decode(enc)
+                    if len(txt) > 500:
+                        return txt
                 except Exception:
                     continue
     except Exception as e:
-        print(f"[Fetch failed] {target_url} -> {e}")
+        print("[Fetch failed]", url, e)
     return ""
 
 
-def normalize_team_name(raw_name):
-    mapping = {
+def norm_team(name):
+    mp = {
         "北海道コンサドーレ札幌": "札幌", "コンサドーレ札幌": "札幌",
         "ヴァンラーレ八戸": "八戸", "ベガルタ仙台": "仙台",
         "ブラウブリッツ秋田": "秋田", "モンテディオ山形": "山形", "いわきFC": "いわき",
@@ -51,70 +48,147 @@ def normalize_team_name(raw_name):
         "高知ユナイテッドSC": "高知", "ギラヴァンツ北九州": "北九州", "ロアッソ熊本": "熊本",
         "鹿児島ユナイテッドFC": "鹿児島", "FC琉球": "琉球"
     }
-    clean = re.sub(r"\s+", "", raw_name)
-    for full, short in mapping.items():
-        if full in clean or short == clean:
-            return short
+    clean = re.sub(r"\s+", "", name)
+    for k, v in mp.items():
+        if k in clean or v == clean:
+            return v
     return clean
 
 
-def fetch_dynamic_club_stats():
+def get_club_stats():
     stats = {}
-    sources = [
+    urls = [
         ("https://www.jleague.jp/standings/j1/", "J1"),
         ("https://www.jleague.jp/standings/j2/", "J2"),
         ("https://www.jleague.jp/standings/j3/", "J3")
     ]
-    for url, div in sources:
-        html = fetch_url_smart(url)
+    for url, div in urls:
+        html = fetch_url(url)
         if not html:
             continue
         soup = BeautifulSoup(html, "html.parser")
         for tr in soup.find_all("tr"):
             cells = [c.get_text(strip=True) for c in tr.find_all(["td", "th"])]
             nums = [int(x) for x in cells if re.fullmatch(r"-?\d+", x)]
-            texts = [x for x in cells if len(x) >= 2 and not re.fullmatch(r"-?\d+", x)]
-            if len(nums) >= 8 and len(texts) >= 1:
-                team_short = normalize_team_name(texts[0])
-                if team_short in stats:
+            txts = [x for x in cells if len(x) >= 2 and not re.fullmatch(r"-?\d+", x)]
+            if len(nums) >= 8 and len(txts) >= 1:
+                t = norm_team(txts[0])
+                if t in stats:
                     continue
-                rank, pts, played = nums[0], nums[1], max(1, nums[2])
+                rk, pts, pl = nums[0], nums[1], max(1, nums[2])
                 gf, ga = nums[6], nums[7]
-                gd = gf - ga
-                avg_gf = round(gf / played, 2)
-                avg_ga = round(ga / played, 2)
-                dyn_xg = round(avg_gf * 0.75 + 1.30 * 0.25, 2)
-                dyn_xga = round(avg_ga * 0.75 + 1.30 * 0.25, 2)
-
-                atk_eval = "得点力上位" if avg_gf >= 1.50 else ("得点力不足" if avg_gf <= 0.95 else "標準的攻撃力")
-                def_eval = "鉄壁守備" if avg_ga <= 0.95 else ("失点過多" if avg_ga >= 1.65 else "標準的守備")
-                trend = f"[{div} {rank}位] 勝点{pts}/得失{gd:+d}・平均{avg_gf:.2f}得点/{avg_ga:.2f}失点({atk_eval}・{def_eval})"
-                stats[team_short] = {"xg": dyn_xg, "xga": dyn_xga, "trend": trend, "div": div, "rank": rank}
-    print(f"[Club Stats] Fetched {len(stats)} clubs dynamically.")
+                xg = round((gf / pl) * 0.75 + 0.325, 2)
+                xga = round((ga / pl) * 0.75 + 0.325, 2)
+                tr_str = "[{} {}位] 勝点{}/得失{:+d}".format(div, rk, pts, gf - ga)
+                stats[t] = {"xg": xg, "xga": xga, "trend": tr_str}
+    print("[Club Stats] Fetched:", len(stats))
     return stats
 
 
-def estimate_market_vote(h_xg, h_xga, a_xg, a_xga):
-    h_pow = (h_xg / max(0.5, a_xga)) * 1.15
-    a_pow = (a_xg / max(0.5, h_xga)) * 0.90
-    d_pow = 0.75
-    tot = h_pow + a_pow + d_pow
-    p1 = round((h_pow / tot) * 100, 1)
-    p2 = round((a_pow / tot) * 100, 1)
+def calc_vote(h_xg, h_xga, a_xg, a_xga):
+    hp = (h_xg / max(0.5, a_xga)) * 1.15
+    ap = (a_xg / max(0.5, h_xga)) * 0.90
+    tot = hp + ap + 0.75
+    p1 = round((hp / tot) * 100, 1)
+    p2 = round((ap / tot) * 100, 1)
     p0 = round(max(15.0, 100.0 - p1 - p2), 1)
     return [p1, p0, p2]
 
 
-def fetch_future_jleague_matches(club_stats):
-    """今日(JST)から向こう14日分の日付指定URLを直接走査し、未来の試合だけを取得"""
+def get_future_matches(stats):
     jst = datetime.timezone(datetime.timedelta(hours=9))
-    today_date = datetime.datetime.now(jst).date()
-    weekdays = ["月", "火", "水", "木", "金", "土", "日"]
+    today = datetime.datetime.now(jst).date()
+    wds = ["月", "火", "水", "木", "金", "土", "日"]
+    games = []
+    seen = set()
 
-    upcoming_games = []  # (date_obj, date_str, h_name, a_name)
-    seen_pairs = set()
+    for off in range(0, 15):
+        td = today + datetime.timedelta(days=off)
+        ymd = td.strftime("%Y%m%d")
+        d_str = "{}月{}日({})".format(td.month, td.day, wds[td.weekday()])
+        url = "https://www.jleague.jp/match/search/all/{}/".format(ymd)
+        html = fetch_url(url, 10)
+        if not html:
+            continue
+        soup = BeautifulSoup(html, "html.parser")
+        cnt = 0
+        for blk in soup.find_all(["tr", "li", "div"]):
+            txt = blk.get_text(" ", strip=True)
+            if len(txt) > 180 or len(txt) < 6:
+                continue
+            teams = []
+            for sub in blk.find_all(["td", "span", "p", "a", "div"]):
+                s = sub.get_text(strip=True)
+                if 2 <= len(s) <= 16:
+                    nm = norm_team(s)
+                    if nm in stats and nm not in teams:
+                        teams.append(nm)
+            if len(teams) == 2:
+                pk = "{}:{}-{}".format(ymd, teams[0], teams[1])
+                if pk not in seen:
+                    seen.add(pk)
+                    games.append((td, d_str, teams[0], teams[1]))
+                    cnt += 1
+        if cnt > 0:
+            print("[Date]", ymd, d_str, "Matches:", cnt)
 
-    for offset in range(0, 15):
-        target_d = today_date + datetime.timedelta(days=offset)
-        ymd = target_d.strftime("%Y%m%d")
-        d_str = f"{target_d.month}月{target
+    print("[Total Future Matches]", len(games))
+    if not games:
+        return None
+
+    first_d = games[0][0]
+    target = [g for g in games if (g[0] - first_d).days <= 3][:13]
+    if len(target) < 5:
+        target = games[:13]
+
+    udates = []
+    for g in target:
+        if g[1] not in udates:
+            udates.append(g[1])
+    d_label = "・".join(udates[:2])
+
+    matches = []
+    for i, (_, ds, hn, an) in enumerate(target, 1):
+        hs = stats.get(hn, {"xg": 1.3, "xga": 1.3, "trend": ""})
+        as_ = stats.get(an, {"xg": 1.3, "xga": 1.3, "trend": ""})
+        grp = "A" if i <= 5 else ("B" if i <= 10 else "C")
+        matches.append({
+            "f": i, "grp": grp, "h": hn, "a": an,
+            "v": calc_vote(hs["xg"], hs["xga"], as_["xg"], as_["xga"]),
+            "h_xg": hs["xg"], "h_xga": hs["xga"],
+            "a_xg": as_["xg"], "a_xga": as_["xga"],
+            "analysis": "[{}] H:{} {} / A:{} {}".format(ds, hn, hs["trend"], an, as_["trend"])
+        })
+
+    rk = "次回toto対象節 ({})".format(d_label)
+    return rk, {
+        "title": "次回toto対象節 | 開催日: {} (全{}試合)".format(d_label, len(matches)),
+        "goal3_frames": [x for x in [1, 2, 3] if x <= len(matches)],
+        "matches": matches,
+        "actual_results": {}
+    }
+
+
+def main():
+    jst = datetime.timezone(datetime.timedelta(hours=9))
+    data = {
+        "current_round": "",
+        "last_updated": datetime.datetime.now(jst).strftime("%Y-%m-%d %H:%M JST"),
+        "club_stats": {},
+        "rounds": {}
+    }
+    st = get_club_stats()
+    if st:
+        data["club_stats"] = st
+    res = get_future_matches(data["club_stats"])
+    if res:
+        rk, obj = res
+        data["rounds"][rk] = obj
+        data["current_round"] = rk
+        print("[SUCCESS]", rk, len(obj["matches"]))
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+if __name__ == "__main__":
+    main()
