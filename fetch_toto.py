@@ -106,133 +106,15 @@ def estimate_market_vote(h_xg, h_xga, a_xg, a_xga):
 
 
 def fetch_future_jleague_matches(club_stats):
-    """今日（JST現在日付）以降に開催される今月・来月のJ1/J2/J3公式日程のみを抽出"""
+    """今日(JST)から向こう14日分の日付指定URLを直接走査し、未来の試合だけを取得"""
     jst = datetime.timezone(datetime.timedelta(hours=9))
-    now_jst = datetime.datetime.now(jst)
-    today_date = now_jst.date()
+    today_date = datetime.datetime.now(jst).date()
+    weekdays = ["月", "火", "水", "木", "金", "土", "日"]
 
-    # 今月と来月のYYYYMMを生成
-    y1, m1 = now_jst.year, now_jst.month
-    y2, m2 = (y1 + 1, 1) if m1 == 12 else (y1, m1 + 1)
-    ym_list = [f"{y1}{m1:02d}", f"{y2}{m2:02d}"]
-
-    match_urls = []
-    for ym in ym_list:
-        for div in ["j1", "j2", "j3"]:
-            match_urls.append(f"https://www.jleague.jp/match/search/{div}/{ym}/")
-
-    upcoming_games = []  # (date_obj, date_str, h_name, a_name, act)
+    upcoming_games = []  # (date_obj, date_str, h_name, a_name)
     seen_pairs = set()
 
-    for m_url in match_urls:
-        html = fetch_url_smart(m_url)
-        if not html:
-            continue
-        soup = BeautifulSoup(html, "html.parser")
-
-        # ページ内の日付見出しと試合要素を上から順に走査
-        current_date_obj = None
-        current_date_str = ""
-
-        for elem in soup.find_all(["h2", "h3", "h4", "p", "div", "tr", "li"]):
-            txt = elem.get_text(" ", strip=True)
-            if len(txt) > 200 or len(txt) < 4:
-                continue
-
-            # 日付見出しの更新 (例: 2026年11月14日(土) や 11月14日(土))
-            m_d = re.search(r"(?:(\d{4})年)?(\d{1,2})月(\d{1,2})日\s*[（(]([月火水木金土日])[）)]", txt)
-            if m_d and len(txt) <= 35:
-                yr = int(m_d.group(1)) if m_d.group(1) else y1
-                mo, dy, wd = int(m_d.group(2)), int(m_d.group(3)), m_d.group(4)
-                try:
-                    current_date_obj = datetime.date(yr, mo, dy)
-                    current_date_str = f"{mo}月{dy}日({wd})"
-                except Exception:
-                    pass
-                continue
-
-            # 今日より前の過去の試合は完全にスキップ
-            if current_date_obj is None or current_date_obj < today_date:
-                continue
-
-            found_teams = []
-            for sub in elem.find_all(["td", "span", "p", "a", "div"]):
-                t_str = sub.get_text(strip=True)
-                if 2 <= len(t_str) <= 16:
-                    norm = normalize_team_name(t_str)
-                    if norm in club_stats and norm not in found_teams:
-                        found_teams.append(norm)
-
-            if len(found_teams) == 2:
-                pair_key = f"{current_date_str}:{found_teams[0]}-{found_teams[1]}"
-                if pair_key not in seen_pairs:
-                    seen_pairs.add(pair_key)
-                    upcoming_games.append((current_date_obj, current_date_str, found_teams[0], found_teams[1], None))
-
-    # 日付の早い順（直近の週末開催節）にソート
-    upcoming_games.sort(key=lambda x: x[0])
-    print(f"[Future Matches >= {today_date}] Found {len(upcoming_games)} upcoming games.")
-
-    if not upcoming_games:
-        return None
-
-    # 直近開催日（または連続する2日間＝週末の1節分）の試合を最大13試合抽出
-    first_date = upcoming_games[0][0]
-    target_games = [g for g in upcoming_games if (g[0] - first_date).days <= 3][:13]
-    if len(target_games) < 5:
-        target_games = upcoming_games[:13]
-
-    unique_dates = []
-    for g in target_games:
-        if g[1] not in unique_dates:
-            unique_dates.append(g[1])
-    date_label = "・".join(unique_dates[:2])
-
-    matches = []
-    for idx, (_, d_str, h_name, a_name, act) in enumerate(target_games, start=1):
-        hs = club_stats.get(h_name, {"xg": 1.30, "xga": 1.30, "trend": "最新データ計算済"})
-        as_ = club_stats.get(a_name, {"xg": 1.30, "xga": 1.30, "trend": "最新データ計算済"})
-        grp = "A" if idx <= 5 else ("B" if idx <= 10 else "C")
-        v_rates = estimate_market_vote(hs["xg"], hs["xga"], as_["xg"], as_["xga"])
-
-        matches.append({
-            "f": idx, "grp": grp, "h": h_name, "a": a_name,
-            "v": v_rates,
-            "h_xg": hs["xg"], "h_xga": hs["xga"],
-            "a_xg": as_["xg"], "a_xga": as_["xga"],
-            "analysis": f"[{d_str}] 【H:{h_name}】{hs['trend']} ／ 【A:{a_name}】{as_['trend']}"
-        })
-
-    r_key = f"次回開催節 ({date_label})"
-    return r_key, {
-        "title": f"次回toto対象節｜開催日: {date_label}（全{len(matches)}試合・今日以降の最新日程）",
-        "goal3_frames": [i for i in [1, 2, 3] if i <= len(matches)],
-        "matches": matches,
-        "actual_results": {}
-    }
-
-
-def main():
-    # 古い過去開催回キャッシュが残らないよう毎回クリーンに最新化
-    data = {"current_round": "", "last_updated": "", "club_stats": {}, "rounds": {}}
-
-    jst = datetime.timezone(datetime.timedelta(hours=9))
-    data["last_updated"] = datetime.datetime.now(jst).strftime("%Y-%m-%d %H:%M JST")
-
-    live_stats = fetch_dynamic_club_stats()
-    if live_stats:
-        data["club_stats"] = live_stats
-
-    res = fetch_future_jleague_matches(data.get("club_stats", {}))
-    if res:
-        r_key, round_obj = res
-        data["rounds"][r_key] = round_obj
-        data["current_round"] = r_key
-        print(f"[SUCCESS] Saved {len(round_obj['matches'])} future matches for {r_key}.")
-
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-
-if __name__ == "__main__":
-    main()
+    for offset in range(0, 15):
+        target_d = today_date + datetime.timedelta(days=offset)
+        ymd = target_d.strftime("%Y%m%d")
+        d_str = f"{target_d.month}月{target
