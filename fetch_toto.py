@@ -59,7 +59,7 @@ def normalize_team_name(raw_name):
     return clean
 
 def fetch_dynamic_club_stats():
-    """Jリーグ公式順位表(J1/J2/J3)から全60クラブの最新成績を動的算出（ログで取得実証済）"""
+    """Jリーグ公式順位表(J1/J2/J3)から全60クラブの最新成績を動的算出"""
     stats = {}
     sources = [
         ("https://www.jleague.jp/standings/j1/", "J1"),
@@ -116,44 +116,47 @@ def estimate_market_vote(h_xg, h_xga, a_xg, a_xga):
     return [p1, p0, p2]
 
 def fetch_jleague_upcoming_matches(club_stats, round_id):
-    """米国サーバーから100%取得可能なJリーグ公式日程ページから直近13試合と結果を取得"""
-    match_url = "https://www.jleague.jp/match/"
-    html = fetch_url_smart(match_url)
-    if not html:
-        return None
+    """J1・J2・J3の最新節および公式日程ページから13試合以上を一括取得"""
+    match_urls = [
+        "https://www.jleague.jp/match/",
+        "https://www.jleague.jp/match/section/j1/latest/",
+        "https://www.jleague.jp/match/section/j2/latest/",
+        "https://www.jleague.jp/match/section/j3/latest/"
+    ]
 
-    soup = BeautifulSoup(html, "html.parser")
     raw_games = []
     seen_pairs = set()
 
-    # Jリーグ公式日程ページの試合ブロック(tr または li/div)から対戦カードとスコアを抽出
-    for block in soup.find_all(["tr", "li", "div"]):
-        txt = block.get_text(" ", strip=True)
-        if len(txt) > 180 or len(txt) < 6:
+    for m_url in match_urls:
+        html = fetch_url_smart(m_url)
+        if not html:
             continue
-        found_teams = []
-        # ブロック内の子要素からクラブ名を順番に抽出
-        for elem in block.find_all(["td", "span", "p", "a", "div"]):
-            t_str = elem.get_text(strip=True)
-            if 2 <= len(t_str) <= 16:
-                norm = normalize_team_name(t_str)
-                if norm in club_stats and norm not in found_teams:
-                    found_teams.append(norm)
-        if len(found_teams) == 2:
-            pair_key = f"{found_teams[0]}-{found_teams[1]}"
-            if pair_key not in seen_pairs:
-                seen_pairs.add(pair_key)
-                # スコアが確定しているかチェック
-                sc = re.search(r"(\d+)\s*[-－]\s*(\d+)", txt)
-                act = None
-                if sc and ("試合終了" in txt or "FT" in txt or re.search(r"\b\d+\s*-\s*\d+\b", txt)):
-                    hs_v, as_v = int(sc.group(1)), int(sc.group(2))
-                    if hs_v <= 9 and as_v <= 9:
-                        mark = "1" if hs_v > as_v else ("2" if as_v > hs_v else "0")
-                        act = {"res": mark, "hs": hs_v, "as": as_v}
-                raw_games.append((found_teams[0], found_teams[1], act))
+        soup = BeautifulSoup(html, "html.parser")
+        for block in soup.find_all(["tr", "li", "div"]):
+            txt = block.get_text(" ", strip=True)
+            if len(txt) > 180 or len(txt) < 6:
+                continue
+            found_teams = []
+            for elem in block.find_all(["td", "span", "p", "a", "div"]):
+                t_str = elem.get_text(strip=True)
+                if 2 <= len(t_str) <= 16:
+                    norm = normalize_team_name(t_str)
+                    if norm in club_stats and norm not in found_teams:
+                        found_teams.append(norm)
+            if len(found_teams) == 2:
+                pair_key = f"{found_teams[0]}-{found_teams[1]}"
+                if pair_key not in seen_pairs:
+                    seen_pairs.add(pair_key)
+                    sc = re.search(r"(\d+)\s*[-－]\s*(\d+)", txt)
+                    act = None
+                    if sc and ("試合終了" in txt or "FT" in txt or re.search(r"\b\d+\s*-\s*\d+\b", txt)):
+                        hs_v, as_v = int(sc.group(1)), int(sc.group(2))
+                        if hs_v <= 9 and as_v <= 9:
+                            mark = "1" if hs_v > as_v else ("2" if as_v > hs_v else "0")
+                            act = {"res": mark, "hs": hs_v, "as": as_v}
+                    raw_games.append((found_teams[0], found_teams[1], act))
 
-    print(f"[J-League Match Page] Extracted {len(raw_games)} unique matches.")
+    print(f"[J-League Match Pages] Extracted {len(raw_games)} unique matches total.")
     if len(raw_games) < 13:
         return None
 
