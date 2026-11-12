@@ -35,12 +35,12 @@ jobs:
       - name: Fetch latest toto and J-League data
         run: python fetch_toto.py
 
-      - name: Commit updated data.json
+- name: Commit updated data.json
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Dynamic update data.json" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Dynamic update data.json" && git pull --rebase && git push)
 
       - name: Inject SHA-256 PIN Hash from GitHub Secrets into build artifact
         env:
