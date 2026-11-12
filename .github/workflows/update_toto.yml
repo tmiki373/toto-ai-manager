@@ -1,0 +1,74 @@
+name: Auto Update and Deploy toto App
+
+on:
+  schedule:
+    - cron: '30 23 * * *'
+    - cron: '15 3 * * *'
+    - cron: '30 13 * * *'
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install beautifulsoup4
+
+      - name: Fetch latest toto and J-League data
+        run: python fetch_toto.py
+
+      - name: Commit updated data.json
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Dynamic update data.json" && git push)
+
+      - name: Inject SHA-256 PIN Hash from GitHub Secrets into build artifact
+        env:
+          APP_PIN: ${{ secrets.APP_PIN }}
+        run: |
+          mkdir -p _site
+          cp index.html data.json _site/
+          python -c '
+          import os, hashlib
+          pin = os.environ.get("APP_PIN", "")
+          if not pin:
+              raise ValueError("GitHub Secretsに APP_PIN が設定されていません")
+          h = hashlib.sha256(pin.encode("utf-8")).hexdigest()
+          with open("_site/index.html", "r", encoding="utf-8") as f:
+              html = f.read()
+          html = html.replace("__INJECTED_PIN_HASH__", h)
+          with open("_site/index.html", "w", encoding="utf-8") as f:
+              f.write(html)
+          '
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
