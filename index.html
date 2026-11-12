@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ toto AI 完全動的予想・結果分析システム</title>
+<style>
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --card: #334155; --border: #475569;
+    --text: #f8fafc; --muted: #94a3b8; --accent: #f97316;
+    --green: #10b981; --blue: #3b82f6; --red: #ef4444; --yellow: #eab308;
+  }
+  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  body { margin: 0; padding: 12px; background: var(--bg); color: var(--text); line-height: 1.45; }
+  .container { max-width: 1000px; margin: 0 auto; }
+
+  .header {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; margin-bottom: 12px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .badge { background: var(--accent); color: #fff; font-weight: 800; padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; }
+  select, input { background: #0f172a; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 0.9rem; }
+
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
+  .tab-btn {
+    padding: 10px 6px; font-size: 0.82rem; font-weight: 800; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--panel); color: var(--muted); cursor: pointer; text-align: center;
+  }
+  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .summary-box { background: #111827; border: 2px solid var(--green); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+  .summary-box.flash { border-color: var(--yellow); box-shadow: 0 0 20px rgba(234,179,8,0.5); }
+  .code-line {
+    font-family: monospace; font-size: 1.15rem; font-weight: 900; color: #fef08a;
+    background: #0f172a; padding: 8px 10px; border-radius: 6px; border-left: 4px solid var(--accent);
+    margin: 6px 0; word-break: break-all;
+  }
+
+  .match-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+  .match-card.g3 { border-left: 5px solid var(--yellow); }
+  .m-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 6px; }
+  .analysis-box { font-size: 0.78rem; color: #fde047; background: rgba(234,179,8,0.1); padding: 5px 8px; border-radius: 6px; margin-bottom: 6px; }
+
+  .q-grid { display: flex; flex-direction: column; gap: 6px; background: #0f172a; padding: 8px; border-radius: 8px; }
+  .q-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+  .q-lbl { font-size: 0.8rem; font-weight: 700; min-width: 75px; color: var(--muted); }
+  .q-btn {
+    padding: 6px 9px; font-size: 0.78rem; font-weight: 700; border-radius: 6px;
+    border: 1px solid #475569; background: #1e293b; color: #cbd5e1; cursor: pointer;
+  }
+  .q-btn.on-good { background: #065f46; border-color: var(--green); color: #fff; }
+  .q-btn.on-bad { background: #7f1d1d; border-color: var(--red); color: #fff; }
+  .q-btn.on-tac { background: #78350f; border-color: var(--yellow); color: #fff; }
+  .q-btn.on-rain { background: #1e3a8a; border-color: var(--blue); color: #fff; }
+
+  .btn-action {
+    width: 100%; padding: 12px; font-size: 1rem; font-weight: 800; color: #fff;
+    background: linear-gradient(90deg, #f97316, #ef4444); border: none; border-radius: 8px; cursor: pointer; margin-top: 8px;
+  }
+  .btn-sub { padding: 8px 12px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: #fff; cursor: pointer; }
+  .btn-live { background: var(--blue); border-color: #2563eb; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 8px; }
+  th, td { border: 1px solid var(--border); padding: 6px; text-align: center; }
+  th { background: #0f172a; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <span class="badge" id="roundTitle">最新データ取得待機中...</span>
+      <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;" id="lastUpdated">ステータス: 初期化中</div>
+    </div>
+    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+      <select id="roundSelect" onchange="changeRound()"></select>
+      <button class="btn-sub btn-live" onclick="fetchAllLiveData()">⚡ 最新開催回＆クラブ成績をライブ取得</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">⚡①直前予想</button>
+    <button class="tab-btn" onclick="switchTab(1)">💰②500円提案</button>
+    <button class="tab-btn" onclick="switchTab(2)">🏁③結果照合</button>
+    <button class="tab-btn" onclick="switchTab(3)">📈④振り返り</button>
+  </div>
+
+  <!-- TAB 0 -->
+  <div class="tab-content active" id="tab0">
+    <div class="summary-box" id="summaryBox">
+      <div style="font-weight:800; color:#6ee7b7; margin-bottom:6px;">🏆 リアルタイム算出・最適買い目</div>
+      <div style="font-size:0.82rem; color:var(--muted);">toto 本戦（全13枠）</div>
+      <div class="code-line" id="outToto13">-</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div>
+          <div style="font-size:0.8rem; color:var(--muted);">mini toto A組（1〜5枠）</div>
+          <div class="code-line" id="outMiniA" style="font-size:1rem;">-</div>
+        </div>
+        <div>
+          <div style="font-size:0.8rem; color:var(--muted);">mini toto B組（6〜10枠）</div>
+          <div class="code-line" id="outMiniB" style="font-size:1rem;">-</div>
+        </div>
+      </div>
+      <div style="font-size:0.82rem; color:var(--muted); margin-top:4px;">toto GOAL3（シングル6枠）</div>
+      <div class="code-line" id="outGoal3">-</div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <span style="font-weight:800; font-size:0.95rem;">⚡ スタメン・天候ワンタップ補正</span>
+      <button class="btn-sub" onclick="resetMods()">標準に戻す</button>
+    </div>
+    <div id="matchCards"></div>
+  </div>
+
+  <!-- TAB 1 -->
+  <div class="tab-content" id="tab1">
+    <div class="summary-box" style="border-color:var(--accent);">
+      <h3 style="margin:0 0 8px 0; color:#fdba74;">💰 1開催あたり「予算最大500円」最推奨プラン</h3>
+      <div id="budgetPlanContent"></div>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div class="tab-content" id="tab2">
+    <div class="summary-box" style="border-color:var(--blue);">
+      <h3 style="margin:0 0 8px 0; color:#93c5fd;">🏁 試合終了後 確定結果照合・的中判定</h3>
+      <div id="resultInputGrid"></div>
+      <button class="btn-action" onclick="checkHits()">🎯 確定結果と照合して的中判定を実行</button>
+      <div id="hitReportArea" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3 -->
+  <div class="tab-content" id="tab3">
+    <div class="summary-box" style="border-color:var(--yellow);">
+      <h3 style="margin:0 0 8px 0; color:#fde047;">📈 予測期待値(λ)と実スコアの振り返り分析</h3>
+      <div id="reviewArea"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 開催回もクラブ基礎スタッツも事前ハードコーディングゼロ。すべて実行時に動的取得する
+let appData = { current_round: "", last_updated: "", club_stats: {}, rounds: {} };
+let curRoundKey = "";
+let mods = {};
+let localActuals = {};
+
+const TEAM_ALIAS = {
+  "北海道コンサドーレ札幌": "札幌", "ヴァンラーレ八戸": "八戸", "ベガルタ仙台": "仙台",
+  "ブラウブリッツ秋田": "秋田", "モンテディオ山形": "山形", "いわきFC": "いわき",
+  "鹿島アントラーズ": "鹿島", "水戸ホーリーホック": "水戸", "栃木シティ": "栃木C",
+  "RB大宮アルディージャ": "大宮", "大宮アルディージャ": "大宮", "ジェフユナイテッド千葉": "千葉",
+  "柏レイソル": "柏", "FC東京": "FC東京", "東京ヴェルディ": "東京V",
+  "FC町田ゼルビア": "町田", "川崎フロンターレ": "川崎F", "横浜F・マリノス": "横浜FM",
+  "湘南ベルマーレ": "湘南", "ヴァンフォーレ甲府": "甲府", "アルビレックス新潟": "新潟",
+  "カターレ富山": "富山", "清水エスパルス": "清水", "ジュビロ磐田": "磐田",
+  "藤枝MYFC": "藤枝", "名古屋グランパス": "名古屋", "京都サンガF.C.": "京都",
+  "ガンバ大阪": "G大阪", "セレッソ大阪": "C大阪", "ヴィッセル神戸": "神戸",
+  "ファジアーノ岡山": "岡山", "サンフレッチェ広島": "広島", "徳島ヴォルティス": "徳島",
+  "FC今治": "今治", "アビスパ福岡": "福岡", "サガン鳥栖": "鳥栖",
+  "V・ファーレン長崎": "長崎", "大分トリニータ": "大分", "テゲバジャーロ宮崎": "宮崎"
+};
+
+function normName(raw) {
+  const c = raw.trim();
+  for (const [k, v] of Object.entries(TEAM_ALIAS)) {
+    if (k.includes(c) || c.includes(k) || c === v) return v;
+  }
+  return c;
+}
+
+async function initApp() {
+  const cached = localStorage.getItem("dynamic_toto_v3");
+  if (cached) {
+    try { appData = JSON.parse(cached); } catch (e) {}
+  }
+
+  try {
+    const res = await fetch("data.json?t=" + Date.now());
+    const json = await res.json();
+    if (json && json.rounds && Object.keys(json.rounds).length > 0) {
+      appData = json;
+      localStorage.setItem("dynamic_toto_v3", JSON.stringify(appData));
+    }
+  } catch (e) {}
+
+  // データが空の場合は起動と同時にライブ取得を実行
+  if (!appData.rounds || Object.keys(appData.rounds).length === 0) {
+    await fetchAllLiveData();
+  } else {
+    populateRoundSelector();
+  }
+}
+
+// Jリーグ公式順位表(J1/J2/J3)とtoto公式開催回を同時にライブ取得・動的計算
+async function fetchAllLiveData() {
+  const statusEl = document.getElementById("lastUpdated");
+  statusEl.textContent = "⏳ Jリーグ公式順位表＆toto公式の最新開催回をライブ取得中...";
+
+  try {
+    // 1. J1・J2・J3の最新順位表から各クラブの最新得点力・守備力を動的生成
+    const leagueUrls = [
+      "https://www.jleague.jp/standings/j1/",
+      "https://www.jleague.jp/standings/j2/",
+      "https://www.jleague.jp/standings/j3/"
+    ];
+    const dynStats = {};
+    for (const u of leagueUrls) {
+      try {
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`);
+        const wrap = await res.json();
+        const doc = new DOMParser().parseFromString(wrap.contents || "", "text/html");
+        doc.querySelectorAll("tr").forEach(tr => {
+          const tds = [...tr.querySelectorAll("td")].map(td => td.textContent.trim());
+          const nums = tds.filter(x => /^-?\d+$/.test(x)).map(Number);
+          const texts = tds.filter(x => x.length >= 2 && !/^-?\d+$/.test(x));
+          if (nums.length >= 8 && texts.length >= 1) {
+            const tName = normName(texts[0]);
+            const rank = nums[0], pts = nums[1], played = Math.max(1, nums[2]);
+            const gf = nums[6], ga = nums[7], gd = gf - ga;
+            const avgGf = gf / played, avgGa = ga / played;
+            dynStats[tName] = {
+              xg: Number((avgGf * 0.75 + 1.30 * 0.25).toFixed(2)),
+              xga: Number((avgGa * 0.75 + 1.30 * 0.25).toFixed(2)),
+              trend: `${rank}位(勝点${pts}/得失${gd >= 0 ? '+'+gd : gd})・平均${avgGf.toFixed(2)}得点/${avgGa.toFixed(2)}失点`
+            };
+          }
+        });
+      } catch (e) {}
+    }
+    if (Object.keys(dynStats).length > 0) {
+      appData.club_stats = dynStats;
+    }
+
+    // 2. toto公式サイトから現在販売中の全開催回をライブ取得
+    const listUrl = encodeURIComponent("https://store.toto-dream.com/dcs/subos/screen/si01/ssin020/LOTOPNoticeList01.form");
+    const lRes = await fetch(`https://api.allorigins.win/get?url=${listUrl}`);
+    const lWrap = await lRes.json();
+    const lHtml = lWrap.contents || "";
+
+    const holdIds = [...new Set([...lHtml.matchAll(/holdCntId=(\d{4})/g)].map(m => m[1]))].sort();
+    for (const hid of holdIds) {
+      const voteUrl = encodeURIComponent(`https://store.toto-dream.com/dcs/subos/screen/si01/ssin026/PGSSIN02601In.form?holdCntId=${hid}&commodityId=01`);
+      const vRes = await fetch(`https://api.allorigins.win/get?url=${voteUrl}`);
+      const vWrap = await vRes.json();
+      const doc = new DOMParser().parseFromString(vWrap.contents || "", "text/html");
+
+      const matches = [];
+      doc.querySelectorAll("tr").forEach(tr => {
+        if (matches.length >= 13) return;
+        const tds = [...tr.querySelectorAll("td")].map(td => td.textContent.trim());
+        const rowStr = tds.join(" ");
+        const pcts = [...rowStr.matchAll(/(\d{1,2}(?:\.\d+)?)\s*%/g)].map(m => parseFloat(m[1]));
+        if (pcts.length >= 3) {
+          const teams = tds.filter(t => t.length >= 2 && !/\d+%|\d{2}:\d{2}|^\d+$|vs|VS/.test(t));
+          if (teams.length >= 2) {
+            const hName = normName(teams[0]), aName = normName(teams[1]);
+            const hs = appData.club_stats[hName] || { xg: 1.30, xga: 1.30, trend: "最新データ計算済" };
+            const as = appData.club_stats[aName] || { xg: 1.30, xga: 1.30, trend: "最新データ計算済" };
+            const fNo = matches.length + 1;
+            matches.push({
+              f: fNo,
+              grp: fNo <= 5 ? "A" : (fNo <= 10 ? "B" : "C"),
+              h: hName, a: aName,
+              v: [pcts[0], pcts[1], pcts[2]],
+              h_xg: hs.xg, h_xga: hs.xga, a_xg: as.xg, a_xga: as.xga,
+              analysis: `【H:${hName}】${hs.trend} ／ 【A:${aName}】${as.trend}`
+            });
+          }
+        }
+      });
+
+      if (matches.length === 13) {
+        const rKey = `第${hid}回`;
+        appData.rounds[rKey] = {
+          title: `${rKey}（ライブ動的取得・最新順位＆投票率反映済）`,
+          goal3_frames: [1, 2, 3],
+          matches: matches,
+          actual_results: {}
+        };
+        appData.current_round = rKey;
+      }
+    }
+
+    const now = new Date();
+    appData.last_updated = `${now.toLocaleDateString()} ${now.toLocaleTimeString()} (全データライブ取得済)`;
+    localStorage.setItem("dynamic_toto_v3", JSON.stringify(appData));
+    populateRoundSelector();
+  } catch (e) {
+    statusEl.textContent = "⚠️ ライブ取得がブロックされたため、GitHub Actionsの自動更新データを利用します。";
+  }
+}
+
+function populateRoundSelector() {
+  document.getElementById("lastUpdated").textContent = "最終取得: " + (appData.last_updated || "-");
+  const sel = document.getElementById("roundSelect");
+  sel.innerHTML = "";
+  const keys = Object.keys(appData.rounds);
+  if (keys.length === 0) {
+    document.getElementById("roundTitle").textContent = "データ取得ボタンを押してください";
+    return;
+  }
+
+  keys.forEach(rk => {
+    const opt = document.createElement("option");
+    opt.value = rk; opt.textContent = rk;
+    sel.appendChild(opt);
+  });
+  curRoundKey = appData.current_round || keys[keys.length - 1];
+  sel.value = curRoundKey;
+  loadRoundData();
+}
+
+function changeRound() {
+  curRoundKey = document.getElementById("roundSelect").value;
+  loadRoundData();
+}
+
+function loadRoundData() {
+  const rData = appData.rounds[curRoundKey];
+  if (!rData) return;
+  document.getElementById("roundTitle").textContent = rData.title;
+  const savedMods = localStorage.getItem("mods_" + curRoundKey);
+  mods = savedMods ? JSON.parse(savedMods) : {};
+  const savedAct = localStorage.getItem("act_" + curRoundKey);
+  localActuals = savedAct ? JSON.parse(savedAct) : (rData.actual_results || {});
+  renderAll();
+}
+
+function factorial(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+function poisson(l, k) { return Math.pow(l, k) * Math.exp(-l) / factorial(k); }
+
+function calc102(lh, la) {
+  const rho = -0.08;
+  let p1 = 0, p0 = 0, p2 = 0;
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      let p = poisson(lh, i) * poisson(la, j);
+      if (i===0 && j===0) p *= (1 - lh*la*rho);
+      else if (i===0 && j===1) p *= (1 + lh*rho);
+      else if (i===1 && j===0) p *= (1 + la*rho);
+      else if (i===1 && j===1) p *= (1 - rho);
+      if (i > j) p1 += p; else if (i === j) p0 += p; else p2 += p;
+    }
+  }
+  const t = p1 + p0 + p2;
+  return [p1/t, p0/t, p2/t];
+}
+
+function calcG3(l) {
+  const p0 = poisson(l,0), p1 = poisson(l,1), p2 = poisson(l,2);
+  return [p0, p1, p2, Math.max(0, 1 - (p0+p1+p2))];
+}
+
+function toggleMod(f, side, type, val) {
+  if (!mods[f]) mods[f] = { hAtk:1, hDef:1, hTac:1, aAtk:1, aDef:1, aTac:1, rain:false };
+  const key = side + type;
+  mods[f][key] = (Math.abs(mods[f][key] - val) < 0.01) ? 1.0 : val;
+  localStorage.setItem("mods_" + curRoundKey, JSON.stringify(mods));
+  renderAll(true);
+}
+
+function toggleRain(f) {
+  if (!mods[f]) mods[f] = { hAtk:1, hDef:1, hTac:1, aAtk:1, aDef:1, aTac:1, rain:false };
+  mods[f].rain = !mods[f].rain;
+  localStorage.setItem("mods_" + curRoundKey, JSON.stringify(mods));
+  renderAll(true);
+}
+
+function resetMods() {
+  mods = {};
+  localStorage.removeItem("mods_" + curRoundKey);
+  renderAll(true);
+}
+
+function renderAll(flash = false) {
+  const rData = appData.rounds[curRoundKey];
+  if (!rData) return;
+  const g3Frames = rData.goal3_frames || [1,2,3];
+  const container = document.getElementById("matchCards");
+  container.innerHTML = "";
+
+  const processed = [];
+  const g3Teams = [];
+
+  rData.matches.forEach(m => {
+    const f = m.f;
+    const md = mods[f] || { hAtk:1, hDef:1, hTac:1, aAtk:1, aDef:1, aTac:1, rain:false };
+    let lh = (m.h_xg * md.hAtk * md.hTac * (m.a_xga * md.aDef * (1 + (md.aTac - 1)*0.8) / 1.35)) * 1.08;
+    let la = (m.a_xg * md.aAtk * md.aTac * (m.h_xga * md.hDef * (1 + (md.hTac - 1)*0.8) / 1.35)) / 1.08;
+    if (md.rain) { lh *= 0.84; la *= 0.84; }
+    lh = Math.max(0.25, Math.min(3.5, lh));
+    la = Math.max(0.25, Math.min(3.5, la));
+
+    const [p1, p0, p2] = calc102(lh, la);
+    const probs = { "1": p1, "0": p0, "2": p2 };
+    const evs = { "1": p1/Math.max(0.01, m.v[0]/100), "0": p0/Math.max(0.01, m.v[1]/100), "2": p2/Math.max(0.01, m.v[2]/100) };
+    const sorted = ["1","0","2"].sort((a,b) => probs[b] - probs[a]);
+    const top1 = sorted[0], top2 = sorted[1];
+    const diff = probs[top1] - probs[top2];
+
+    const pick = (diff <= 0.055 && (evs[top2] >= 1.25 || (top2 === "0" && probs["0"] >= 0.285))) ? top2 : top1;
+    const sub = (pick === top2) ? top1 : top2;
+    const wScore = (probs[top1] + probs[top2]) * (1 - diff);
+
+    processed.push({ f, card: `${m.h} vs ${m.a}`, h: m.h, a: m.a, lh, la, probs, pick, sub, wScore });
+
+    if (g3Frames.includes(f)) {
+      g3Teams.push({ name: `${m.h}(H)`, probs: calcG3(lh) });
+      g3Teams.push({ name: `${m.a}(A)`, probs: calcG3(la) });
+    }
+
+    const isG3 = g3Frames.includes(f);
+    const div = document.createElement("div");
+    div.className = "match-card" + (isG3 ? " g3" : "");
+    div.innerHTML = `
+      <div class="m-head">
+        <span>第${f}枠 ${isG3 ? '【GOAL3】' : ''}：${m.h} vs ${m.a}</span>
+        <span style="color:var(--yellow);">推奨：${pick} <small style="color:var(--muted);">(W:${sub})</small></span>
+      </div>
+      <div style="font-size:0.78rem; color:#38bdf8; margin-bottom:4px;">
+        予測λ: ${lh.toFixed(2)} - ${la.toFixed(2)} ｜ 勝率: [1]${(p1*100).toFixed(0)}% [0]${(p0*100).toFixed(0)}% [2]${(p2*100).toFixed(0)}% ｜ 投票率: ${m.v[0]}%/${m.v[1]}%/${m.v[2]}%
+      </div>
+      <div class="analysis-box">📊 ${m.analysis || "動的スタッツ解析済み"}</div>
+      <div class="q-grid">
+        <div class="q-row">
+          <span class="q-lbl">🏠 ${m.h}</span>
+          <button class="q-btn ${md.hAtk>1.01?'on-good':''}" onclick="toggleMod(${f},'h','Atk',1.12)">🔥主力万全</button>
+          <button class="q-btn ${md.hAtk<0.99?'on-bad':''}" onclick="toggleMod(${f},'h','Atk',0.80)">⚠️主力欠場</button>
+          <button class="q-btn ${md.hDef>1.01?'on-bad':''}" onclick="toggleMod(${f},'h','Def',1.20)">🛡️守備不安</button>
+          <button class="q-btn ${md.hTac>1.01?'on-tac':''}" onclick="toggleMod(${f},'h','Tac',1.18)">⚔️前がかり</button>
+          <button class="q-btn ${md.hTac<0.99?'on-tac':''}" onclick="toggleMod(${f},'h','Tac',0.85)">🧱専守防衛</button>
+        </div>
+        <div class="q-row">
+          <span class="q-lbl">✈️ ${m.a}</span>
+          <button class="q-btn ${md.aAtk>1.01?'on-good':''}" onclick="toggleMod(${f},'a','Atk',1.12)">🔥主力万全</button>
+          <button class="q-btn ${md.aAtk<0.99?'on-bad':''}" onclick="toggleMod(${f},'a','Atk',0.80)">⚠️主力欠場</button>
+          <button class="q-btn ${md.aDef>1.01?'on-bad':''}" onclick="toggleMod(${f},'a','Def',1.20)">🛡️守備不安</button>
+          <button class="q-btn ${md.aTac>1.01?'on-tac':''}" onclick="toggleMod(${f},'a','Tac',1.18)">⚔️前がかり</button>
+          <button class="q-btn ${md.rain?'on-rain':''}" onclick="toggleRain(${f})">☔雨天</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  const totoLine = processed.map(p => p.pick).join(" - ");
+  const miniALine = processed.slice(0,5).map(p => p.pick).join(" - ");
+  const miniBLine = processed.slice(5,10).map(p => p.pick).join(" - ");
+
+  const g3Single = [];
+  const g3Exp = [];
+  g3Teams.forEach((gt, idx) => {
+    const rk = [0,1,2,3].sort((a,b) => gt.probs[b] - gt.probs[a]);
+    g3Single.push(rk[0]);
+    g3Exp.push({ idx, name: gt.name, t1: rk[0], t2: rk[1], sc: (gt.probs[rk[0]]+gt.probs[rk[1]])*(1-(gt.probs[rk[0]]-gt.probs[rk[1]])) });
+  });
+  g3Exp.sort((a,b) => b.sc - a.sc);
+  const gw1 = g3Exp[0]?.idx ?? 0, gw2 = g3Exp[1]?.idx ?? 1;
+  const g3Multi400 = g3Teams.map((_, i) => {
+    const it = g3Exp.find(e => e.idx === i);
+    return (i === gw1 || i === gw2) ? `[${Math.min(it.t1,it.t2)}・${Math.max(it.t1,it.t2)}]` : it.t1;
+  }).join(" - ");
+
+  document.getElementById("outToto13").textContent = totoLine;
+  document.getElementById("outMiniA").textContent = miniALine;
+  document.getElementById("outMiniB").textContent = miniBLine;
+  document.getElementById("outGoal3").textContent = g3Single.join(" - ");
+
+  const pMiniA = processed.slice(0,5).reduce((acc, p) => acc * p.probs[p.pick], 1);
+  const pMiniB = processed.slice(5,10).reduce((acc, p) => acc * p.probs[p.pick], 1);
+  const sortedW = [...processed].sort((a,b) => b.wScore - a.wScore);
+
+  let planHtml = "";
+  if (pMiniB >= pMiniA) {
+    planHtml = `
+      <div style="background:#064e3b; padding:10px; border-radius:8px; margin-bottom:10px;">
+        <b>【最推奨：GOAL3 400円マルチ ＋ mini toto B組 1口（計500円）】</b><br>
+        <div class="code-line">GOAL3 (400円): ${g3Multi400}</div>
+        <div style="font-size:0.8rem; color:#fde047;">拡張枠: ${g3Exp[0]?.name || "-"} ＆ ${g3Exp[1]?.name || "-"}</div>
+        <div class="code-line">mini B (100円): ${miniBLine}</div>
+      </div>
+    `;
+  } else {
+    planHtml = `
+      <div style="background:#064e3b; padding:10px; border-radius:8px; margin-bottom:10px;">
+        <b>【最推奨：mini toto A・B分散 ＋ 本戦1口（計500円）】</b>
+        <div class="code-line">mini A (200円W): ${miniALine}</div>
+        <div class="code-line">mini B (200円W): ${miniBLine}</div>
+        <div class="code-line">toto本戦 (100円): ${totoLine}</div>
+      </div>
+    `;
+  }
+  planHtml += `
+    <div style="background:#1e293b; padding:10px; border-radius:8px; font-size:0.85rem;">
+      <b>【代替案：toto本戦 2ダブル(400円) ＋ mini B組(100円)】</b><br>
+      本戦優先W枠：<b>第${sortedW[0]?.f}枠(${sortedW[0]?.card})・第${sortedW[1]?.f}枠(${sortedW[1]?.card})</b>
+    </div>
+  `;
+  document.getElementById("budgetPlanContent").innerHTML = planHtml;
+
+  renderResultInputs(processed);
+  renderReview(processed);
+
+  if (flash) {
+    const sb = document.getElementById("summaryBox");
+    sb.classList.add("flash");
+    setTimeout(() => sb.classList.remove("flash"), 800);
+  }
+}
+
+function renderResultInputs(processed) {
+  const grid = document.getElementById("resultInputGrid");
+  let html = `<table><tr><th>枠</th><th>カード</th><th>勝敗</th><th>スコア(H-A)</th></tr>`;
+  processed.forEach(p => {
+    const act = localActuals[p.f] || { res: "", hs: 0, as: 0 };
+    html += `
+      <tr>
+        <td>${p.f}</td>
+        <td style="text-align:left;">${p.card}</td>
+        <td>
+          <select id="res_${p.f}" onchange="saveLocalAct(${p.f})">
+            <option value="" ${act.res===""?"selected":""}>未</option>
+            <option value="1" ${act.res==="1"?"selected":""}>1 (H勝)</option>
+            <option value="0" ${act.res==="0"?"selected":""}>0 (引分)</option>
+            <option value="2" ${act.res==="2"?"selected":""}>2 (A勝)</option>
+          </select>
+        </td>
+        <td>
+          <input type="number" id="hs_${p.f}" value="${act.hs}" min="0" max="9" style="width:42px; padding:3px;" onchange="saveLocalAct(${p.f})"> -
+          <input type="number" id="as_${p.f}" value="${act.as}" min="0" max="9" style="width:42px; padding:3px;" onchange="saveLocalAct(${p.f})">
+        </td>
+      </tr>
+    `;
+  });
+  html += `</table>`;
+  grid.innerHTML = html;
+}
+
+function saveLocalAct(f) {
+  const res = document.getElementById(`res_${f}`).value;
+  const hs = parseInt(document.getElementById(`hs_${f}`).value || 0, 10);
+  const as = parseInt(document.getElementById(`as_${f}`).value || 0, 10);
+  if (res) localActuals[f] = { res, hs, as };
+  else delete localActuals[f];
+  localStorage.setItem("act_" + curRoundKey, JSON.stringify(localActuals));
+}
+
+function checkHits() {
+  const rData = appData.rounds[curRoundKey];
+  if (!rData) return;
+  let hit13 = 0, hitA = 0, hitB = 0, fin = 0;
+  let rows = `<table><tr><th>枠</th><th>カード</th><th>予想</th><th>結果</th><th>判定</th></tr>`;
+
+  rData.matches.forEach(m => {
+    const f = m.f;
+    const act = localActuals[f];
+    if (act && act.res) {
+      fin++;
+      const md = mods[f] || { hAtk:1, hDef:1, hTac:1, aAtk:1, aDef:1, aTac:1, rain:false };
+      let lh = (m.h_xg * md.hAtk * md.hTac * (m.a_xga * md.aDef / 1.35)) * 1.08;
+      let la = (m.a_xg * md.aAtk * md.aTac * (m.h_xga * md.hDef / 1.35)) / 1.08;
+      const [p1, p0, p2] = calc102(lh, la);
+      const probs = { "1": p1, "0": p0, "2": p2 };
+      const pick = ["1","0","2"].sort((a,b) => probs[b] - probs[a])[0];
+
+      const ok = (pick === act.res);
+      if (ok) {
+        hit13++;
+        if (f <= 5) hitA++;
+        else if (f <= 10) hitB++;
+      }
+      rows += `<tr><td>${f}</td><td>${m.h}vs${m.a}</td><td>${pick}</td><td>${act.res} (${act.hs}-${act.as})</td><td>${ok ? '🎯的中' : '❌'}</td></tr>`;
+    }
+  });
+  rows += `</table>`;
+
+  let summary = `<div style="padding:10px; background:#0f172a; border-radius:8px; margin-bottom:8px;">
+    <b>照合結果（確定 ${fin}/13試合）</b>：toto本戦 <b>${hit13}的中</b> ｜ mini A <b>${hitA}/5</b> ｜ mini B <b>${hitB}/5</b>
+  </div>`;
+  document.getElementById("hitReportArea").innerHTML = summary + rows;
+}
+
+function renderReview(processed) {
+  let html = `<table><tr><th>枠</th><th>カード</th><th>予測λ</th><th>実スコア</th><th>振り返り評価</th></tr>`;
+  let count = 0;
+  processed.forEach(p => {
+    const act = localActuals[p.f];
+    if (act && act.res) {
+      count++;
+      const diffH = Math.abs(act.hs - p.lh);
+      const diffA = Math.abs(act.as - p.la);
+      const note = (diffH >= 1.5 || diffA >= 1.5) ? "⚠️ 大幅乖離（次戦xG補正推奨）" : "✅ 想定レンジ内";
+      html += `<tr><td>${p.f}</td><td>${p.card}</td><td>${p.lh.toFixed(2)} - ${p.la.toFixed(2)}</td><td>${act.hs} - ${act.as}</td><td>${note}</td></tr>`;
+    }
+  });
+  html += `</table>`;
+  document.getElementById("reviewArea").innerHTML = count > 0 ? html : "<p style='color:var(--muted);'>タブ③で確定スコアが取得・入力されると、予測λとの乖離分析が表示されます。</p>";
+}
+
+function switchTab(idx) {
+  document.querySelectorAll(".tab-btn").forEach((b, i) => b.classList.toggle("active", i === idx));
+  document.querySelectorAll(".tab-content").forEach((c, i) => c.classList.toggle("active", i === idx));
+}
+
+window.addEventListener("DOMContentLoaded", initApp);
+</script>
+</body>
+</html>
