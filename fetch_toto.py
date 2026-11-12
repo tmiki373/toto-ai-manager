@@ -116,7 +116,7 @@ def estimate_market_vote(h_xg, h_xga, a_xg, a_xga):
     return [p1, p0, p2]
 
 def fetch_jleague_upcoming_matches(club_stats, round_id):
-    """J1・J2・J3の最新節および公式日程ページから13試合以上を一括取得"""
+    """Jリーグ公式日程ページから取得できた試合をすべて保存（13試合未満でも保存する）"""
     match_urls = [
         "https://www.jleague.jp/match/",
         "https://www.jleague.jp/match/section/j1/latest/",
@@ -130,91 +130,3 @@ def fetch_jleague_upcoming_matches(club_stats, round_id):
     for m_url in match_urls:
         html = fetch_url_smart(m_url)
         if not html:
-            continue
-        soup = BeautifulSoup(html, "html.parser")
-        for block in soup.find_all(["tr", "li", "div"]):
-            txt = block.get_text(" ", strip=True)
-            if len(txt) > 180 or len(txt) < 6:
-                continue
-            found_teams = []
-            for elem in block.find_all(["td", "span", "p", "a", "div"]):
-                t_str = elem.get_text(strip=True)
-                if 2 <= len(t_str) <= 16:
-                    norm = normalize_team_name(t_str)
-                    if norm in club_stats and norm not in found_teams:
-                        found_teams.append(norm)
-            if len(found_teams) == 2:
-                pair_key = f"{found_teams[0]}-{found_teams[1]}"
-                if pair_key not in seen_pairs:
-                    seen_pairs.add(pair_key)
-                    sc = re.search(r"(\d+)\s*[-－]\s*(\d+)", txt)
-                    act = None
-                    if sc and ("試合終了" in txt or "FT" in txt or re.search(r"\b\d+\s*-\s*\d+\b", txt)):
-                        hs_v, as_v = int(sc.group(1)), int(sc.group(2))
-                        if hs_v <= 9 and as_v <= 9:
-                            mark = "1" if hs_v > as_v else ("2" if as_v > hs_v else "0")
-                            act = {"res": mark, "hs": hs_v, "as": as_v}
-                    raw_games.append((found_teams[0], found_teams[1], act))
-
-    print(f"[J-League Match Pages] Extracted {len(raw_games)} unique matches total.")
-    if len(raw_games) < 13:
-        return None
-
-    selected = raw_games[:13]
-    matches = []
-    actual_results = {}
-
-    for idx, (h_name, a_name, act) in enumerate(selected, start=1):
-        hs = club_stats.get(h_name, {"xg": 1.30, "xga": 1.30, "trend": "最新データ計算済"})
-        as_ = club_stats.get(a_name, {"xg": 1.30, "xga": 1.30, "trend": "最新データ計算済"})
-        grp = "A" if idx <= 5 else ("B" if idx <= 10 else "C")
-        v_rates = estimate_market_vote(hs["xg"], hs["xga"], as_["xg"], as_["xga"])
-
-        matches.append({
-            "f": idx, "grp": grp, "h": h_name, "a": a_name,
-            "v": v_rates,
-            "h_xg": hs["xg"], "h_xga": hs["xga"],
-            "a_xg": as_["xg"], "a_xga": as_["xga"],
-            "analysis": f"【H:{h_name}】{hs['trend']} ／ 【A:{a_name}】{as_['trend']}"
-        })
-        if act:
-            actual_results[str(idx)] = act
-
-    jst = datetime.timezone(datetime.timedelta(hours=9))
-    today_str = datetime.datetime.now(jst).strftime("%Y/%m/%d")
-    r_key = f"第{round_id}回" if round_id.isdigit() else f"最新節({today_str})"
-
-    return r_key, {
-        "title": f"{r_key}（Jリーグ公式最新日程・全60クラブ順位スタッツ自動反映）",
-        "goal3_frames": [1, 2, 3],
-        "matches": matches,
-        "actual_results": actual_results
-    }
-
-def main():
-    try:
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except Exception:
-        data = {"current_round": "", "last_updated": "", "club_stats": {}, "rounds": {}}
-
-    jst = datetime.timezone(datetime.timedelta(hours=9))
-    data["last_updated"] = datetime.datetime.now(jst).strftime("%Y-%m-%d %H:%M JST")
-
-    live_stats = fetch_dynamic_club_stats()
-    if live_stats:
-        data["club_stats"] = live_stats
-
-    round_id = fetch_latest_round_id()
-    res = fetch_jleague_upcoming_matches(data.get("club_stats", {}), round_id)
-    if res:
-        r_key, round_obj = res
-        data["rounds"][r_key] = round_obj
-        data["current_round"] = r_key
-        print(f"[SUCCESS] Saved 13 matches for {r_key} into {DATA_FILE}.")
-
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-if __name__ == "__main__":
-    main()
