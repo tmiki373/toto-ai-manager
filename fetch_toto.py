@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 
 DATA_FILE = "data.json"
 
-# 主要クラブ本拠地スタジアム緯度経度（天候自動取得用）
 STADIUM_COORDS = {
     "札幌": (43.015, 141.410), "八戸": (40.535, 141.464), "仙台": (38.319, 140.881),
     "秋田": (39.725, 140.095), "山形": (38.336, 140.378), "いわき": (37.001, 140.854),
@@ -79,7 +78,6 @@ def norm_team(name):
 
 
 def get_club_stats():
-    """シーズン順位・得失点＋直近フォームの自動取得"""
     stats = {}
     urls = [
         ("https://www.jleague.jp/standings/j1/", "J1"),
@@ -102,19 +100,27 @@ def get_club_stats():
                 rk, pts, pl = nums[0], nums[1], max(1, nums[2])
                 w, d, l = nums[3], nums[4], nums[5]
                 gf, ga = nums[6], nums[7]
-                win_rate = w / pl
-                # 勝率による調子補正係数 (0.90 ~ 1.12)
-                form_mult = round(0.92 + (win_rate * 0.22), 3)
+                form_mult = round(0.92 + ((w / pl) * 0.22), 3)
                 xg = round(((gf / pl) * 0.75 + 0.325) * form_mult, 2)
                 xga = round(((ga / pl) * 0.75 + 0.325) / form_mult, 2)
                 tr_str = "[{} {}位] 勝点{}/{}勝{}分{}敗".format(div, rk, pts, w, d, l)
-                stats[t] = {"xg": xg, "xga": xga, "trend": tr_str, "div": div}
+                stats[t] = {"xg": xg, "xga": xga, "trend": tr_str}
     print("[Club Stats] Fetched:", len(stats))
     return stats
 
 
+def get_toto_round_num():
+    html = fetch_url("https://www.toto-dream.com/toto/index.html", 10)
+    ids = [int(x) for x in re.findall(r"第(\d{4})回", html)] if html else []
+    if ids:
+        max_id = max(ids)
+        if "結果" in html and "第{}回".format(max_id) in html:
+            return "第{}回".format(max_id + 1)
+        return "第{}回".format(max_id)
+    return "第1663回"
+
+
 def get_top_scorers():
-    """J1/J2/J3得点ランキング上位選手を自動取得（スタメン主力判定の基準）"""
     scorers = set()
     for div in ["j1", "j2", "j3"]:
         html = fetch_url("https://www.jleague.jp/stats/{}/goal.html".format(div), 10)
@@ -126,12 +132,10 @@ def get_top_scorers():
                 nm = re.sub(r"\s+", "", a.get_text(strip=True))
                 if 2 <= len(nm) <= 12 and not any(x in nm for x in ["J1", "J2", "J3", "詳細", "順位"]):
                     scorers.add(nm)
-    print("[Top Scorers] Loaded:", len(scorers))
     return scorers
 
 
 def check_weather_rain(home_team, target_date_iso):
-    """Open-Meteo無料気象APIで本拠地の当日降水量を自動判定"""
     coords = STADIUM_COORDS.get(home_team)
     if not coords:
         return False, "晴/曇"
@@ -150,158 +154,4 @@ def check_weather_rain(home_team, target_date_iso):
             return True, "雨({}mm)".format(prec)
         return False, "晴/曇"
     except Exception:
-        return False, "晴/曇"
-
-
-def check_lineup_status(match_url, h_team, a_team, top_scorers):
-    """試合速報ページからスタメン公開有無と主力出場状況を自動判定"""
-    if not match_url:
-        return 1.0, 1.0, "スタメン発表前"
-    html = fetch_url(match_url, 10)
-    if not html:
-        return 1.0, 1.0, "スタメン発表前"
-    soup = BeautifulSoup(html, "html.parser")
-    txt = soup.get_text(" ", strip=True)
-    if "先発" not in txt and "スターティング" not in txt:
-        return 1.0, 1.0, "スタメン発表前"
-
-    # スタメン発表済の場合、主力得点源の名前がページ内にあるか判定
-    clean_txt = re.sub(r"\s+", "", txt)
-    hit_players = [p for p in top_scorers if p in clean_txt]
-    if len(hit_players) >= 2:
-        return 1.06, 1.06, "スタメン確定(主力出場:{}ほか)".format(hit_players[0])
-    elif len(hit_players) == 1:
-        return 1.02, 0.96, "スタメン確定(主力出場:{})".format(hit_players[0])
-    else:
-        return 0.92, 0.92, "スタメン確定(ターンオーバー傾向)"
-
-
-def calc_vote(h_xg, h_xga, a_xg, a_xga):
-    hp = (h_xg / max(0.5, a_xga)) * 1.15
-    ap = (a_xg / max(0.5, h_xga)) * 0.90
-    tot = hp + ap + 0.75
-    p1 = round((hp / tot) * 100, 1)
-    p2 = round((ap / tot) * 100, 1)
-    p0 = round(max(15.0, 100.0 - p1 - p2), 1)
-    return [p1, p0, p2]
-
-
-def get_future_matches(stats, top_scorers):
-    jst = datetime.timezone(datetime.timedelta(hours=9))
-    today = datetime.datetime.now(jst).date()
-    wds = ["月", "火", "水", "木", "金", "土", "日"]
-    games = []
-    seen = set()
-
-    for off in range(0, 15):
-        td = today + datetime.timedelta(days=off)
-        ymd = td.strftime("%Y%m%d")
-        iso_d = td.strftime("%Y-%m-%d")
-        d_str = "{}月{}日({})".format(td.month, td.day, wds[td.weekday()])
-        url = "https://www.jleague.jp/match/search/all/{}/".format(ymd)
-        html = fetch_url(url, 10)
-        if not html:
-            continue
-        soup = BeautifulSoup(html, "html.parser")
-        cnt = 0
-        for blk in soup.find_all(["tr", "li", "div"]):
-            txt = blk.get_text(" ", strip=True)
-            if len(txt) > 180 or len(txt) < 6:
-                continue
-            teams = []
-            for sub in blk.find_all(["td", "span", "p", "a", "div"]):
-                s = sub.get_text(strip=True)
-                if 2 <= len(s) <= 16:
-                    nm = norm_team(s)
-                    if nm in stats and nm not in teams:
-                        teams.append(nm)
-            if len(teams) == 2:
-                pk = "{}:{}-{}".format(ymd, teams[0], teams[1])
-                if pk not in seen:
-                    seen.add(pk)
-                    m_link = ""
-                    for a_tag in blk.find_all("a", href=True):
-                        if "/match/" in a_tag["href"] and ("live" in a_tag["href"] or "preview" in a_tag["href"]):
-                            href = a_tag["href"]
-                            m_link = href if href.startswith("http") else "https://www.jleague.jp" + href
-                            break
-                    games.append((td, iso_d, d_str, teams[0], teams[1], m_link))
-                    cnt += 1
-        if cnt > 0:
-            print("[Date]", ymd, d_str, "Matches:", cnt)
-
-    print("[Total Future Matches]", len(games))
-    if not games:
-        return None
-
-    first_d = games[0][0]
-    target = [g for g in games if (g[0] - first_d).days <= 3][:13]
-    if len(target) < 5:
-        target = games[:13]
-
-    udates = []
-    for g in target:
-        if g[2] not in udates:
-            udates.append(g[2])
-    d_label = "・".join(udates[:2])
-
-    matches = []
-    for i, (_, iso_d, ds, hn, an, m_link) in enumerate(target, 1):
-        hs = stats.get(hn, {"xg": 1.3, "xga": 1.3, "trend": ""})
-        as_ = stats.get(an, {"xg": 1.3, "xga": 1.3, "trend": ""})
-
-        # 1. 自動天候補正
-        is_rain, w_label = check_weather_rain(hn, iso_d)
-        rain_mult = 0.86 if is_rain else 1.0
-
-        # 2. 自動スタメン主力判定補正
-        hm_lineup, am_lineup, lineup_label = check_lineup_status(m_link, hn, an, top_scorers)
-
-        final_h_xg = round(hs["xg"] * rain_mult * hm_lineup, 2)
-        final_h_xga = round(hs["xga"] * rain_mult, 2)
-        final_a_xg = round(as_["xg"] * rain_mult * am_lineup, 2)
-        final_a_xga = round(as_["xga"] * rain_mult, 2)
-
-        grp = "A" if i <= 5 else ("B" if i <= 10 else "C")
-        auto_note = "天候:{} / {}".format(w_label, lineup_label)
-        matches.append({
-            "f": i, "grp": grp, "h": hn, "a": an,
-            "v": calc_vote(final_h_xg, final_h_xga, final_a_xg, final_a_xga),
-            "h_xg": final_h_xg, "h_xga": final_h_xga,
-            "a_xg": final_a_xg, "a_xga": final_a_xga,
-            "analysis": "[{} | {}] H:{} {} / A:{} {}".format(ds, auto_note, hn, hs["trend"], an, as_["trend"])
-        })
-
-    rk = "次回toto対象節 ({})".format(d_label)
-    return rk, {
-        "title": "次回toto対象節 | 開催日: {} (全{}試合・天候/スタメン自動補正済)".format(d_label, len(matches)),
-        "goal3_frames": [x for x in [1, 2, 3] if x <= len(matches)],
-        "matches": matches,
-        "actual_results": {}
-    }
-
-
-def main():
-    jst = datetime.timezone(datetime.timedelta(hours=9))
-    data = {
-        "current_round": "",
-        "last_updated": datetime.datetime.now(jst).strftime("%Y-%m-%d %H:%M JST"),
-        "club_stats": {},
-        "rounds": {}
-    }
-    st = get_club_stats()
-    if st:
-        data["club_stats"] = st
-    scorers = get_top_scorers()
-    res = get_future_matches(data["club_stats"], scorers)
-    if res:
-        rk, obj = res
-        data["rounds"][rk] = obj
-        data["current_round"] = rk
-        print("[SUCCESS]", rk, len(obj["matches"]))
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-
-if __name__ == "__main__":
-    main()
+        return False,
