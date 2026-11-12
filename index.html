@@ -68,7 +68,18 @@
 </style>
 </head>
 <body>
-<div class="container">
+
+<!-- PINロック画面（GitHub SecretsのSHA-256ハッシュで検証） -->
+<div id="lockScreen" style="max-width:400px; margin:80px auto; background:#1e293b; padding:24px; border-radius:12px; border:1px solid #475569; text-align:center;">
+  <h2 style="margin:0 0 12px 0;">🔒 toto AI マネージャー</h2>
+  <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:16px;">PINコードを入力してロックを解除</p>
+  <input type="password" id="pinInput" inputmode="numeric" placeholder="PINコード" style="width:100%; font-size:1.2rem; text-align:center; margin-bottom:12px;" onkeydown="if(event.key==='Enter') verifyPin()">
+  <button class="btn-action" onclick="verifyPin()">ロック解除</button>
+  <p id="pinError" style="color:#ef4444; font-size:0.85rem; margin-top:10px; display:none;">PINコードが違います</p>
+</div>
+
+<!-- アプリ本体（認証後のみ表示） -->
+<div class="container" id="appMain" style="display:none;">
   <div class="header">
     <div>
       <span class="badge" id="roundTitle">最新データ取得待機中...</span>
@@ -142,7 +153,31 @@
 </div>
 
 <script>
-// 開催回もクラブ基礎スタッツも事前ハードコーディングゼロ。すべて実行時に動的取得する
+// GitHub Actionsビルド時にSecretsのAPP_PINからSHA-256ハッシュ値が自動注入される
+const TARGET_HASH = "__INJECTED_PIN_HASH__";
+
+async function sha256(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function verifyPin() {
+  const input = document.getElementById("pinInput").value;
+  const hash = await sha256(input);
+  if (hash === TARGET_HASH) {
+    localStorage.setItem("toto_auth_hash", hash);
+    unlockApp();
+  } else {
+    document.getElementById("pinError").style.display = "block";
+  }
+}
+
+function unlockApp() {
+  document.getElementById("lockScreen").style.display = "none";
+  document.getElementById("appMain").style.display = "block";
+  initApp();
+}
+
 let appData = { current_round: "", last_updated: "", club_stats: {}, rounds: {} };
 let curRoundKey = "";
 let mods = {};
@@ -187,7 +222,6 @@ async function initApp() {
     }
   } catch (e) {}
 
-  // データが空の場合は起動と同時にライブ取得を実行
   if (!appData.rounds || Object.keys(appData.rounds).length === 0) {
     await fetchAllLiveData();
   } else {
@@ -195,13 +229,11 @@ async function initApp() {
   }
 }
 
-// Jリーグ公式順位表(J1/J2/J3)とtoto公式開催回を同時にライブ取得・動的計算
 async function fetchAllLiveData() {
   const statusEl = document.getElementById("lastUpdated");
   statusEl.textContent = "⏳ Jリーグ公式順位表＆toto公式の最新開催回をライブ取得中...";
 
   try {
-    // 1. J1・J2・J3の最新順位表から各クラブの最新得点力・守備力を動的生成
     const leagueUrls = [
       "https://www.jleague.jp/standings/j1/",
       "https://www.jleague.jp/standings/j2/",
@@ -235,7 +267,6 @@ async function fetchAllLiveData() {
       appData.club_stats = dynStats;
     }
 
-    // 2. toto公式サイトから現在販売中の全開催回をライブ取得
     const listUrl = encodeURIComponent("https://store.toto-dream.com/dcs/subos/screen/si01/ssin020/LOTOPNoticeList01.form");
     const lRes = await fetch(`https://api.allorigins.win/get?url=${listUrl}`);
     const lWrap = await lRes.json();
@@ -606,7 +637,13 @@ function switchTab(idx) {
   document.querySelectorAll(".tab-content").forEach((c, i) => c.classList.toggle("active", i === idx));
 }
 
-window.addEventListener("DOMContentLoaded", initApp);
+// 起動時のPIN認証チェック
+window.addEventListener("DOMContentLoaded", async () => {
+  const savedHash = localStorage.getItem("toto_auth_hash");
+  if (savedHash && savedHash === TARGET_HASH) {
+    unlockApp();
+  }
+});
 </script>
 </body>
 </html>
