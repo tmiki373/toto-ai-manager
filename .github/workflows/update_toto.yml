@@ -27,6 +27,11 @@ on:
     # 土曜・日曜 22:30 JST (13:30 UTC) - 当日終了試合のスコア・的中結果自動反映
     - cron: '30 13 * * 0,6'
 
+# 連続でファイルを更新した際に書き込み競合を防ぐ制御
+concurrency:
+  group: update-toto-data
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -71,4 +76,8 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data.json index.html
-          git diff --staged --quiet || (git commit -m "Auto update toto data & predictions" && git push)
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto update toto data & predictions"
+            git pull --rebase origin main
+            git push
+          fi
