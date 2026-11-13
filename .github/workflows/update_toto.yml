@@ -10,21 +10,13 @@ on:
       - '.github/workflows/update_toto.yml'
   workflow_dispatch:
   schedule:
-    # 毎日 08:00 JST (23:00 UTC) - 順位表・日程・日曜ナイトゲーム結果の自動照合
     - cron: '0 23 * * *'
-    # 水曜 17:15 JST (08:15 UTC) - 平日ナイター開催時のスタメン・締切直前更新
     - cron: '15 8 * * 3'
-    # 土曜・日曜 11:15 JST (02:15 UTC) - 13:00キックオフ試合のスタメン発表反映
     - cron: '15 2 * * 0,6'
-    # 土曜・日曜 12:15 JST (03:15 UTC) - 14:00キックオフ試合のスタメン発表反映
     - cron: '15 3 * * 0,6'
-    # 土曜・日曜 13:05 JST (04:05 UTC) - 13:50ネット締切の直前最終更新
     - cron: '5 4 * * 0,6'
-    # 土曜・日曜 14:15 JST (05:15 UTC) - 16:00キックオフ試合のスタメン反映
     - cron: '15 5 * * 0,6'
-    # 土曜・日曜 17:15 JST (08:15 UTC) - 19:00ナイター試合のスタメン反映
     - cron: '15 8 * * 0,6'
-    # 土曜・日曜 22:30 JST (13:30 UTC) - 当日終了試合のスコア・的中結果自動反映
     - cron: '30 13 * * 0,6'
 
 concurrency:
@@ -34,10 +26,14 @@ concurrency:
 permissions:
   contents: write
   pages: write
+  id-token: write
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -50,30 +46,12 @@ jobs:
       - name: Install dependencies
         run: pip install beautifulsoup4
 
-      - name: Fetch latest toto and J-League data
-        run: python fetch_toto.py
-
-      - name: Inject PIN hash into index.html if configured
+      - name: Fetch latest toto data and embed into index.html
         env:
           APP_PIN: ${{ secrets.APP_PIN }}
-        run: |
-          python -c '
-          import os, hashlib
-          pin = os.environ.get("APP_PIN", "").strip()
-          if pin and os.path.exists("index.html"):
-              h = hashlib.sha256(pin.encode("utf-8")).hexdigest()
-              with open("index.html", "r", encoding="utf-8") as f:
-                  html = f.read()
-              if "__INJECTED_PIN_HASH__" in html:
-                  html = html.replace("__INJECTED_PIN_HASH__", h)
-                  with open("index.html", "w", encoding="utf-8") as f:
-                      f.write(html)
-                  print("PIN hash injected.")
-          '
+        run: python fetch_toto.py
 
       - name: Commit and push updated data
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -83,4 +61,15 @@ jobs:
             git pull --rebase origin main
             git push
           fi
-          gh api repos/${{ github.repository }}/pages/builds -X POST || true
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
