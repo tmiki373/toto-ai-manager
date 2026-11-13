@@ -77,7 +77,8 @@ def load_existing_data():
 
 def fetch_url(url, timeout=12):
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "ja,en-US;q=0.9,en;q=0.8"
     }
     try:
         req = urllib.request.Request(url, headers=headers)
@@ -106,9 +107,7 @@ def norm_team(name):
 
 
 def extract_two_teams_in_order(text, stats):
-    """テキスト内のクラブ名出現位置を長い名称優先で検出し、最初の2クラブ(ホーム, アウェイ)を返す"""
     nfkc = unicodedata.normalize("NFKC", text or "")
-    # キーワード辞書（長い順）
     patterns = []
     for k, v in TEAM_ALIAS_MAP.items():
         if v in stats:
@@ -173,13 +172,9 @@ def parse_toto_schedule_page(html, stats, today):
         rid = m_rid.group(1)
 
     dead_str = ""
-    m_dead = re.search(r"販売終了日?\s*[:：]?\s*(\d{4}年\d{1,2}月\d{1,2}日\([月火水木金土日]\)).*?(\d{2}:\d{2})", full_txt)
+    m_dead = re.search(r"(?:販売終了|ネット決済)[^\d]{0,15}(\d{4}年\d{1,2}月\d{1,2}日(?:\([月火水木金土日]\))?)\s*(\d{2}:\d{2})", full_txt)
     if m_dead:
         dead_str = "{} {}締切".format(m_dead.group(1), m_dead.group(2))
-    else:
-        m_dead2 = re.search(r"販売終了\s*[:：]?\s*(\d{4}年\d{1,2}月\d{1,2}日)\s*(\d{2}:\d{2})", full_txt)
-        if m_dead2:
-            dead_str = "{} {}締切".format(m_dead2.group(1), m_dead2.group(2))
 
     wds = ["月", "火", "水", "木", "金", "土", "日"]
     frame_map = {}
@@ -189,7 +184,6 @@ def parse_toto_schedule_page(html, stats, today):
         if len(row_txt) < 8 or len(row_txt) > 220:
             continue
 
-        # 枠番号 1〜13 を先頭または最初のセルから抽出
         f_idx = None
         cells = [unicodedata.normalize("NFKC", c.get_text(" ", strip=True)) for c in blk.find_all(["td", "th", "span", "p"])]
         for c in cells[:3]:
@@ -210,7 +204,7 @@ def parse_toto_schedule_page(html, stats, today):
         hn, an = teams[0], teams[1]
 
         match_d = today
-        m_md = re.search(r"(\d{1,2})/(\d{1,2})", row_txt)
+        m_md = re.search(r"(\d{1,2})[/月](\d{1,2})", row_txt)
         if m_md:
             try:
                 cand_y = today.year
@@ -229,16 +223,19 @@ def parse_toto_schedule_page(html, stats, today):
 
 
 def get_official_toto_card(stats, today):
+    """Yahoo! toto / 楽天toto / スポーツくじ公式から開催回号と指定13試合を確実取得"""
     rid = ""
     dead_str = ""
     official_games = []
 
-    candidate_urls = [
-        "https://sp.toto-dream.com/dcs/subos/screen/si01/ssin025/PGSSIN02501ForwardSalesTermtotoSP.form",
-        "https://toto.yahoo.co.jp/schedule/toto"
+    index_urls = [
+        "https://toto.yahoo.co.jp/schedule/toto",
+        "https://toto.rakuten.co.jp/toto/"
     ]
-    for u in candidate_urls:
+    for u in index_urls:
         h = fetch_url(u, 12)
+        if not h:
+            continue
         r_cand, d_cand, g_cand = parse_toto_schedule_page(h, stats, today)
         if r_cand and not rid:
             rid = r_cand
@@ -246,32 +243,35 @@ def get_official_toto_card(stats, today):
             dead_str = d_cand
         if len(g_cand) > len(official_games):
             official_games = g_cand
-        if len(official_games) >= 13:
+
+        soup = BeautifulSoup(h, "html.parser")
+        txt = unicodedata.normalize("NFKC", soup.get_text(" ", strip=True))
+        m_sale = re.search(r"第(\d{4})回[^\n]{0,40}販売中", txt)
+        if m_sale:
+            rid = m_sale.group(1)
+        elif not rid:
+            for a in soup.find_all("a", href=True):
+                m_href = re.search(r"/toto/(?:schedule/)?(\d{4})", a["href"])
+                if m_href:
+                    rid = m_href.group(1)
+                    break
+        if rid and len(official_games) >= 13:
             break
 
-    if not rid:
-        for u in candidate_urls:
-            h = fetch_url(u, 10)
-            if h:
-                t = unicodedata.normalize("NFKC", BeautifulSoup(h, "html.parser").get_text(" ", strip=True))
-                m_sale = re.search(r"第(\d{4})回[^\n]{0,40}販売中", t)
-                if m_sale:
-                    rid = m_sale.group(1)
-                    break
-                m_any = re.search(r"第(\d{4})回", t)
-                if m_any:
-                    rid = m_any.group(1)
-                    break
+    print("[Detected Round ID]", rid)
 
     if len(official_games) < 10 and rid:
-        fallback_urls = [
-            "https://sp.toto-dream.com/dcs/subos/screen/si01/ssin025/PGSSIN02501ForwardSalesTermtotoSP.form?holdCntId={}".format(rid),
-            "https://store.toto-dream.com/dcs/subos/screen/pi01/spin000/PGSPIN00001DisptotoLotInfo.form?holdCntId={}".format(rid),
-            "https://toto.rakuten.co.jp/toto/schedule/{}/".format(rid)
+        detail_urls = [
+            "https://toto.yahoo.co.jp/schedule/toto/{}".format(rid),
+            "https://toto.rakuten.co.jp/toto/{}/".format(rid),
+            "https://toto.rakuten.co.jp/toto/schedule/{}/".format(rid),
+            "https://store.toto-dream.com/dcs/subos/screen/pi01/spin000/PGSPIN00001DisptotoLotInfo.form?holdCntId={}&commodityId=01".format(rid),
+            "https://sp.toto-dream.com/dcs/subos/screen/si01/ssin025/PGSSIN02501ForwardGameListtotoSP.form?holdCntId={}&commodityId=01".format(rid)
         ]
-        for fu in fallback_urls:
-            fh = fetch_url(fu, 12)
-            r2, d2, g2 = parse_toto_schedule_page(fh, stats, today)
+        for du in detail_urls:
+            dh = fetch_url(du, 12)
+            r2, d2, g2 = parse_toto_schedule_page(dh, stats, today)
+            print("[Detail Try]", du, "-> parsed:", len(g2))
             if r2 and not rid:
                 rid = r2
             if d2 and not dead_str:
@@ -280,6 +280,56 @@ def get_official_toto_card(stats, today):
                 official_games = g2
             if len(official_games) >= 13:
                 break
+
+    # 万一すべての外部totoページが取得不可だった場合のJリーグ全大会(ルヴァン杯+J1/J2/J3)フォールバック
+    if len(official_games) < 10:
+        print("[Fallback] Fetching J.League future matches across all competitions...")
+        wds = ["月", "火", "水", "木", "金", "土", "日"]
+        ym = today.strftime("%Y%m")
+        fb_urls = [
+            "https://www.jleague.jp/match/search/leaguecup/{}/".format(ym),
+            "https://www.jleague.jp/match/search/j1/{}/".format(ym),
+            "https://www.jleague.jp/match/search/j2/{}/".format(ym),
+            "https://www.jleague.jp/match/search/j3/{}/".format(ym)
+        ]
+        fb_list = []
+        seen = set()
+        for fu in fb_urls:
+            fh = fetch_url(fu, 10)
+            if not fh:
+                continue
+            fsoup = BeautifulSoup(fh, "html.parser")
+            for blk in fsoup.find_all(["tr", "li", "div"]):
+                txt = blk.get_text(" ", strip=True)
+                if len(txt) > 200 or len(txt) < 6:
+                    continue
+                teams = extract_two_teams_in_order(txt, stats)
+                if len(teams) == 2:
+                    match_d = None
+                    for a_tag in blk.find_all("a", href=True):
+                        m_url_d = re.search(r"/2026/(\d{2})(\d{2})\d{2}/", a_tag["href"])
+                        if m_url_d:
+                            try:
+                                cand = datetime.date(today.year, int(m_url_d.group(1)), int(m_url_d.group(2)))
+                                if cand >= today:
+                                    match_d = cand
+                            except Exception:
+                                pass
+                    if match_d is None:
+                        continue
+                    iso_d = match_d.strftime("%Y-%m-%d")
+                    d_str = "{}月{}日({})".format(match_d.month, match_d.day, wds[match_d.weekday()])
+                    pk = "{}:{}-{}".format(iso_d, teams[0], teams[1])
+                    if pk not in seen:
+                        seen.add(pk)
+                        fb_list.append((match_d, iso_d, d_str, teams[0], teams[1]))
+        fb_list.sort(key=lambda x: x[0])
+        if fb_list:
+            first_d = fb_list[0][0]
+            sliced = [g for g in fb_list if (g[0] - first_d).days <= 3][:13]
+            if len(sliced) < 5:
+                sliced = fb_list[:13]
+            official_games = [(idx, g[0], g[1], g[2], g[3], g[4]) for idx, g in enumerate(sliced, 1)]
 
     round_str = "第{}回".format(rid) if rid else "最新開催回"
     if not dead_str:
@@ -293,9 +343,8 @@ def get_official_vote_rates(rid):
     votes = {}
     urls = []
     if rid:
-        urls.append(
-            "https://sp.toto-dream.com/dcs/subos/screen/si01/ssin025/PGSSIN02501ForwardVotetotoSP.form?holdCntId={}&commodityId=01&gameAssortment=3&fromId=SSIN026".format(rid)
-        )
+        urls.append("https://toto.yahoo.co.jp/vote/toto/{}".format(rid))
+        urls.append("https://toto.rakuten.co.jp/toto/vote/{}/".format(rid))
         urls.append(
             "https://store.toto-dream.com/dcs/subos/screen/pi09/spin003/PGSPIN00301InitVoteRate.form?holdCntId={}&commodityId=01".format(rid)
         )
