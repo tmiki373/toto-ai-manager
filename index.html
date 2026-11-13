@@ -645,5 +645,275 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 });
 </script>
+  <script>
+(function() {
+  var cachedMatches = [];
+
+  function loadLatestData() {
+    fetch('data.json?t=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d && d.rounds && d.current_round && d.rounds[d.current_round]) {
+          cachedMatches = d.rounds[d.current_round].matches || [];
+        }
+      })
+      .catch(function() {});
+  }
+
+  function poissonProbs(lam) {
+    var p0 = Math.exp(-lam);
+    var p1 = lam * p0;
+    var p2 = (lam * lam / 2) * p0;
+    var p3 = Math.max(0.01, 1 - (p0 + p1 + p2));
+    return [p0, p1, p2, p3];
+  }
+
+  function calc1x2(hLam, aLam) {
+    var hp = poissonProbs(hLam);
+    var ap = poissonProbs(aLam);
+    var p1 = 0, p0 = 0, p2 = 0;
+    for (var i = 0; i < 4; i++) {
+      for (var j = 0; j < 4; j++) {
+        var p = hp[i] * ap[j];
+        if (i > j) p1 += p;
+        else if (i === j) p0 += p;
+        else p2 += p;
+      }
+    }
+    var tot = p1 + p0 + p2 || 1;
+    var list = [
+      { code: '1', prob: Math.round((p1 / tot) * 100) },
+      { code: '0', prob: Math.round((p0 / tot) * 100) },
+      { code: '2', prob: Math.round((p2 / tot) * 100) }
+    ].sort(function(a, b) { return b.prob - a.prob; });
+    return {
+      top1: list[0].code,
+      top2: list[1].code,
+      p1: list[0].prob,
+      p2: list[1].prob,
+      diff: list[0].prob - list[1].prob
+    };
+  }
+
+  function calcGoalTop2(lam) {
+    var ps = poissonProbs(lam);
+    var list = [
+      { code: '0', prob: Math.round(ps[0] * 100) },
+      { code: '1', prob: Math.round(ps[1] * 100) },
+      { code: '2', prob: Math.round(ps[2] * 100) },
+      { code: '3', prob: Math.round(ps[3] * 100) }
+    ].sort(function(a, b) { return b.prob - a.prob; });
+    return {
+      top1: list[0].code,
+      top2: list[1].code,
+      p1: list[0].prob,
+      p2: list[1].prob,
+      diff: list[0].prob - list[1].prob
+    };
+  }
+
+  function buildMultiPlanHtml(title, badge, subInfo, items, wCount) {
+    var sorted = items.map(function(it, idx) { return { idx: idx, diff: it.diff }; })
+      .sort(function(a, b) { return a.diff - b.diff; });
+    var wSet = sorted.slice(0, wCount).map(function(x) { return x.idx; });
+
+    var multiLine = items.map(function(it, idx) {
+      if (wSet.indexOf(idx) !== -1) {
+        return '<span style="color:#fbbf24;font-weight:bold;">[' + it.top1 + '/' + it.top2 + ']</span>';
+      }
+      return '<span>' + it.top1 + '</span>';
+    }).join(' － ');
+
+    var singleLine = items.map(function(it) { return it.top1; }).join(' － ');
+    var multiCost = Math.pow(2, wSet.length) * 100;
+    var totalCost = multiCost + 100;
+
+    return (
+      '<div style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:14px;margin-bottom:12px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px;">' +
+          '<span style="font-weight:bold;color:#38bdf8;font-size:15px;">' + title + '</span>' +
+          '<span style="background:#065f46;color:#6ee7b7;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:bold;">' + badge + '（合計 ' + totalCost + '円）</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:#94a3b8;margin-bottom:10px;">' + subInfo + '</div>' +
+        '<div style="background:#1e293b;padding:10px;border-radius:6px;margin-bottom:6px;">' +
+          '<div style="font-size:11px;color:#fbbf24;margin-bottom:4px;">◆ メイン：Wマルチ買い（' + multiCost + '円 / 接戦' + wSet.length + '枠をダブル）</div>' +
+          '<div style="font-size:15px;letter-spacing:1px;color:#f8fafc;">' + multiLine + '</div>' +
+        '</div>' +
+        '<div style="background:#1e293b;padding:8px 10px;border-radius:6px;">' +
+          '<div style="font-size:11px;color:#cbd5e1;margin-bottom:2px;">◆ 押さえ：本命シングル買い（100円）</div>' +
+          '<div style="font-size:14px;letter-spacing:1px;color:#e2e8f0;">' + singleLine + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderAllEnhancements() {
+    if (!cachedMatches || cachedMatches.length === 0) return;
+
+    var analyzed = cachedMatches.map(function(m) {
+      var hLam = parseFloat(m.h_xg || 1.3);
+      var aLam = parseFloat(m.a_xg || 1.3);
+      var res1x2 = calc1x2(hLam, aLam);
+      return {
+        f: m.f,
+        h: m.h,
+        a: m.a,
+        hLam: hLam,
+        aLam: aLam,
+        res1x2: res1x2,
+        gH: calcGoalTop2(hLam),
+        gA: calcGoalTop2(aLam)
+      };
+    });
+
+    // 1. ①直前予想の「上位2つずつ」表示更新
+    var top2All = analyzed.map(function(x) { return x.res1x2.top1 + '/' + x.res1x2.top2; }).join(' － ');
+    var top2MiniA = analyzed.slice(0, 5).map(function(x) { return x.res1x2.top1 + '/' + x.res1x2.top2; }).join(' － ');
+    var top2MiniB = analyzed.length >= 10
+      ? analyzed.slice(5, 10).map(function(x) { return x.res1x2.top1 + '/' + x.res1x2.top2; }).join(' － ')
+      : '-';
+
+    var goal3Pairs = [];
+    analyzed.slice(0, 3).forEach(function(x) {
+      goal3Pairs.push(x.gH.top1 + '/' + x.gH.top2);
+      goal3Pairs.push(x.gA.top1 + '/' + x.gA.top2);
+    });
+    var top2Goal3 = goal3Pairs.join(' － ');
+
+    document.querySelectorAll('div, p, span').forEach(function(el) {
+      if (el.children.length === 0) {
+        var txt = el.textContent.trim();
+        if (txt.indexOf('toto 本戦') === 0 && el.nextElementSibling) {
+          el.textContent = 'toto 本戦（全' + analyzed.length + '枠・上位2つ表示）';
+          el.nextElementSibling.textContent = top2All;
+        }
+        if (txt.indexOf('mini toto A組') === 0 && el.nextElementSibling) {
+          el.textContent = 'mini toto A組（1〜5枠・上位2つ表示）';
+          el.nextElementSibling.textContent = top2MiniA;
+        }
+        if (txt.indexOf('mini toto B組') === 0 && el.nextElementSibling) {
+          el.textContent = 'mini toto B組（6〜10枠・上位2つ表示）';
+          el.nextElementSibling.textContent = top2MiniB;
+        }
+        if (txt.indexOf('toto GOAL3') === 0 && el.nextElementSibling) {
+          el.textContent = 'toto GOAL3（6枠・上位2つ表示）';
+          el.nextElementSibling.textContent = top2Goal3;
+        }
+      }
+    });
+
+    // 2. ②500円提案タブのマルチ買い＆GOAL3対応
+    var sec500 = null;
+    document.querySelectorAll('div, section').forEach(function(el) {
+      var t = el.textContent || '';
+      if (!sec500 && el.offsetParent !== null && (t.indexOf('500円') !== -1 && t.indexOf('提案') !== -1) && el.id && el.id.indexOf('tab') !== -1) {
+        sec500 = el;
+      }
+    });
+    if (!sec500) {
+      document.querySelectorAll('div').forEach(function(el) {
+        if (!sec500 && el.offsetParent !== null && el.children.length >= 1 && el.children.length <= 8) {
+          var firstTxt = el.children[0] ? el.children[0].textContent : '';
+          if (firstTxt.indexOf('500円') !== -1 && (firstTxt.indexOf('戦略') !== -1 || firstTxt.indexOf('プラン') !== -1 || firstTxt.indexOf('提案') !== -1)) {
+            sec500 = el;
+          }
+        }
+      });
+    }
+
+    if (sec500 && !sec500.getAttribute('data-multi-rendered')) {
+      var miniAItems = analyzed.slice(0, 5).map(function(x) { return x.res1x2; });
+      var miniBItems = analyzed.slice(5, 10).map(function(x) { return x.res1x2; });
+      var goal3Items = [];
+      var g3Desc = [];
+      analyzed.slice(0, 3).forEach(function(x) {
+        goal3Items.push(x.gH);
+        goal3Items.push(x.gA);
+        g3Desc.push('第' + x.f + '枠 ' + x.h + '(' + x.hLam + ') vs ' + x.a + '(' + x.aLam + ')');
+      });
+      var totoAllItems = analyzed.map(function(x) { return x.res1x2; });
+
+      var html = '<div style="padding:8px 0;">';
+      html += '<div style="font-size:14px;font-weight:bold;color:#f8fafc;margin-bottom:10px;">💰 予算500円以内・マルチ買い対応 最適購入プラン（Wマルチ400円＋シングル100円）</div>';
+      if (goal3Items.length === 6) {
+        html += buildMultiPlanHtml(
+          '① toto GOAL3（6枠マルチ買いプラン）',
+          'マルチ400円＋シングル100円',
+          '対象カード予測λ：' + g3Desc.join(' ／ '),
+          goal3Items,
+          2
+        );
+      }
+      if (miniAItems.length === 5) {
+        html += buildMultiPlanHtml(
+          '② mini toto A組（1〜5枠マルチ買いプラン）',
+          'マルチ400円＋シングル100円',
+          '1〜5枠の中で勝率差が小さい接戦2試合を自動でダブル（W）に設定',
+          miniAItems,
+          2
+        );
+      }
+      if (miniBItems.length === 5) {
+        html += buildMultiPlanHtml(
+          '③ mini toto B組（6〜10枠マルチ買いプラン）',
+          'マルチ400円＋シングル100円',
+          '6〜10枠の中で勝率差が小さい接戦2試合を自動でダブル（W）に設定',
+          miniBItems,
+          2
+        );
+      }
+      if (totoAllItems.length >= 10) {
+        html += buildMultiPlanHtml(
+          '④ toto 本戦（全' + totoAllItems.length + '枠マルチ買いプラン）',
+          'マルチ400円＋シングル100円',
+          '全枠中で最も波乱度が高い2試合のみをダブル（W）で押さえる高配当狙い',
+          totoAllItems,
+          2
+        );
+      }
+      html += '</div>';
+      sec500.innerHTML = html;
+      sec500.setAttribute('data-multi-rendered', '1');
+    }
+  }
+
+  function cleanUi() {
+    document.querySelectorAll('button').forEach(function(b) {
+      var t = b.textContent || '';
+      if (t.indexOf('標準に戻す') !== -1 || t.indexOf('主力万全') !== -1 || t.indexOf('主力欠場') !== -1 || t.indexOf('守備不安') !== -1 || t.indexOf('前がかり') !== -1 || t.indexOf('専守防衛') !== -1 || t.indexOf('雨天') !== -1) {
+        if (b.parentElement && b.parentElement.children.length >= 4) b.parentElement.style.display = 'none';
+        b.style.display = 'none';
+      }
+      if (t.indexOf('500円提案') !== -1 && !b.getAttribute('data-hooked')) {
+        b.setAttribute('data-hooked', '1');
+        b.addEventListener('click', function() {
+          document.querySelectorAll('[data-multi-rendered]').forEach(function(el) {
+            el.removeAttribute('data-multi-rendered');
+          });
+          setTimeout(renderAllEnhancements, 100);
+        });
+      }
+    });
+
+    document.querySelectorAll('h1, h2, h3, h4, div, span').forEach(function(el) {
+      if (el.children.length === 0) {
+        var s = el.textContent;
+        if (s.indexOf('スタメン・天候ワンタップ補正') !== -1) {
+          el.textContent = s.replace('スタメン・天候ワンタップ補正', '自動分析・試合別予測データ');
+        }
+        if (/([ァ-ヶー・]+)[A-Z0-9]+/.test(s)) {
+          el.textContent = s.replace(/([ァ-ヶー・]+)[A-Z0-9]+/g, '$1');
+        }
+      }
+    });
+  }
+
+  loadLatestData();
+  setInterval(function() {
+    cleanUi();
+    renderAllEnhancements();
+  }, 500);
+})();
+</script>
 </body>
 </html>
