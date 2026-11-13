@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>toto AI Manager - アンサンブル推論＆期待値・想定リターン戦略</title>
+  <title>toto AI Manager - アンサンブル推論＆期待値・戦略ガイド</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -86,6 +86,59 @@
     .budget-btn.active {
       background: #10b981; color: #052e16;
     }
+
+    /* AI総合戦略・狙い目ガイドボックス */
+    .strategy-box {
+      background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+      border: 2px solid #38bdf8;
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+    .strategy-header {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
+    }
+    .strategy-title {
+      font-size: 16px; font-weight: bold; color: #38bdf8;
+    }
+    .strategy-conclusion {
+      background: rgba(56, 189, 248, 0.12);
+      border-left: 4px solid #38bdf8;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13.5px;
+      color: #f8fafc;
+      margin-bottom: 14px;
+      line-height: 1.65;
+    }
+    .strategy-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    @media (max-width: 760px) { .strategy-grid { grid-template-columns: 1fr; } }
+    .strategy-col {
+      background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 14px;
+    }
+    .strategy-col-title {
+      font-size: 13px; font-weight: bold; color: #fbbf24; margin-bottom: 8px;
+      border-bottom: 1px solid #334155; padding-bottom: 5px;
+    }
+    .strategy-list {
+      list-style: none; font-size: 12.5px; color: #e2e8f0;
+    }
+    .strategy-list li {
+      margin-bottom: 8px; padding-left: 14px; position: relative; line-height: 1.55;
+    }
+    .strategy-list li:last-child { margin-bottom: 0; }
+    .strategy-list li::before {
+      content: "•"; color: #38bdf8; font-weight: bold; position: absolute; left: 0;
+    }
+    .quick-500-btn {
+      background: #059669; color: #fff; border: none; border-radius: 6px;
+      padding: 4px 10px; font-size: 11px; font-weight: bold; cursor: pointer;
+      margin-left: 6px; vertical-align: middle;
+    }
+    .quick-500-btn:hover { background: #047857; }
 
     /* 最適買い目サマリー枠 */
     .summary-box {
@@ -193,11 +246,25 @@
       background: #111827; border: 1px solid #334155; border-radius: 12px;
       padding: 16px; margin-bottom: 16px;
     }
+    .plan-card.recommended-card {
+      border: 2px solid #10b981;
+    }
+    .plan-card.skip-card {
+      opacity: 0.82;
+      border-color: #1f2937;
+    }
     .plan-header {
       display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 6px; flex-wrap: wrap; gap: 8px;
     }
+    .plan-title-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
     .plan-title { font-size: 15px; font-weight: bold; color: #38bdf8; }
+    .rec-pill {
+      font-size: 11px; font-weight: bold; padding: 2px 9px; border-radius: 999px;
+    }
+    .rec-pill.best-ev { background: #b45309; color: #fef3c7; border: 1px solid #f59e0b; }
+    .rec-pill.best-prob { background: #047857; color: #d1fae5; border: 1px solid #10b981; }
+    .rec-pill.skip { background: #374151; color: #9ca3af; }
     .plan-badge {
       background: #065f46; color: #6ee7b7; font-size: 12px; font-weight: bold;
       padding: 3px 10px; border-radius: 999px;
@@ -308,15 +375,16 @@
       <div id="matches-list"></div>
     </div>
 
-    <!-- タブ2: 500円・1000円提案（期待値＆想定リターン金額表示） -->
+    <!-- タブ2: 500円・1000円提案（戦略要約・狙い目コメント付き） -->
     <div id="tab2" class="tab-content hidden">
       <div class="budget-bar">
-        <div id="plans-heading" class="section-heading" style="margin-bottom:0;">💰 予算500円プラン｜期待値・想定リターン金額シミュレーション</div>
+        <div id="plans-heading" class="section-heading" style="margin-bottom:0;">💰 予算500円プラン｜期待値・想定リターン金額</div>
         <div class="budget-switch">
           <button id="btn-budget-500" class="budget-btn active" data-budget="500">💵 500円プラン</button>
           <button id="btn-budget-1000" class="budget-btn" data-budget="1000">💴 1,000円プラン</button>
         </div>
       </div>
+      <div id="strategy-summary-box"></div>
       <div id="plans-list"></div>
     </div>
 
@@ -426,7 +494,6 @@
           "2": p2 / tot
         };
 
-        // 市場人気分布（投票率が取れていればそれを使用し、なければ一般投票の人気偏重を近似）
         var mktProbMap;
         if (mktV && mktV.length >= 3 && (mktV[0] + mktV[1] + mktV[2]) > 0) {
           var ms = mktV[0] + mktV[1] + mktV[2];
@@ -436,7 +503,6 @@
             "2": Math.max(0.05, mktV[2] / ms)
           };
         } else {
-          // 一般投票は1・2の強い方に人気が集中しやすいバイアスを付与
           var b1 = Math.pow(aiProbMap["1"], 1.18);
           var b0 = Math.pow(aiProbMap["0"], 0.92);
           var b2 = Math.pow(aiProbMap["2"], 1.18);
@@ -469,7 +535,6 @@
       function calcGoalTop2(lam) {
         var ps = poissonProbs(lam);
         var aiMap = { "0": ps[0], "1": ps[1], "2": ps[2], "3": ps[3] };
-        // GOAL3の一般投票傾向（1点・2点に人気が集まりやすい）
         var mktBase = { "0": 0.24, "1": 0.36, "2": 0.25, "3": 0.15 };
         var mktMap = {
           "0": aiMap["0"] * 0.65 + mktBase["0"] * 0.35,
@@ -546,13 +611,11 @@
         );
       }
 
-      /* 重複なしの購入チケット列（500円=5通り、1000円=10通り）を生成し、厳密な当選確率・想定配当・期待値を計算 */
       function evaluatePlanMetrics(items, budget, gameType) {
         var coverOrder = selectBestCoverIndices(items, Math.min(5, items.length));
         var wCount = budget === 1000 ? 3 : 2;
         var wSet = coverOrder.slice(0, wCount);
 
-        // Wマルチの全組み合わせ（2^wCount 通り）
         var tickets = [];
         var totalComb = Math.pow(2, wSet.length);
         for (var mask = 0; mask < totalComb; mask++) {
@@ -566,7 +629,6 @@
           tickets.push(combo);
         }
 
-        // 重複しない押さえシングルを追加（500円なら第3接戦枠、1000円なら第4・第5接戦枠）
         var extraIndices = budget === 1000 ? coverOrder.slice(3, 5) : coverOrder.slice(2, 3);
         extraIndices.forEach(function(flipIdx) {
           var singleCombo = items.map(function(it, idx) {
@@ -581,7 +643,6 @@
         var expectedReturnYen = 0;
         var payouts = [];
 
-        // くじ種ごとの現実的な想定1等配当レンジ（円）
         var minPay = 2500, maxPay = 200000;
         if (gameType === "goal3") {
           minPay = 3500; maxPay = 180000;
@@ -598,7 +659,6 @@
             pMkt *= Math.max(0.02, items[i].mktMap[code] || 0.25);
           }
 
-          // 理論オッズ（還元率50% ÷ 市場支持率）から1等想定配当を算出
           var rawPayout = (100 * 0.50) / pMkt;
           var estPayout1st = Math.max(minPay, Math.min(maxPay, rawPayout));
           payouts.push(estPayout1st);
@@ -606,7 +666,6 @@
           sumHitProb1st += pAi;
           expectedReturnYen += pAi * estPayout1st;
 
-          // toto本戦（13枠）の場合は2等（1枠外れ）・3等（2枠外れ）の期待リターンも加算
           if (gameType === "toto_main") {
             var sumOddsRatio = 0;
             for (var k = 0; k < combo.length; k++) {
@@ -641,9 +700,101 @@
         };
       }
 
-      function buildPlanCard(title, subInfo, items, budget, solidCount, gameType) {
-        var m = evaluatePlanMetrics(items, budget, gameType);
-        var solidSet = selectSuperSolidIndices(items, solidCount);
+      /* 4くじ種の計算結果から「今節の要約・狙い目コメント・おすすめ買い方」を自動生成 */
+      function buildStrategyGuideHtml(planConfigs) {
+        if (!planConfigs || planConfigs.length === 0) return "";
+
+        var byEv = planConfigs.slice().sort(function(a, b) {
+          return b.metrics.evRatioPct - a.metrics.evRatioPct;
+        });
+        var bestEv = byEv[0];
+
+        var miniCandidates = planConfigs.filter(function(p) {
+          return p.gameType === "mini_a" || p.gameType === "mini_b";
+        }).sort(function(a, b) {
+          return b.metrics.hitProb1stPct - a.metrics.hitProb1stPct;
+        });
+        var bestSteady = miniCandidates.length > 0 ? miniCandidates[0] : bestEv;
+
+        var skipList = planConfigs.filter(function(p) {
+          return p.id !== bestEv.id && p.id !== bestSteady.id &&
+            (p.metrics.evRatioPct < 70 || (p.gameType === "goal3" && p.metrics.hitProb1stPct < 5.0));
+        });
+
+        var bestEvProbTxt = bestEv.gameType === "toto_main"
+          ? "1〜3等当選率 " + bestEv.metrics.hitProbAnyPct.toFixed(1) + "%"
+          : "1等当選率 " + bestEv.metrics.hitProb1stPct.toFixed(1) + "%";
+
+        var skipNames = skipList.map(function(s) { return "「" + s.shortName + "」"; }).join("と");
+
+        var conclusionHtml =
+          "今節は<strong>「" + bestEv.shortName + "（期待値 " + bestEv.metrics.evRatioPct + "%・" + bestEvProbTxt + "）」</strong>" +
+          (bestEv.id !== bestSteady.id
+            ? "または<strong>「" + bestSteady.shortName + "（当選率 " + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%・期待値 " + bestSteady.metrics.evRatioPct + "%）」</strong>が最も狙い目です。"
+            : "が当選確率・期待値ともに頭抜けた筆頭候補です。") +
+          (skipNames ? " 一方で、" + skipNames + "は期待値・当選確率ともに見劣りするため、今回は見送り（ケン）が賢明です。" : "");
+
+        // 狙い目コメント（箇条書き）
+        var comments = [];
+        if (bestEv.gameType === "toto_main") {
+          comments.push(
+            "<li><strong>" + bestEv.shortName + "が圧倒的な期待値（" + bestEv.metrics.evRatioPct + "%）</strong>：1〜3等合算の当選率が <strong>" + bestEv.metrics.hitProbAnyPct.toFixed(2) + "%</strong>（約" + Math.max(2, Math.round(100 / Math.max(1, bestEv.metrics.hitProbAnyPct))) + "回に1回）と現実的な水準にあり、理論期待リターンが <strong>約" + formatYen(bestEv.metrics.expectedReturnYen) + "</strong> と突出しています。</li>"
+          );
+        } else {
+          comments.push(
+            "<li><strong>" + bestEv.shortName + "が期待値トップ（" + bestEv.metrics.evRatioPct + "%）</strong>：投資" + bestEv.metrics.cost + "円に対して期待リターンが <strong>約" + formatYen(bestEv.metrics.expectedReturnYen) + "</strong> と最も効率が高い組み合わせです。</li>"
+          );
+        }
+
+        if (bestSteady) {
+          var isProfitable = bestSteady.metrics.minEstPay > bestSteady.metrics.cost;
+          comments.push(
+            "<li><strong>" + bestSteady.shortName + "は「" + (isProfitable ? "当たれば確実にプラス" : "手堅く的中を狙える") + "」高確率枠（" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%）</strong>：全的中率が <strong>" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%</strong>（約" + Math.max(2, Math.round(100 / Math.max(1, bestSteady.metrics.hitProb1stPct))) + "回に1回）あり、想定配当も <strong>約" + formatYen(bestSteady.metrics.minEstPay) + "〜" + formatYen(bestSteady.metrics.maxEstPay) + "</strong> 見込めます。</li>"
+          );
+        }
+
+        skipList.forEach(function(sk) {
+          var pTxt = sk.gameType === "toto_main" ? sk.metrics.hitProbAnyPct.toFixed(1) : sk.metrics.hitProb1stPct.toFixed(1);
+          comments.push(
+            "<li><strong>" + sk.shortName + "は見送り推奨</strong>：当選率 <strong>" + pTxt + "%</strong>・期待値 <strong>" + sk.metrics.evRatioPct + "%</strong> にとどまり、リスクに対してリターンが見合っていません。</li>"
+          );
+        });
+
+        // おすすめの買い方3パターン
+        var switchBtnHtml = selectedBudget === 1000
+          ? '<button type="button" id="quick-switch-500" class="quick-500-btn">500円プランへ切替</button>'
+          : '';
+
+        var patterns = [
+          "<li><strong>パターンA【一番おすすめ・期待値重視】「" + bestEv.shortName + "」を" + selectedBudget + "円購入</strong>：期待値" + bestEv.metrics.evRatioPct + "%の恩恵を最大限に活かす買い方です。下のメインWマルチ＋押さえシングルをそのまま購入します。</li>",
+          "<li><strong>パターンB【堅実・的中体験重視】「" + bestSteady.shortName + "」を" + selectedBudget + "円購入</strong>：「まずは" + bestSteady.metrics.hitProb1stPct.toFixed(0) + "%前後の確率でしっかり当てて数千円プラスにしたい」場合に最適です。</li>",
+          "<li><strong>パターンC【いいとこ取り・分散戦術】「500円プラン」にして「" + bestSteady.shortName + "」＋「" + bestEv.shortName + "」を各500円（計1,000円）購入</strong>" + switchBtnHtml + "：手堅い的中と高配当の両方を同時に狙える最もバランスの良い買い方です。</li>"
+        ];
+
+        return (
+          '<div class="strategy-box">' +
+            '<div class="strategy-header">' +
+              '<div class="strategy-title">🧭 AI総合戦略・今節の狙い目ガイド</div>' +
+            '</div>' +
+            '<div class="strategy-conclusion">' + conclusionHtml + '</div>' +
+            '<div class="strategy-grid">' +
+              '<div class="strategy-col">' +
+                '<div class="strategy-col-title">📊 今節の狙い目コメント（4くじ種比較）</div>' +
+                '<ul class="strategy-list">' + comments.join("") + '</ul>' +
+              '</div>' +
+              '<div class="strategy-col">' +
+                '<div class="strategy-col-title">🎯 おすすめの具体的な買い方（3パターン）</div>' +
+                '<ul class="strategy-list">' + patterns.join("") + '</ul>' +
+              '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+
+      function buildPlanCard(cfg, budget, roleTag) {
+        var m = cfg.metrics;
+        var items = cfg.items;
+        var solidSet = selectSuperSolidIndices(items, cfg.solidCount);
 
         var multiHtml = items.map(function(it, idx) {
           if (m.wSet.indexOf(idx) !== -1) {
@@ -666,18 +817,17 @@
           );
         }).join('');
 
-        // 当選確率・想定リターン金額・期待値の表示フォーマット
-        var probMainText = gameType === "toto_main"
+        var probMainText = cfg.gameType === "toto_main"
           ? "1〜3等当選率 約 " + m.hitProbAnyPct.toFixed(2) + "%"
           : "1等全的中率 約 " + m.hitProb1stPct.toFixed(1) + "%";
-        var probSubText = gameType === "toto_main"
+        var probSubText = cfg.gameType === "toto_main"
           ? "（1等13枠全的中: 約 " + m.hitProb1stPct.toFixed(4) + "%）"
           : "（全" + m.ticketCount + "通り合算の1等的中期待確率）";
 
-        var returnMainText = gameType === "toto_main"
+        var returnMainText = cfg.gameType === "toto_main"
           ? "1等 約 " + Math.round(m.minEstPay / 10000).toLocaleString() + "万〜" + Math.round(m.maxEstPay / 10000).toLocaleString() + "万円"
           : "約 " + formatYen(m.minEstPay) + " 〜 " + formatYen(m.maxEstPay);
-        var returnSubText = gameType === "toto_main"
+        var returnSubText = cfg.gameType === "toto_main"
           ? "（2等目安: 約15万〜40万円 / 3等目安: 約1.5万〜4万円）"
           : "（順当決着時〜穴目絡み決着時の1等想定配当）";
 
@@ -687,13 +837,26 @@
         var multiCost = Math.pow(2, m.wSet.length) * 100;
         var extraCost = m.extraIndices.length * 100;
 
+        var cardClass = "plan-card";
+        var pillHtml = "";
+        if (roleTag === "best_ev") {
+          cardClass += " recommended-card";
+          pillHtml = '<span class="rec-pill best-ev">👑 今節イチオシ（期待値No.1）</span>';
+        } else if (roleTag === "best_prob") {
+          cardClass += " recommended-card";
+          pillHtml = '<span class="rec-pill best-prob">🎯 堅実狙い目（当選率No.1）</span>';
+        } else if (roleTag === "skip") {
+          cardClass += " skip-card";
+          pillHtml = '<span class="rec-pill skip">⚠️ 今節は見送り推奨</span>';
+        }
+
         return (
-          '<div class="plan-card">' +
+          '<div class="' + cardClass + '">' +
             '<div class="plan-header">' +
-              '<span class="plan-title">' + title + '</span>' +
+              '<div class="plan-title-wrap"><span class="plan-title">' + cfg.title + '</span>' + pillHtml + '</div>' +
               '<span class="plan-badge' + (budget === 1000 ? ' b1000' : '') + '">Wマルチ' + multiCost + '円＋シングル' + extraCost + '円（計' + m.cost + '円）</span>' +
             '</div>' +
-            '<div class="plan-sub">' + subInfo + '</div>' +
+            '<div class="plan-sub">' + cfg.subInfo + '</div>' +
             '<div class="ev-grid">' +
               '<div class="ev-box">' +
                 '<div class="ev-label">🎯 当選確率（全' + m.ticketCount + '口合計）</div>' +
@@ -728,7 +891,7 @@
           headingEl.textContent = "💰 予算500円プラン（全5通り）｜期待値・想定リターン金額";
         }
 
-        var plansHtml = "";
+        var configs = [];
         if (analyzed.length >= 3) {
           var g3Items = [];
           var g3Desc = [];
@@ -737,45 +900,83 @@
             g3Items.push(x.gA);
             g3Desc.push("第" + x.f + "枠 " + x.h + "(λ" + x.hLam.toFixed(2) + ") vs " + x.a + "(λ" + x.aLam.toFixed(2) + ")");
           });
-          plansHtml += buildPlanCard(
-            "① toto GOAL3（6枠マルチ買いプラン）",
-            "対象3試合の予測λ：" + g3Desc.join(" ／ "),
-            g3Items,
-            selectedBudget,
-            2,
-            "goal3"
-          );
+          configs.push({
+            id: "goal3",
+            shortName: "① toto GOAL3",
+            title: "① toto GOAL3（6枠マルチ買いプラン）",
+            subInfo: "対象3試合の予測λ：" + g3Desc.join(" ／ "),
+            items: g3Items,
+            solidCount: 2,
+            gameType: "goal3",
+            metrics: evaluatePlanMetrics(g3Items, selectedBudget, "goal3")
+          });
         }
         if (analyzed.length >= 5) {
-          plansHtml += buildPlanCard(
-            "② mini toto A組（1〜5枠マルチ買いプラン）",
-            "1〜5枠の接戦上位をダブル化し、さらに次点接戦枠を重複なしシングルで追加カバー",
-            analyzed.slice(0, 5).map(function(x) { return x.c1x2; }),
-            selectedBudget,
-            2,
-            "mini_a"
-          );
+          var maItems = analyzed.slice(0, 5).map(function(x) { return x.c1x2; });
+          configs.push({
+            id: "mini_a",
+            shortName: "② mini toto A組",
+            title: "② mini toto A組（1〜5枠マルチ買いプラン）",
+            subInfo: "1〜5枠の接戦上位をダブル化し、さらに次点接戦枠を重複なしシングルで追加カバー",
+            items: maItems,
+            solidCount: 2,
+            gameType: "mini_a",
+            metrics: evaluatePlanMetrics(maItems, selectedBudget, "mini_a")
+          });
         }
         if (analyzed.length >= 10) {
-          plansHtml += buildPlanCard(
-            "③ mini toto B組（6〜10枠マルチ買いプラン）",
-            "6〜10枠の接戦上位をダブル化し、さらに次点接戦枠を重複なしシングルで追加カバー",
-            analyzed.slice(5, 10).map(function(x) { return x.c1x2; }),
-            selectedBudget,
-            2,
-            "mini_b"
-          );
+          var mbItems = analyzed.slice(5, 10).map(function(x) { return x.c1x2; });
+          configs.push({
+            id: "mini_b",
+            shortName: "③ mini toto B組",
+            title: "③ mini toto B組（6〜10枠マルチ買いプラン）",
+            subInfo: "6〜10枠の接戦上位をダブル化し、さらに次点接戦枠を重複なしシングルで追加カバー",
+            items: mbItems,
+            solidCount: 2,
+            gameType: "mini_b",
+            metrics: evaluatePlanMetrics(mbItems, selectedBudget, "mini_b")
+          });
         }
         if (analyzed.length >= 10) {
-          plansHtml += buildPlanCard(
-            "④ toto 本戦（全" + analyzed.length + "枠マルチ買いプラン）",
-            "1等高額配当を狙いつつ、接戦上位枠のマルチ＋次点接戦シングルで2等・3等も網羅",
-            analyzed.map(function(x) { return x.c1x2; }),
-            selectedBudget,
-            3,
-            "toto_main"
-          );
+          var tmItems = analyzed.map(function(x) { return x.c1x2; });
+          configs.push({
+            id: "toto_main",
+            shortName: "④ toto 本戦",
+            title: "④ toto 本戦（全" + analyzed.length + "枠マルチ買いプラン）",
+            subInfo: "1等高額配当を狙いつつ、接戦上位枠のマルチ＋次点接戦シングルで2等・3等も網羅",
+            items: tmItems,
+            solidCount: 3,
+            gameType: "toto_main",
+            metrics: evaluatePlanMetrics(tmItems, selectedBudget, "toto_main")
+          });
         }
+
+        // 戦略ガイドの描画
+        var guideBox = document.getElementById("strategy-summary-box");
+        guideBox.innerHTML = buildStrategyGuideHtml(configs);
+
+        var qBtn = document.getElementById("quick-switch-500");
+        if (qBtn) {
+          qBtn.addEventListener("click", function() {
+            document.getElementById("btn-budget-500").click();
+          });
+        }
+
+        // 各カードへの推奨ラベル判定
+        var byEv = configs.slice().sort(function(a, b) { return b.metrics.evRatioPct - a.metrics.evRatioPct; });
+        var bestEvId = byEv.length > 0 ? byEv[0].id : "";
+
+        var minis = configs.filter(function(p) { return p.gameType === "mini_a" || p.gameType === "mini_b"; })
+          .sort(function(a, b) { return b.metrics.hitProb1stPct - a.metrics.hitProb1stPct; });
+        var bestProbId = minis.length > 0 ? minis[0].id : "";
+
+        var plansHtml = configs.map(function(cfg) {
+          var role = "";
+          if (cfg.id === bestEvId) role = "best_ev";
+          else if (cfg.id === bestProbId) role = "best_prob";
+          else if (cfg.metrics.evRatioPct < 70 || (cfg.gameType === "goal3" && cfg.metrics.hitProb1stPct < 5.0)) role = "skip";
+          return buildPlanCard(cfg, selectedBudget, role);
+        }).join("");
 
         document.getElementById("plans-list").innerHTML =
           plansHtml || '<div class="empty-msg">提案を生成できる試合数がありません</div>';
