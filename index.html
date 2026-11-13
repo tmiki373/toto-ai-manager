@@ -82,8 +82,18 @@
     .pick-label { font-size: 12px; color: #94a3b8; margin-bottom: 6px; font-weight: bold; }
     .pick-values {
       background: #111827; border-left: 4px solid #f97316; border-radius: 6px;
-      padding: 10px 14px; font-size: 16px; font-weight: bold; color: #fbbf24;
-      letter-spacing: 1px; word-break: break-all;
+      padding: 10px 14px; font-size: 15px; font-weight: bold; color: #f8fafc;
+      letter-spacing: 1px; line-height: 1.9;
+    }
+    .line-tag-main {
+      display: inline-block; background: #065f46; color: #6ee7b7;
+      font-size: 11px; padding: 1px 8px; border-radius: 4px; margin-right: 8px;
+      vertical-align: middle;
+    }
+    .line-tag-sub {
+      display: inline-block; background: #78350f; color: #fde68a;
+      font-size: 11px; padding: 1px 8px; border-radius: 4px; margin-right: 8px;
+      vertical-align: middle;
     }
     .pick-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
     @media (max-width: 700px) { .pick-grid-2 { grid-template-columns: 1fr; } .tabs { grid-template-columns: repeat(2, 1fr); } }
@@ -137,7 +147,7 @@
     .ticket-label { font-size: 11px; color: #fbbf24; font-weight: bold; margin-bottom: 4px; }
     .ticket-label.sub { color: #cbd5e1; }
     .ticket-line { font-size: 15px; font-weight: bold; color: #f8fafc; letter-spacing: 1px; }
-    .w-pair { color: #fbbf24; background: rgba(251, 191, 36, 0.14); padding: 1px 5px; border-radius: 4px; }
+    .w-pair { color: #fbbf24; background: rgba(251, 191, 36, 0.18); padding: 1px 6px; border-radius: 4px; }
 
     .hidden { display: none !important; }
     .empty-msg {
@@ -182,23 +192,23 @@
     <!-- タブ1: 直前予想 -->
     <div id="tab1" class="tab-content">
       <div class="summary-box">
-        <div class="summary-title">🏆 リアルタイム算出・最適買い目（上位2つ表示）</div>
+        <div class="summary-title">🏆 リアルタイム算出・最適買い目（【本命】と【もう1口】の2パターン）</div>
         <div class="pick-group">
-          <div id="lbl-toto-main" class="pick-label">toto 本戦（全13枠・上位2つ表示）</div>
+          <div id="lbl-toto-main" class="pick-label">toto 本戦（全13枠）</div>
           <div id="val-toto-main" class="pick-values">-</div>
         </div>
         <div class="pick-grid-2">
           <div class="pick-group">
-            <div class="pick-label">mini toto A組（1〜5枠・上位2つ表示）</div>
+            <div class="pick-label">mini toto A組（1〜5枠）</div>
             <div id="val-mini-a" class="pick-values">-</div>
           </div>
           <div class="pick-group">
-            <div class="pick-label">mini toto B組（6〜10枠・上位2つ表示）</div>
+            <div class="pick-label">mini toto B組（6〜10枠）</div>
             <div id="val-mini-b" class="pick-values">-</div>
           </div>
         </div>
         <div class="pick-group">
-          <div class="pick-label">toto GOAL3（6枠・上位2つ表示）</div>
+          <div class="pick-label">toto GOAL3（第1〜3枠の計6枠）</div>
           <div id="val-goal3" class="pick-values">-</div>
         </div>
       </div>
@@ -231,7 +241,6 @@
       var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
       var appData = null;
 
-      // 古いローカルキャッシュの掃除
       try {
         Object.keys(localStorage).forEach(function(k) {
           if (k !== "toto_auth_ok" && k.indexOf("toto") !== -1) {
@@ -335,6 +344,30 @@
         };
       }
 
+      /* 本命1行目 ＋ もう1口（接戦上位flipCount枠を第2候補へ変更）2行目 を生成 */
+      function formatTwoLines(items, flipCount) {
+        if (!items || items.length === 0) return "-";
+        var sorted = items.map(function(it, idx) { return { idx: idx, diff: it.diff }; })
+          .sort(function(a, b) { return a.diff - b.diff; });
+        var flipSet = sorted.slice(0, flipCount).map(function(x) { return x.idx; });
+
+        var line1 = items.map(function(it) {
+          return '<span>' + it.top1 + '</span>';
+        }).join(" － ");
+
+        var line2 = items.map(function(it, idx) {
+          if (flipSet.indexOf(idx) !== -1) {
+            return '<span class="w-pair">' + it.top2 + '</span>';
+          }
+          return '<span>' + it.top1 + '</span>';
+        }).join(" － ");
+
+        return (
+          '<div><span class="line-tag-main">本命</span>' + line1 + '</div>' +
+          '<div><span class="line-tag-sub">もう1口</span>' + line2 + '</div>'
+        );
+      }
+
       function buildPlanCard(title, subInfo, items, wCount) {
         var sorted = items.map(function(it, idx) { return { idx: idx, diff: it.diff }; })
           .sort(function(a, b) { return a.diff - b.diff; });
@@ -398,26 +431,26 @@
           };
         });
 
-        // 1. ①直前予想（上位2つずつ表示）
+        // 1. ①直前予想（【本命】と【もう1口】の2行表示）
         document.getElementById("lbl-toto-main").textContent =
-          "toto 本戦（全" + analyzed.length + "枠・上位2つ表示）";
-        document.getElementById("val-toto-main").textContent =
-          analyzed.map(function(x) { return x.c1x2.top1 + "/" + x.c1x2.top2; }).join(" － ") || "-";
+          "toto 本戦（全" + analyzed.length + "枠｜もう1口は接戦3枠を対抗に変更）";
+        document.getElementById("val-toto-main").innerHTML =
+          formatTwoLines(analyzed.map(function(x) { return x.c1x2; }), 3);
 
-        document.getElementById("val-mini-a").textContent =
-          analyzed.slice(0, 5).map(function(x) { return x.c1x2.top1 + "/" + x.c1x2.top2; }).join(" － ") || "-";
+        document.getElementById("val-mini-a").innerHTML =
+          formatTwoLines(analyzed.slice(0, 5).map(function(x) { return x.c1x2; }), 2);
 
-        document.getElementById("val-mini-b").textContent =
+        document.getElementById("val-mini-b").innerHTML =
           analyzed.length >= 10
-            ? analyzed.slice(5, 10).map(function(x) { return x.c1x2.top1 + "/" + x.c1x2.top2; }).join(" － ")
+            ? formatTwoLines(analyzed.slice(5, 10).map(function(x) { return x.c1x2; }), 2)
             : "-";
 
-        var g3Pairs = [];
+        var g3Items = [];
         analyzed.slice(0, 3).forEach(function(x) {
-          g3Pairs.push(x.gH.top1 + "/" + x.gH.top2);
-          g3Pairs.push(x.gA.top1 + "/" + x.gA.top2);
+          g3Items.push(x.gH);
+          g3Items.push(x.gA);
         });
-        document.getElementById("val-goal3").textContent = g3Pairs.join(" － ") || "-";
+        document.getElementById("val-goal3").innerHTML = formatTwoLines(g3Items, 2);
 
         // 試合カード一覧
         var mHtml = analyzed.map(function(x) {
@@ -428,7 +461,7 @@
             '<div class="match-card">' +
               '<div class="match-top">' +
                 '<div class="match-teams">第' + x.f + '枠 ' + g3Tag + '：' + x.h + ' vs ' + x.a + '</div>' +
-                '<div class="match-rec">推奨：' + x.c1x2.top1 + ' / ' + x.c1x2.top2 + '</div>' +
+                '<div class="match-rec">本命：' + x.c1x2.top1 + '（対抗：' + x.c1x2.top2 + '）</div>' +
               '</div>' +
               '<div class="match-metrics">予測λ: ' + x.hLam.toFixed(2) + ' - ' + x.aLam.toFixed(2) + ' ｜ 勝率: ' + pStr + ' ｜ 推計投票率: ' + vStr + '</div>' +
               '<div class="match-analysis">📊 ' + x.analysis + '</div>' +
@@ -440,11 +473,8 @@
         // 2. ②500円提案（マルチ買い＋GOAL3対応）
         var plansHtml = "";
         if (analyzed.length >= 3) {
-          var g3Items = [];
           var g3Desc = [];
           analyzed.slice(0, 3).forEach(function(x) {
-            g3Items.push(x.gH);
-            g3Items.push(x.gA);
             g3Desc.push("第" + x.f + "枠 " + x.h + "(λ" + x.hLam.toFixed(2) + ") vs " + x.a + "(λ" + x.aLam.toFixed(2) + ")");
           });
           plansHtml += buildPlanCard(
@@ -484,7 +514,7 @@
         var actKeys = Object.keys(actuals);
         if (actKeys.length === 0) {
           document.getElementById("results-list").innerHTML =
-            '<div class="empty-msg">対象試合の終了後に結果データが自動取得され、上位2つ予想の的中照合が表示されます。</div>';
+            '<div class="empty-msg">対象試合の終了後に結果データが自動取得され、本命・対抗の的中照合が表示されます。</div>';
         } else {
           var hitTop1 = 0, hitTop2 = 0;
           var rRows = analyzed.map(function(x) {
@@ -498,13 +528,13 @@
               '<div class="match-card">' +
                 '<div class="match-top">' +
                   '<div class="match-teams">第' + x.f + '枠：' + x.h + ' ' + a.hs + ' - ' + a.as + ' ' + x.a + '</div>' +
-                  '<div class="match-rec">結果: [' + a.res + '] ｜ 予想: ' + x.c1x2.top1 + '/' + x.c1x2.top2 + ' ' + (ok2 ? '✅的中' : '❌不的中') + '</div>' +
+                  '<div class="match-rec">結果: [' + a.res + '] ｜ 本命: ' + x.c1x2.top1 + ' / 対抗: ' + x.c1x2.top2 + ' ' + (ok2 ? '✅的中' : '❌不的中') + '</div>' +
                 '</div>' +
               '</div>'
             );
           }).join("");
           document.getElementById("results-list").innerHTML =
-            '<div class="summary-box"><div class="summary-title">的中サマリー：本命的中 ' + hitTop1 + '試合 ／ 上位2つカバー的中 ' + hitTop2 + '試合</div></div>' + rRows;
+            '<div class="summary-box"><div class="summary-title">的中サマリー：本命的中 ' + hitTop1 + '試合 ／ 対抗カバー的中 ' + hitTop2 + '試合</div></div>' + rRows;
         }
 
         // 4. ④振り返り・今節ポイント
@@ -512,13 +542,13 @@
         var solidGames = analyzed.slice().sort(function(a, b) { return b.c1x2.diff - a.c1x2.diff; }).slice(0, 3);
         var revHtml =
           '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:8px;">⚠️ 波乱注意・接戦枠（マルチ買い推奨カード）</div>' +
+            '<div class="plan-title" style="margin-bottom:8px;">⚠️ 波乱注意・接戦枠（もう1口で変更される重点枠）</div>' +
             closeGames.map(function(g) {
-              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（上位2択: ' + g.c1x2.top1 + '/' + g.c1x2.top2 + '、勝率差 ' + g.c1x2.diff + '%）</div>';
+              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: ' + g.c1x2.top1 + ' → 対抗: ' + g.c1x2.top2 + '、勝率差 ' + g.c1x2.diff + '%）</div>';
             }).join("") +
           '</div>' +
           '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:8px;">🛡️ 鉄板候補枠（シングル固定推奨カード）</div>' +
+            '<div class="plan-title" style="margin-bottom:8px;">🛡️ 鉄板候補枠（本命固定推奨カード）</div>' +
             solidGames.map(function(g) {
               return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: [' + g.c1x2.top1 + '] 勝率 ' + g.c1x2.p1 + '%）</div>';
             }).join("") +
@@ -549,7 +579,6 @@
           });
       }
 
-      // イベント登録
       document.getElementById("round-select").addEventListener("change", function(e) {
         renderRound(e.target.value);
       });
