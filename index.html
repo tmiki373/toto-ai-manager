@@ -413,7 +413,7 @@
 
   <script>
     (function() {
-      var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
+      var EXPECTED_HASH = "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60";
       var GITHUB_RAW_DATA_URL = "https://raw.githubusercontent.com/tmiki373/toto-ai-manager/main/data.json";
       var appData = null;
       var currentRoundKey = "";
@@ -444,7 +444,7 @@
       }
 
       function initAuth() {
-        if (EXPECTED_HASH === "__INJECTED_PIN_HASH__" || EXPECTED_HASH === "") {
+        if (EXPECTED_HASH === "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60" || EXPECTED_HASH === "") {
           unlockApp();
           return;
         }
