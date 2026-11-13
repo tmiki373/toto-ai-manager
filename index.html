@@ -1,919 +1,572 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚽ toto AI 完全動的予想・結果分析システム</title>
-<style>
-  :root {
-    --bg: #0f172a; --panel: #1e293b; --card: #334155; --border: #475569;
-    --text: #f8fafc; --muted: #94a3b8; --accent: #f97316;
-    --green: #10b981; --blue: #3b82f6; --red: #ef4444; --yellow: #eab308;
-  }
-  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif; }
-  body { margin: 0; padding: 12px; background: var(--bg); color: var(--text); line-height: 1.45; }
-  .container { max-width: 1000px; margin: 0 auto; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>toto AI Manager - 全自動予想＆500円マルチ戦略</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0b1120;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      line-height: 1.5;
+      padding: 16px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
 
-  .header {
-    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-    padding: 14px; margin-bottom: 12px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
-  }
-  .badge { background: var(--accent); color: #fff; font-weight: 800; padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; }
-  select, input { background: #0f172a; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 0.9rem; }
+    /* PINロック画面 */
+    #pin-overlay {
+      position: fixed; inset: 0; background: #0b1120;
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .pin-box {
+      background: #111827; border: 1px solid #334155; border-radius: 14px;
+      padding: 28px; width: 90%; max-width: 360px; text-align: center;
+    }
+    .pin-box h2 { font-size: 18px; margin-bottom: 8px; color: #f8fafc; }
+    .pin-box p { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
+    .pin-input {
+      width: 100%; padding: 12px; font-size: 20px; text-align: center; letter-spacing: 6px;
+      background: #1e293b; border: 1px solid #475569; border-radius: 8px; color: #fff; margin-bottom: 12px;
+    }
+    .pin-btn {
+      width: 100%; padding: 12px; background: #f97316; border: none; border-radius: 8px;
+      color: #fff; font-weight: bold; font-size: 15px; cursor: pointer;
+    }
+    .pin-err { color: #f87171; font-size: 12px; margin-top: 8px; min-height: 18px; }
 
-  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
-  .tab-btn {
-    padding: 10px 6px; font-size: 0.82rem; font-weight: 800; border-radius: 8px;
-    border: 1px solid var(--border); background: var(--panel); color: var(--muted); cursor: pointer; text-align: center;
-  }
-  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
+    /* ヘッダー */
+    .header-card {
+      background: #111827; border: 1px solid #1f2937; border-radius: 14px;
+      padding: 16px 20px; margin-bottom: 16px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .round-badge {
+      display: inline-block; background: #f97316; color: #fff; font-weight: bold;
+      font-size: 13px; padding: 5px 14px; border-radius: 999px; margin-bottom: 6px;
+    }
+    .last-updated { font-size: 12px; color: #94a3b8; }
+    .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    select.round-select {
+      background: #1e293b; color: #f8fafc; border: 1px solid #334155;
+      padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
+    }
+    .reload-btn {
+      background: #2563eb; color: #fff; border: none; padding: 9px 16px;
+      border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;
+    }
+    .reload-btn:hover { background: #1d4ed8; }
 
-  .summary-box { background: #111827; border: 2px solid var(--green); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
-  .summary-box.flash { border-color: var(--yellow); box-shadow: 0 0 20px rgba(234,179,8,0.5); }
-  .code-line {
-    font-family: monospace; font-size: 1.15rem; font-weight: 900; color: #fef08a;
-    background: #0f172a; padding: 8px 10px; border-radius: 6px; border-left: 4px solid var(--accent);
-    margin: 6px 0; word-break: break-all;
-  }
+    /* タブナビゲーション */
+    .tabs {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px;
+    }
+    .tab-btn {
+      background: #111827; color: #cbd5e1; border: 1px solid #1f2937;
+      padding: 12px 8px; border-radius: 10px; font-size: 14px; font-weight: bold;
+      cursor: pointer; text-align: center; transition: 0.15s;
+    }
+    .tab-btn.active { background: #f97316; color: #fff; border-color: #f97316; }
 
-  .match-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-  .match-card.g3 { border-left: 5px solid var(--yellow); }
-  .m-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 6px; }
-  .analysis-box { font-size: 0.78rem; color: #fde047; background: rgba(234,179,8,0.1); padding: 5px 8px; border-radius: 6px; margin-bottom: 6px; }
+    /* 最適買い目サマリー枠 */
+    .summary-box {
+      background: #0f172a; border: 2px solid #10b981; border-radius: 14px;
+      padding: 18px 20px; margin-bottom: 20px;
+    }
+    .summary-title {
+      color: #4ade80; font-size: 16px; font-weight: bold; margin-bottom: 14px;
+    }
+    .pick-group { margin-bottom: 14px; }
+    .pick-group:last-child { margin-bottom: 0; }
+    .pick-label { font-size: 12px; color: #94a3b8; margin-bottom: 6px; font-weight: bold; }
+    .pick-values {
+      background: #111827; border-left: 4px solid #f97316; border-radius: 6px;
+      padding: 10px 14px; font-size: 16px; font-weight: bold; color: #fbbf24;
+      letter-spacing: 1px; word-break: break-all;
+    }
+    .pick-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    @media (max-width: 700px) { .pick-grid-2 { grid-template-columns: 1fr; } .tabs { grid-template-columns: repeat(2, 1fr); } }
 
-  .q-grid { display: flex; flex-direction: column; gap: 6px; background: #0f172a; padding: 8px; border-radius: 8px; }
-  .q-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
-  .q-lbl { font-size: 0.8rem; font-weight: 700; min-width: 75px; color: var(--muted); }
-  .q-btn {
-    padding: 6px 9px; font-size: 0.78rem; font-weight: 700; border-radius: 6px;
-    border: 1px solid #475569; background: #1e293b; color: #cbd5e1; cursor: pointer;
-  }
-  .q-btn.on-good { background: #065f46; border-color: var(--green); color: #fff; }
-  .q-btn.on-bad { background: #7f1d1d; border-color: var(--red); color: #fff; }
-  .q-btn.on-tac { background: #78350f; border-color: var(--yellow); color: #fff; }
-  .q-btn.on-rain { background: #1e3a8a; border-color: var(--blue); color: #fff; }
+    /* セクション見出し */
+    .section-heading {
+      font-size: 15px; font-weight: bold; color: #f8fafc; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
 
-  .btn-action {
-    width: 100%; padding: 12px; font-size: 1rem; font-weight: 800; color: #fff;
-    background: linear-gradient(90deg, #f97316, #ef4444); border: none; border-radius: 8px; cursor: pointer; margin-top: 8px;
-  }
-  .btn-sub { padding: 8px 12px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: #fff; cursor: pointer; }
-  .btn-live { background: var(--blue); border-color: #2563eb; }
+    /* 試合カード */
+    .match-card {
+      background: #111827; border: 1px solid #1f2937; border-left: 4px solid #eab308;
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    }
+    .match-top {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px; flex-wrap: wrap; gap: 8px;
+    }
+    .match-teams { font-size: 15px; font-weight: bold; color: #f8fafc; }
+    .goal3-tag {
+      background: #1e293b; color: #38bdf8; border: 1px solid #0284c7;
+      font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-right: 6px;
+    }
+    .match-rec { font-size: 14px; font-weight: bold; color: #fbbf24; }
+    .match-metrics { font-size: 12px; color: #38bdf8; margin-bottom: 8px; }
+    .match-analysis {
+      background: #1c1917; border: 1px solid #44403c; color: #fcd34d;
+      font-size: 12px; padding: 7px 10px; border-radius: 6px;
+    }
 
-  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 8px; }
-  th, td { border: 1px solid var(--border); padding: 6px; text-align: center; }
-  th { background: #0f172a; }
-</style>
+    /* 500円提案プランカード */
+    .plan-card {
+      background: #111827; border: 1px solid #334155; border-radius: 12px;
+      padding: 16px; margin-bottom: 14px;
+    }
+    .plan-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px; flex-wrap: wrap; gap: 8px;
+    }
+    .plan-title { font-size: 15px; font-weight: bold; color: #38bdf8; }
+    .plan-badge {
+      background: #065f46; color: #6ee7b7; font-size: 12px; font-weight: bold;
+      padding: 3px 10px; border-radius: 999px;
+    }
+    .plan-sub { font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
+    .ticket-box {
+      background: #1e293b; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+    }
+    .ticket-box:last-child { margin-bottom: 0; }
+    .ticket-label { font-size: 11px; color: #fbbf24; font-weight: bold; margin-bottom: 4px; }
+    .ticket-label.sub { color: #cbd5e1; }
+    .ticket-line { font-size: 15px; font-weight: bold; color: #f8fafc; letter-spacing: 1px; }
+    .w-pair { color: #fbbf24; background: rgba(251, 191, 36, 0.14); padding: 1px 5px; border-radius: 4px; }
+
+    .hidden { display: none !important; }
+    .empty-msg {
+      background: #111827; border: 1px solid #1f2937; border-radius: 10px;
+      padding: 20px; text-align: center; color: #94a3b8; font-size: 14px;
+    }
+  </style>
 </head>
 <body>
 
-<!-- PINロック画面（GitHub SecretsのSHA-256ハッシュで検証） -->
-<div id="lockScreen" style="max-width:400px; margin:80px auto; background:#1e293b; padding:24px; border-radius:12px; border:1px solid #475569; text-align:center;">
-  <h2 style="margin:0 0 12px 0;">🔒 toto AI マネージャー</h2>
-  <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:16px;">PINコードを入力してロックを解除</p>
-  <input type="password" id="pinInput" inputmode="numeric" placeholder="PINコード" style="width:100%; font-size:1.2rem; text-align:center; margin-bottom:12px;" onkeydown="if(event.key==='Enter') verifyPin()">
-  <button class="btn-action" onclick="verifyPin()">ロック解除</button>
-  <p id="pinError" style="color:#ef4444; font-size:0.85rem; margin-top:10px; display:none;">PINコードが違います</p>
-</div>
-
-<!-- アプリ本体（認証後のみ表示） -->
-<div class="container" id="appMain" style="display:none;">
-  <div class="header">
-    <div>
-      <span class="badge" id="roundTitle">最新データ取得待機中...</span>
-      <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;" id="lastUpdated">ステータス: 初期化中</div>
-    </div>
-    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-      <select id="roundSelect" onchange="changeRound()"></select>
-      <button class="btn-sub btn-live" onclick="fetchAllLiveData()">⚡ 最新開催回＆クラブ成績をライブ取得</button>
+  <!-- PINロック画面 -->
+  <div id="pin-overlay" class="hidden">
+    <div class="pin-box">
+      <h2>toto AI Manager</h2>
+      <p>アクセスPINを入力してください</p>
+      <input type="password" id="pin-input" class="pin-input" maxlength="12" placeholder="••••" />
+      <button id="pin-submit" class="pin-btn">ロック解除</button>
+      <div id="pin-err" class="pin-err"></div>
     </div>
   </div>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab(0)">⚡①直前予想</button>
-    <button class="tab-btn" onclick="switchTab(1)">💰②500円提案</button>
-    <button class="tab-btn" onclick="switchTab(2)">🏁③結果照合</button>
-    <button class="tab-btn" onclick="switchTab(3)">📈④振り返り</button>
-  </div>
+  <!-- メイン画面 -->
+  <div id="app" class="container hidden">
+    <div class="header-card">
+      <div>
+        <div id="round-title-badge" class="round-badge">最新データ読み込み中...</div>
+        <div id="last-updated-text" class="last-updated">最終取得: -</div>
+      </div>
+      <div class="header-controls">
+        <select id="round-select" class="round-select"></select>
+        <button id="reload-btn" class="reload-btn">⚡ 最新データを再読込</button>
+      </div>
+    </div>
 
-  <!-- TAB 0 -->
-  <div class="tab-content active" id="tab0">
-    <div class="summary-box" id="summaryBox">
-      <div style="font-weight:800; color:#6ee7b7; margin-bottom:6px;">🏆 リアルタイム算出・最適買い目</div>
-      <div style="font-size:0.82rem; color:var(--muted);">toto 本戦（全13枠）</div>
-      <div class="code-line" id="outToto13">-</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <div>
-          <div style="font-size:0.8rem; color:var(--muted);">mini toto A組（1〜5枠）</div>
-          <div class="code-line" id="outMiniA" style="font-size:1rem;">-</div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab1">⚡ ①直前予想</button>
+      <button class="tab-btn" data-tab="tab2">💰 ②500円提案</button>
+      <button class="tab-btn" data-tab="tab3">🏁 ③結果照合</button>
+      <button class="tab-btn" data-tab="tab4">📈 ④振り返り</button>
+    </div>
+
+    <!-- タブ1: 直前予想 -->
+    <div id="tab1" class="tab-content">
+      <div class="summary-box">
+        <div class="summary-title">🏆 リアルタイム算出・最適買い目（上位2つ表示）</div>
+        <div class="pick-group">
+          <div id="lbl-toto-main" class="pick-label">toto 本戦（全13枠・上位2つ表示）</div>
+          <div id="val-toto-main" class="pick-values">-</div>
         </div>
-        <div>
-          <div style="font-size:0.8rem; color:var(--muted);">mini toto B組（6〜10枠）</div>
-          <div class="code-line" id="outMiniB" style="font-size:1rem;">-</div>
+        <div class="pick-grid-2">
+          <div class="pick-group">
+            <div class="pick-label">mini toto A組（1〜5枠・上位2つ表示）</div>
+            <div id="val-mini-a" class="pick-values">-</div>
+          </div>
+          <div class="pick-group">
+            <div class="pick-label">mini toto B組（6〜10枠・上位2つ表示）</div>
+            <div id="val-mini-b" class="pick-values">-</div>
+          </div>
+        </div>
+        <div class="pick-group">
+          <div class="pick-label">toto GOAL3（6枠・上位2つ表示）</div>
+          <div id="val-goal3" class="pick-values">-</div>
         </div>
       </div>
-      <div style="font-size:0.82rem; color:var(--muted); margin-top:4px;">toto GOAL3（シングル6枠）</div>
-      <div class="code-line" id="outGoal3">-</div>
+
+      <div class="section-heading">⚡ 自動分析・試合別予測データ</div>
+      <div id="matches-list"></div>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <span style="font-weight:800; font-size:0.95rem;">⚡ スタメン・天候ワンタップ補正</span>
-      <button class="btn-sub" onclick="resetMods()">標準に戻す</button>
+    <!-- タブ2: 500円提案（マルチ買い＋GOAL3対応） -->
+    <div id="tab2" class="tab-content hidden">
+      <div class="section-heading">💰 予算500円以内・マルチ買い対応 最適購入プラン（Wマルチ400円＋シングル100円）</div>
+      <div id="plans-list"></div>
     </div>
-    <div id="matchCards"></div>
-  </div>
 
-  <!-- TAB 1 -->
-  <div class="tab-content" id="tab1">
-    <div class="summary-box" style="border-color:var(--accent);">
-      <h3 style="margin:0 0 8px 0; color:#fdba74;">💰 1開催あたり「予算最大500円」最推奨プラン</h3>
-      <div id="budgetPlanContent"></div>
+    <!-- タブ3: 結果照合 -->
+    <div id="tab3" class="tab-content hidden">
+      <div class="section-heading">🏁 試合結果・的中照合</div>
+      <div id="results-list"></div>
     </div>
-  </div>
 
-  <!-- TAB 2 -->
-  <div class="tab-content" id="tab2">
-    <div class="summary-box" style="border-color:var(--blue);">
-      <h3 style="margin:0 0 8px 0; color:#93c5fd;">🏁 試合終了後 確定結果照合・的中判定</h3>
-      <div id="resultInputGrid"></div>
-      <button class="btn-action" onclick="checkHits()">🎯 確定結果と照合して的中判定を実行</button>
-      <div id="hitReportArea" style="margin-top:12px;"></div>
+    <!-- タブ4: 振り返り -->
+    <div id="tab4" class="tab-content hidden">
+      <div class="section-heading">📈 今節の予測ポイント・振り返りサマリー</div>
+      <div id="review-list"></div>
     </div>
   </div>
 
-  <!-- TAB 3 -->
-  <div class="tab-content" id="tab3">
-    <div class="summary-box" style="border-color:var(--yellow);">
-      <h3 style="margin:0 0 8px 0; color:#fde047;">📈 予測期待値(λ)と実スコアの振り返り分析</h3>
-      <div id="reviewArea"></div>
-    </div>
-  </div>
-</div>
+  <script>
+    (function() {
+      var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
+      var appData = null;
 
-<script>
-// GitHub Actionsビルド時にSecretsのAPP_PINからSHA-256ハッシュ値が自動注入される
-const TARGET_HASH = "__INJECTED_PIN_HASH__";
-
-async function sha256(text) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function verifyPin() {
-  const input = document.getElementById("pinInput").value;
-  const hash = await sha256(input);
-  if (hash === TARGET_HASH) {
-    localStorage.setItem("toto_auth_hash", hash);
-    unlockApp();
-  } else {
-    document.getElementById("pinError").style.display = "block";
-  }
-}
-
-function unlockApp() {
-  document.getElementById("lockScreen").style.display = "none";
-  document.getElementById("appMain").style.display = "block";
-  initApp();
-}
-
-let appData = { current_round: "", last_updated: "", club_stats: {}, rounds: {} };
-let curRoundKey = "";
-let mods = {};
-let localActuals = {};
-
-const TEAM_ALIAS = {
-  "北海道コンサドーレ札幌": "札幌", "ヴァンラーレ八戸": "八戸", "ベガルタ仙台": "仙台",
-  "ブラウブリッツ秋田": "秋田", "モンテディオ山形": "山形", "いわきFC": "いわき",
-  "鹿島アントラーズ": "鹿島", "水戸ホーリーホック": "水戸", "栃木シティ": "栃木C",
-  "RB大宮アルディージャ": "大宮", "大宮アルディージャ": "大宮", "ジェフユナイテッド千葉": "千葉",
-  "柏レイソル": "柏", "FC東京": "FC東京", "東京ヴェルディ": "東京V",
-  "FC町田ゼルビア": "町田", "川崎フロンターレ": "川崎F", "横浜F・マリノス": "横浜FM",
-  "湘南ベルマーレ": "湘南", "ヴァンフォーレ甲府": "甲府", "アルビレックス新潟": "新潟",
-  "カターレ富山": "富山", "清水エスパルス": "清水", "ジュビロ磐田": "磐田",
-  "藤枝MYFC": "藤枝", "名古屋グランパス": "名古屋", "京都サンガF.C.": "京都",
-  "ガンバ大阪": "G大阪", "セレッソ大阪": "C大阪", "ヴィッセル神戸": "神戸",
-  "ファジアーノ岡山": "岡山", "サンフレッチェ広島": "広島", "徳島ヴォルティス": "徳島",
-  "FC今治": "今治", "アビスパ福岡": "福岡", "サガン鳥栖": "鳥栖",
-  "V・ファーレン長崎": "長崎", "大分トリニータ": "大分", "テゲバジャーロ宮崎": "宮崎"
-};
-
-function normName(raw) {
-  const c = raw.trim();
-  for (const [k, v] of Object.entries(TEAM_ALIAS)) {
-    if (k.includes(c) || c.includes(k) || c === v) return v;
-  }
-  return c;
-}
-
-async function initApp() {
-  const cached = localStorage.getItem("dynamic_toto_v3");
-  if (cached) {
-    try { appData = JSON.parse(cached); } catch (e) {}
-  }
-
-  try {
-    const res = await fetch("data.json?t=" + Date.now());
-    const json = await res.json();
-    if (json && json.rounds && Object.keys(json.rounds).length > 0) {
-      appData = json;
-      localStorage.setItem("dynamic_toto_v3", JSON.stringify(appData));
-    }
-  } catch (e) {}
-
-  if (!appData.rounds || Object.keys(appData.rounds).length === 0) {
-    await fetchAllLiveData();
-  } else {
-    populateRoundSelector();
-  }
-}
-
-async function fetchAllLiveData() {
-  const statusEl = document.getElementById("lastUpdated");
-  statusEl.textContent = "⏳ Jリーグ公式順位表＆toto公式の最新開催回をライブ取得中...";
-
-  try {
-    const leagueUrls = [
-      "https://www.jleague.jp/standings/j1/",
-      "https://www.jleague.jp/standings/j2/",
-      "https://www.jleague.jp/standings/j3/"
-    ];
-    const dynStats = {};
-    for (const u of leagueUrls) {
+      // 古いローカルキャッシュの掃除
       try {
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`);
-        const wrap = await res.json();
-        const doc = new DOMParser().parseFromString(wrap.contents || "", "text/html");
-        doc.querySelectorAll("tr").forEach(tr => {
-          const tds = [...tr.querySelectorAll("td")].map(td => td.textContent.trim());
-          const nums = tds.filter(x => /^-?\d+$/.test(x)).map(Number);
-          const texts = tds.filter(x => x.length >= 2 && !/^-?\d+$/.test(x));
-          if (nums.length >= 8 && texts.length >= 1) {
-            const tName = normName(texts[0]);
-            const rank = nums[0], pts = nums[1], played = Math.max(1, nums[2]);
-            const gf = nums[6], ga = nums[7], gd = gf - ga;
-            const avgGf = gf / played, avgGa = ga / played;
-            dynStats[tName] = {
-              xg: Number((avgGf * 0.75 + 1.30 * 0.25).toFixed(2)),
-              xga: Number((avgGa * 0.75 + 1.30 * 0.25).toFixed(2)),
-              trend: `${rank}位(勝点${pts}/得失${gd >= 0 ? '+'+gd : gd})・平均${avgGf.toFixed(2)}得点/${avgGa.toFixed(2)}失点`
-            };
+        Object.keys(localStorage).forEach(function(k) {
+          if (k !== "toto_auth_ok" && k.indexOf("toto") !== -1) {
+            localStorage.removeItem(k);
           }
         });
       } catch (e) {}
-    }
-    if (Object.keys(dynStats).length > 0) {
-      appData.club_stats = dynStats;
-    }
 
-    const listUrl = encodeURIComponent("https://store.toto-dream.com/dcs/subos/screen/si01/ssin020/LOTOPNoticeList01.form");
-    const lRes = await fetch(`https://api.allorigins.win/get?url=${listUrl}`);
-    const lWrap = await lRes.json();
-    const lHtml = lWrap.contents || "";
-
-    const holdIds = [...new Set([...lHtml.matchAll(/holdCntId=(\d{4})/g)].map(m => m[1]))].sort();
-    for (const hid of holdIds) {
-      const voteUrl = encodeURIComponent(`https://store.toto-dream.com/dcs/subos/screen/si01/ssin026/PGSSIN02601In.form?holdCntId=${hid}&commodityId=01`);
-      const vRes = await fetch(`https://api.allorigins.win/get?url=${voteUrl}`);
-      const vWrap = await vRes.json();
-      const doc = new DOMParser().parseFromString(vWrap.contents || "", "text/html");
-
-      const matches = [];
-      doc.querySelectorAll("tr").forEach(tr => {
-        if (matches.length >= 13) return;
-        const tds = [...tr.querySelectorAll("td")].map(td => td.textContent.trim());
-        const rowStr = tds.join(" ");
-        const pcts = [...rowStr.matchAll(/(\d{1,2}(?:\.\d+)?)\s*%/g)].map(m => parseFloat(m[1]));
-        if (pcts.length >= 3) {
-          const teams = tds.filter(t => t.length >= 2 && !/\d+%|\d{2}:\d{2}|^\d+$|vs|VS/.test(t));
-          if (teams.length >= 2) {
-            const hName = normName(teams[0]), aName = normName(teams[1]);
-            const hs = appData.club_stats[hName] || { xg: 1.30, xga: 1.30, trend: "最新データ計算済" };
-            const as = appData.club_stats[aName] || { xg: 1.30, xga: 1.30, trend: "最新データ計算済" };
-            const fNo = matches.length + 1;
-            matches.push({
-              f: fNo,
-              grp: fNo <= 5 ? "A" : (fNo <= 10 ? "B" : "C"),
-              h: hName, a: aName,
-              v: [pcts[0], pcts[1], pcts[2]],
-              h_xg: hs.xg, h_xga: hs.xga, a_xg: as.xg, a_xga: as.xga,
-              analysis: `【H:${hName}】${hs.trend} ／ 【A:${aName}】${as.trend}`
-            });
-          }
-        }
-      });
-
-      if (matches.length === 13) {
-        const rKey = `第${hid}回`;
-        appData.rounds[rKey] = {
-          title: `${rKey}（ライブ動的取得・最新順位＆投票率反映済）`,
-          goal3_frames: [1, 2, 3],
-          matches: matches,
-          actual_results: {}
-        };
-        appData.current_round = rKey;
-      }
-    }
-
-    const now = new Date();
-    appData.last_updated = `${now.toLocaleDateString()} ${now.toLocaleTimeString()} (全データライブ取得済)`;
-    localStorage.setItem("dynamic_toto_v3", JSON.stringify(appData));
-    populateRoundSelector();
-  } catch (e) {
-    statusEl.textContent = "⚠️ ライブ取得がブロックされたため、GitHub Actionsの自動更新データを利用します。";
-  }
-}
-
-function populateRoundSelector() {
-  document.getElementById("lastUpdated").textContent = "最終取得: " + (appData.last_updated || "-");
-  const sel = document.getElementById("roundSelect");
-  sel.innerHTML = "";
-  const keys = Object.keys(appData.rounds);
-  if (keys.length === 0) {
-    document.getElementById("roundTitle").textContent = "データ取得ボタンを押してください";
-    return;
-  }
-
-  keys.forEach(rk => {
-    const opt = document.createElement("option");
-    opt.value = rk; opt.textContent = rk;
-    sel.appendChild(opt);
-  });
-  curRoundKey = appData.current_round || keys[keys.length - 1];
-  sel.value = curRoundKey;
-  loadRoundData();
-}
-
-function changeRound() {
-  curRoundKey = document.getElementById("roundSelect").value;
-  loadRoundData();
-}
-
-function loadRoundData() {
-  const rData = appData.rounds[curRoundKey];
-  if (!rData) return;
-  document.getElementById("roundTitle").textContent = rData.title;
-  const savedMods = localStorage.getItem("mods_" + curRoundKey);
-  mods = savedMods ? JSON.parse(savedMods) : {};
-  const savedAct = localStorage.getItem("act_" + curRoundKey);
-  localActuals = savedAct ? JSON.parse(savedAct) : (rData.actual_results || {});
-  renderAll();
-}
-
-function factorial(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
-function poisson(l, k) { return Math.pow(l, k) * Math.exp(-l) / factorial(k); }
-
-function calc102(lh, la) {
-  const rho = -0.08;
-  let p1 = 0, p0 = 0, p2 = 0;
-  for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-      let p = poisson(lh, i) * poisson(la, j);
-      if (i===0 && j===0) p *= (1 - lh*la*rho);
-      else if (i===0 && j===1) p *= (1 + lh*rho);
-      else if (i===1 && j===0) p *= (1 + la*rho);
-      else if (i===1 && j===1) p *= (1 - rho);
-      if (i > j) p1 += p; else if (i === j) p0 += p; else p2 += p;
-    }
-  }
-  const t = p1 + p0 + p2;
-  return [p1/t, p0/t, p2/t];
-}
-
-function calcG3(l) {
-  const p0 = poisson(l,0), p1 = poisson(l,1), p2 = poisson(l,2);
-  return [p0, p1, p2, Math.max(0, 1 - (p0+p1+p2))];
-}
-
-function toggleMod(f, side, type, val) {
-  if (!mods[f]) mods[f] = { hAtk:1, hDef:1, hTac:1, aAtk:1, aDef:1, aTac:1, rain:false };
-  const key = side + type;
-  mods[f][key] = (Math.abs(mods[f][key] - val) < 0.01) ? 1.0 : val;
-  localStorage.setItem("mods_" + curRoundKey, JSON.stringify(mods));
-  renderAll(true);
-}
-
-function toggleRain(f) {
-  if (!mods[f]) mods[f] = { hAtk:1, hDef:1, hTac:1, aAtk:1, aDef:1, aTac:1, rain:false };
-  mods[f].rain = !mods[f].rain;
-  localStorage.setItem("mods_" + curRoundKey, JSON.stringify(mods));
-  renderAll(true);
-}
-
-function resetMods() {
-  mods = {};
-  localStorage.removeItem("mods_" + curRoundKey);
-  renderAll(true);
-}
-
-function renderAll(flash = false) {
-  const rData = appData.rounds[curRoundKey];
-  if (!rData) return;
-  const g3Frames = rData.goal3_frames || [1,2,3];
-  const container = document.getElementById("matchCards");
-  container.innerHTML = "";
-
-  const processed = [];
-  const g3Teams = [];
-
-  rData.matches.forEach(m => {
-    const f = m.f;
-    const md = mods[f] || { hAtk:1, hDef:1, hTac:1, aAtk:1, aDef:1, aTac:1, rain:false };
-    let lh = (m.h_xg * md.hAtk * md.hTac * (m.a_xga * md.aDef * (1 + (md.aTac - 1)*0.8) / 1.35)) * 1.08;
-    let la = (m.a_xg * md.aAtk * md.aTac * (m.h_xga * md.hDef * (1 + (md.hTac - 1)*0.8) / 1.35)) / 1.08;
-    if (md.rain) { lh *= 0.84; la *= 0.84; }
-    lh = Math.max(0.25, Math.min(3.5, lh));
-    la = Math.max(0.25, Math.min(3.5, la));
-
-    const [p1, p0, p2] = calc102(lh, la);
-    const probs = { "1": p1, "0": p0, "2": p2 };
-    const evs = { "1": p1/Math.max(0.01, m.v[0]/100), "0": p0/Math.max(0.01, m.v[1]/100), "2": p2/Math.max(0.01, m.v[2]/100) };
-    const sorted = ["1","0","2"].sort((a,b) => probs[b] - probs[a]);
-    const top1 = sorted[0], top2 = sorted[1];
-    const diff = probs[top1] - probs[top2];
-
-    const pick = (diff <= 0.055 && (evs[top2] >= 1.25 || (top2 === "0" && probs["0"] >= 0.285))) ? top2 : top1;
-    const sub = (pick === top2) ? top1 : top2;
-    const wScore = (probs[top1] + probs[top2]) * (1 - diff);
-
-    processed.push({ f, card: `${m.h} vs ${m.a}`, h: m.h, a: m.a, lh, la, probs, pick, sub, wScore });
-
-    if (g3Frames.includes(f)) {
-      g3Teams.push({ name: `${m.h}(H)`, probs: calcG3(lh) });
-      g3Teams.push({ name: `${m.a}(A)`, probs: calcG3(la) });
-    }
-
-    const isG3 = g3Frames.includes(f);
-    const div = document.createElement("div");
-    div.className = "match-card" + (isG3 ? " g3" : "");
-    div.innerHTML = `
-      <div class="m-head">
-        <span>第${f}枠 ${isG3 ? '【GOAL3】' : ''}：${m.h} vs ${m.a}</span>
-        <span style="color:var(--yellow);">推奨：${pick} <small style="color:var(--muted);">(W:${sub})</small></span>
-      </div>
-      <div style="font-size:0.78rem; color:#38bdf8; margin-bottom:4px;">
-        予測λ: ${lh.toFixed(2)} - ${la.toFixed(2)} ｜ 勝率: [1]${(p1*100).toFixed(0)}% [0]${(p0*100).toFixed(0)}% [2]${(p2*100).toFixed(0)}% ｜ 投票率: ${m.v[0]}%/${m.v[1]}%/${m.v[2]}%
-      </div>
-      <div class="analysis-box">📊 ${m.analysis || "動的スタッツ解析済み"}</div>
-      <div class="q-grid">
-        <div class="q-row">
-          <span class="q-lbl">🏠 ${m.h}</span>
-          <button class="q-btn ${md.hAtk>1.01?'on-good':''}" onclick="toggleMod(${f},'h','Atk',1.12)">🔥主力万全</button>
-          <button class="q-btn ${md.hAtk<0.99?'on-bad':''}" onclick="toggleMod(${f},'h','Atk',0.80)">⚠️主力欠場</button>
-          <button class="q-btn ${md.hDef>1.01?'on-bad':''}" onclick="toggleMod(${f},'h','Def',1.20)">🛡️守備不安</button>
-          <button class="q-btn ${md.hTac>1.01?'on-tac':''}" onclick="toggleMod(${f},'h','Tac',1.18)">⚔️前がかり</button>
-          <button class="q-btn ${md.hTac<0.99?'on-tac':''}" onclick="toggleMod(${f},'h','Tac',0.85)">🧱専守防衛</button>
-        </div>
-        <div class="q-row">
-          <span class="q-lbl">✈️ ${m.a}</span>
-          <button class="q-btn ${md.aAtk>1.01?'on-good':''}" onclick="toggleMod(${f},'a','Atk',1.12)">🔥主力万全</button>
-          <button class="q-btn ${md.aAtk<0.99?'on-bad':''}" onclick="toggleMod(${f},'a','Atk',0.80)">⚠️主力欠場</button>
-          <button class="q-btn ${md.aDef>1.01?'on-bad':''}" onclick="toggleMod(${f},'a','Def',1.20)">🛡️守備不安</button>
-          <button class="q-btn ${md.aTac>1.01?'on-tac':''}" onclick="toggleMod(${f},'a','Tac',1.18)">⚔️前がかり</button>
-          <button class="q-btn ${md.rain?'on-rain':''}" onclick="toggleRain(${f})">☔雨天</button>
-        </div>
-      </div>
-    `;
-    container.appendChild(div);
-  });
-
-  const totoLine = processed.map(p => p.pick).join(" - ");
-  const miniALine = processed.slice(0,5).map(p => p.pick).join(" - ");
-  const miniBLine = processed.slice(5,10).map(p => p.pick).join(" - ");
-
-  const g3Single = [];
-  const g3Exp = [];
-  g3Teams.forEach((gt, idx) => {
-    const rk = [0,1,2,3].sort((a,b) => gt.probs[b] - gt.probs[a]);
-    g3Single.push(rk[0]);
-    g3Exp.push({ idx, name: gt.name, t1: rk[0], t2: rk[1], sc: (gt.probs[rk[0]]+gt.probs[rk[1]])*(1-(gt.probs[rk[0]]-gt.probs[rk[1]])) });
-  });
-  g3Exp.sort((a,b) => b.sc - a.sc);
-  const gw1 = g3Exp[0]?.idx ?? 0, gw2 = g3Exp[1]?.idx ?? 1;
-  const g3Multi400 = g3Teams.map((_, i) => {
-    const it = g3Exp.find(e => e.idx === i);
-    return (i === gw1 || i === gw2) ? `[${Math.min(it.t1,it.t2)}・${Math.max(it.t1,it.t2)}]` : it.t1;
-  }).join(" - ");
-
-  document.getElementById("outToto13").textContent = totoLine;
-  document.getElementById("outMiniA").textContent = miniALine;
-  document.getElementById("outMiniB").textContent = miniBLine;
-  document.getElementById("outGoal3").textContent = g3Single.join(" - ");
-
-  const pMiniA = processed.slice(0,5).reduce((acc, p) => acc * p.probs[p.pick], 1);
-  const pMiniB = processed.slice(5,10).reduce((acc, p) => acc * p.probs[p.pick], 1);
-  const sortedW = [...processed].sort((a,b) => b.wScore - a.wScore);
-
-  let planHtml = "";
-  if (pMiniB >= pMiniA) {
-    planHtml = `
-      <div style="background:#064e3b; padding:10px; border-radius:8px; margin-bottom:10px;">
-        <b>【最推奨：GOAL3 400円マルチ ＋ mini toto B組 1口（計500円）】</b><br>
-        <div class="code-line">GOAL3 (400円): ${g3Multi400}</div>
-        <div style="font-size:0.8rem; color:#fde047;">拡張枠: ${g3Exp[0]?.name || "-"} ＆ ${g3Exp[1]?.name || "-"}</div>
-        <div class="code-line">mini B (100円): ${miniBLine}</div>
-      </div>
-    `;
-  } else {
-    planHtml = `
-      <div style="background:#064e3b; padding:10px; border-radius:8px; margin-bottom:10px;">
-        <b>【最推奨：mini toto A・B分散 ＋ 本戦1口（計500円）】</b>
-        <div class="code-line">mini A (200円W): ${miniALine}</div>
-        <div class="code-line">mini B (200円W): ${miniBLine}</div>
-        <div class="code-line">toto本戦 (100円): ${totoLine}</div>
-      </div>
-    `;
-  }
-  planHtml += `
-    <div style="background:#1e293b; padding:10px; border-radius:8px; font-size:0.85rem;">
-      <b>【代替案：toto本戦 2ダブル(400円) ＋ mini B組(100円)】</b><br>
-      本戦優先W枠：<b>第${sortedW[0]?.f}枠(${sortedW[0]?.card})・第${sortedW[1]?.f}枠(${sortedW[1]?.card})</b>
-    </div>
-  `;
-  document.getElementById("budgetPlanContent").innerHTML = planHtml;
-
-  renderResultInputs(processed);
-  renderReview(processed);
-
-  if (flash) {
-    const sb = document.getElementById("summaryBox");
-    sb.classList.add("flash");
-    setTimeout(() => sb.classList.remove("flash"), 800);
-  }
-}
-
-function renderResultInputs(processed) {
-  const grid = document.getElementById("resultInputGrid");
-  let html = `<table><tr><th>枠</th><th>カード</th><th>勝敗</th><th>スコア(H-A)</th></tr>`;
-  processed.forEach(p => {
-    const act = localActuals[p.f] || { res: "", hs: 0, as: 0 };
-    html += `
-      <tr>
-        <td>${p.f}</td>
-        <td style="text-align:left;">${p.card}</td>
-        <td>
-          <select id="res_${p.f}" onchange="saveLocalAct(${p.f})">
-            <option value="" ${act.res===""?"selected":""}>未</option>
-            <option value="1" ${act.res==="1"?"selected":""}>1 (H勝)</option>
-            <option value="0" ${act.res==="0"?"selected":""}>0 (引分)</option>
-            <option value="2" ${act.res==="2"?"selected":""}>2 (A勝)</option>
-          </select>
-        </td>
-        <td>
-          <input type="number" id="hs_${p.f}" value="${act.hs}" min="0" max="9" style="width:42px; padding:3px;" onchange="saveLocalAct(${p.f})"> -
-          <input type="number" id="as_${p.f}" value="${act.as}" min="0" max="9" style="width:42px; padding:3px;" onchange="saveLocalAct(${p.f})">
-        </td>
-      </tr>
-    `;
-  });
-  html += `</table>`;
-  grid.innerHTML = html;
-}
-
-function saveLocalAct(f) {
-  const res = document.getElementById(`res_${f}`).value;
-  const hs = parseInt(document.getElementById(`hs_${f}`).value || 0, 10);
-  const as = parseInt(document.getElementById(`as_${f}`).value || 0, 10);
-  if (res) localActuals[f] = { res, hs, as };
-  else delete localActuals[f];
-  localStorage.setItem("act_" + curRoundKey, JSON.stringify(localActuals));
-}
-
-function checkHits() {
-  const rData = appData.rounds[curRoundKey];
-  if (!rData) return;
-  let hit13 = 0, hitA = 0, hitB = 0, fin = 0;
-  let rows = `<table><tr><th>枠</th><th>カード</th><th>予想</th><th>結果</th><th>判定</th></tr>`;
-
-  rData.matches.forEach(m => {
-    const f = m.f;
-    const act = localActuals[f];
-    if (act && act.res) {
-      fin++;
-      const md = mods[f] || { hAtk:1, hDef:1, hTac:1, aAtk:1, aDef:1, aTac:1, rain:false };
-      let lh = (m.h_xg * md.hAtk * md.hTac * (m.a_xga * md.aDef / 1.35)) * 1.08;
-      let la = (m.a_xg * md.aAtk * md.aTac * (m.h_xga * md.hDef / 1.35)) / 1.08;
-      const [p1, p0, p2] = calc102(lh, la);
-      const probs = { "1": p1, "0": p0, "2": p2 };
-      const pick = ["1","0","2"].sort((a,b) => probs[b] - probs[a])[0];
-
-      const ok = (pick === act.res);
-      if (ok) {
-        hit13++;
-        if (f <= 5) hitA++;
-        else if (f <= 10) hitB++;
-      }
-      rows += `<tr><td>${f}</td><td>${m.h}vs${m.a}</td><td>${pick}</td><td>${act.res} (${act.hs}-${act.as})</td><td>${ok ? '🎯的中' : '❌'}</td></tr>`;
-    }
-  });
-  rows += `</table>`;
-
-  let summary = `<div style="padding:10px; background:#0f172a; border-radius:8px; margin-bottom:8px;">
-    <b>照合結果（確定 ${fin}/13試合）</b>：toto本戦 <b>${hit13}的中</b> ｜ mini A <b>${hitA}/5</b> ｜ mini B <b>${hitB}/5</b>
-  </div>`;
-  document.getElementById("hitReportArea").innerHTML = summary + rows;
-}
-
-function renderReview(processed) {
-  let html = `<table><tr><th>枠</th><th>カード</th><th>予測λ</th><th>実スコア</th><th>振り返り評価</th></tr>`;
-  let count = 0;
-  processed.forEach(p => {
-    const act = localActuals[p.f];
-    if (act && act.res) {
-      count++;
-      const diffH = Math.abs(act.hs - p.lh);
-      const diffA = Math.abs(act.as - p.la);
-      const note = (diffH >= 1.5 || diffA >= 1.5) ? "⚠️ 大幅乖離（次戦xG補正推奨）" : "✅ 想定レンジ内";
-      html += `<tr><td>${p.f}</td><td>${p.card}</td><td>${p.lh.toFixed(2)} - ${p.la.toFixed(2)}</td><td>${act.hs} - ${act.as}</td><td>${note}</td></tr>`;
-    }
-  });
-  html += `</table>`;
-  document.getElementById("reviewArea").innerHTML = count > 0 ? html : "<p style='color:var(--muted);'>タブ③で確定スコアが取得・入力されると、予測λとの乖離分析が表示されます。</p>";
-}
-
-function switchTab(idx) {
-  document.querySelectorAll(".tab-btn").forEach((b, i) => b.classList.toggle("active", i === idx));
-  document.querySelectorAll(".tab-content").forEach((c, i) => c.classList.toggle("active", i === idx));
-}
-
-// 起動時のPIN認証チェック
-window.addEventListener("DOMContentLoaded", async () => {
-  const savedHash = localStorage.getItem("toto_auth_hash");
-  if (savedHash && savedHash === TARGET_HASH) {
-    unlockApp();
-  }
-});
-</script>
-  <script>
-(function() {
-  var cachedMatches = [];
-
-  function loadLatestData() {
-    fetch('data.json?t=' + Date.now())
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        if (d && d.rounds && d.current_round && d.rounds[d.current_round]) {
-          cachedMatches = d.rounds[d.current_round].matches || [];
-        }
-      })
-      .catch(function() {});
-  }
-
-  function poissonProbs(lam) {
-    var p0 = Math.exp(-lam);
-    var p1 = lam * p0;
-    var p2 = (lam * lam / 2) * p0;
-    var p3 = Math.max(0.01, 1 - (p0 + p1 + p2));
-    return [p0, p1, p2, p3];
-  }
-
-  function calc1x2(hLam, aLam) {
-    var hp = poissonProbs(hLam);
-    var ap = poissonProbs(aLam);
-    var p1 = 0, p0 = 0, p2 = 0;
-    for (var i = 0; i < 4; i++) {
-      for (var j = 0; j < 4; j++) {
-        var p = hp[i] * ap[j];
-        if (i > j) p1 += p;
-        else if (i === j) p0 += p;
-        else p2 += p;
-      }
-    }
-    var tot = p1 + p0 + p2 || 1;
-    var list = [
-      { code: '1', prob: Math.round((p1 / tot) * 100) },
-      { code: '0', prob: Math.round((p0 / tot) * 100) },
-      { code: '2', prob: Math.round((p2 / tot) * 100) }
-    ].sort(function(a, b) { return b.prob - a.prob; });
-    return {
-      top1: list[0].code,
-      top2: list[1].code,
-      p1: list[0].prob,
-      p2: list[1].prob,
-      diff: list[0].prob - list[1].prob
-    };
-  }
-
-  function calcGoalTop2(lam) {
-    var ps = poissonProbs(lam);
-    var list = [
-      { code: '0', prob: Math.round(ps[0] * 100) },
-      { code: '1', prob: Math.round(ps[1] * 100) },
-      { code: '2', prob: Math.round(ps[2] * 100) },
-      { code: '3', prob: Math.round(ps[3] * 100) }
-    ].sort(function(a, b) { return b.prob - a.prob; });
-    return {
-      top1: list[0].code,
-      top2: list[1].code,
-      p1: list[0].prob,
-      p2: list[1].prob,
-      diff: list[0].prob - list[1].prob
-    };
-  }
-
-  function buildMultiPlanHtml(title, badge, subInfo, items, wCount) {
-    var sorted = items.map(function(it, idx) { return { idx: idx, diff: it.diff }; })
-      .sort(function(a, b) { return a.diff - b.diff; });
-    var wSet = sorted.slice(0, wCount).map(function(x) { return x.idx; });
-
-    var multiLine = items.map(function(it, idx) {
-      if (wSet.indexOf(idx) !== -1) {
-        return '<span style="color:#fbbf24;font-weight:bold;">[' + it.top1 + '/' + it.top2 + ']</span>';
-      }
-      return '<span>' + it.top1 + '</span>';
-    }).join(' － ');
-
-    var singleLine = items.map(function(it) { return it.top1; }).join(' － ');
-    var multiCost = Math.pow(2, wSet.length) * 100;
-    var totalCost = multiCost + 100;
-
-    return (
-      '<div style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:14px;margin-bottom:12px;">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px;">' +
-          '<span style="font-weight:bold;color:#38bdf8;font-size:15px;">' + title + '</span>' +
-          '<span style="background:#065f46;color:#6ee7b7;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:bold;">' + badge + '（合計 ' + totalCost + '円）</span>' +
-        '</div>' +
-        '<div style="font-size:12px;color:#94a3b8;margin-bottom:10px;">' + subInfo + '</div>' +
-        '<div style="background:#1e293b;padding:10px;border-radius:6px;margin-bottom:6px;">' +
-          '<div style="font-size:11px;color:#fbbf24;margin-bottom:4px;">◆ メイン：Wマルチ買い（' + multiCost + '円 / 接戦' + wSet.length + '枠をダブル）</div>' +
-          '<div style="font-size:15px;letter-spacing:1px;color:#f8fafc;">' + multiLine + '</div>' +
-        '</div>' +
-        '<div style="background:#1e293b;padding:8px 10px;border-radius:6px;">' +
-          '<div style="font-size:11px;color:#cbd5e1;margin-bottom:2px;">◆ 押さえ：本命シングル買い（100円）</div>' +
-          '<div style="font-size:14px;letter-spacing:1px;color:#e2e8f0;">' + singleLine + '</div>' +
-        '</div>' +
-      '</div>'
-    );
-  }
-
-  function renderAllEnhancements() {
-    if (!cachedMatches || cachedMatches.length === 0) return;
-
-    var analyzed = cachedMatches.map(function(m) {
-      var hLam = parseFloat(m.h_xg || 1.3);
-      var aLam = parseFloat(m.a_xg || 1.3);
-      var res1x2 = calc1x2(hLam, aLam);
-      return {
-        f: m.f,
-        h: m.h,
-        a: m.a,
-        hLam: hLam,
-        aLam: aLam,
-        res1x2: res1x2,
-        gH: calcGoalTop2(hLam),
-        gA: calcGoalTop2(aLam)
-      };
-    });
-
-    // 1. ①直前予想の「上位2つずつ」表示更新
-    var top2All = analyzed.map(function(x) { return x.res1x2.top1 + '/' + x.res1x2.top2; }).join(' － ');
-    var top2MiniA = analyzed.slice(0, 5).map(function(x) { return x.res1x2.top1 + '/' + x.res1x2.top2; }).join(' － ');
-    var top2MiniB = analyzed.length >= 10
-      ? analyzed.slice(5, 10).map(function(x) { return x.res1x2.top1 + '/' + x.res1x2.top2; }).join(' － ')
-      : '-';
-
-    var goal3Pairs = [];
-    analyzed.slice(0, 3).forEach(function(x) {
-      goal3Pairs.push(x.gH.top1 + '/' + x.gH.top2);
-      goal3Pairs.push(x.gA.top1 + '/' + x.gA.top2);
-    });
-    var top2Goal3 = goal3Pairs.join(' － ');
-
-    document.querySelectorAll('div, p, span').forEach(function(el) {
-      if (el.children.length === 0) {
-        var txt = el.textContent.trim();
-        if (txt.indexOf('toto 本戦') === 0 && el.nextElementSibling) {
-          el.textContent = 'toto 本戦（全' + analyzed.length + '枠・上位2つ表示）';
-          el.nextElementSibling.textContent = top2All;
-        }
-        if (txt.indexOf('mini toto A組') === 0 && el.nextElementSibling) {
-          el.textContent = 'mini toto A組（1〜5枠・上位2つ表示）';
-          el.nextElementSibling.textContent = top2MiniA;
-        }
-        if (txt.indexOf('mini toto B組') === 0 && el.nextElementSibling) {
-          el.textContent = 'mini toto B組（6〜10枠・上位2つ表示）';
-          el.nextElementSibling.textContent = top2MiniB;
-        }
-        if (txt.indexOf('toto GOAL3') === 0 && el.nextElementSibling) {
-          el.textContent = 'toto GOAL3（6枠・上位2つ表示）';
-          el.nextElementSibling.textContent = top2Goal3;
-        }
-      }
-    });
-
-    // 2. ②500円提案タブのマルチ買い＆GOAL3対応
-    var sec500 = null;
-    document.querySelectorAll('div, section').forEach(function(el) {
-      var t = el.textContent || '';
-      if (!sec500 && el.offsetParent !== null && (t.indexOf('500円') !== -1 && t.indexOf('提案') !== -1) && el.id && el.id.indexOf('tab') !== -1) {
-        sec500 = el;
-      }
-    });
-    if (!sec500) {
-      document.querySelectorAll('div').forEach(function(el) {
-        if (!sec500 && el.offsetParent !== null && el.children.length >= 1 && el.children.length <= 8) {
-          var firstTxt = el.children[0] ? el.children[0].textContent : '';
-          if (firstTxt.indexOf('500円') !== -1 && (firstTxt.indexOf('戦略') !== -1 || firstTxt.indexOf('プラン') !== -1 || firstTxt.indexOf('提案') !== -1)) {
-            sec500 = el;
-          }
-        }
-      });
-    }
-
-    if (sec500 && !sec500.getAttribute('data-multi-rendered')) {
-      var miniAItems = analyzed.slice(0, 5).map(function(x) { return x.res1x2; });
-      var miniBItems = analyzed.slice(5, 10).map(function(x) { return x.res1x2; });
-      var goal3Items = [];
-      var g3Desc = [];
-      analyzed.slice(0, 3).forEach(function(x) {
-        goal3Items.push(x.gH);
-        goal3Items.push(x.gA);
-        g3Desc.push('第' + x.f + '枠 ' + x.h + '(' + x.hLam + ') vs ' + x.a + '(' + x.aLam + ')');
-      });
-      var totoAllItems = analyzed.map(function(x) { return x.res1x2; });
-
-      var html = '<div style="padding:8px 0;">';
-      html += '<div style="font-size:14px;font-weight:bold;color:#f8fafc;margin-bottom:10px;">💰 予算500円以内・マルチ買い対応 最適購入プラン（Wマルチ400円＋シングル100円）</div>';
-      if (goal3Items.length === 6) {
-        html += buildMultiPlanHtml(
-          '① toto GOAL3（6枠マルチ買いプラン）',
-          'マルチ400円＋シングル100円',
-          '対象カード予測λ：' + g3Desc.join(' ／ '),
-          goal3Items,
-          2
-        );
-      }
-      if (miniAItems.length === 5) {
-        html += buildMultiPlanHtml(
-          '② mini toto A組（1〜5枠マルチ買いプラン）',
-          'マルチ400円＋シングル100円',
-          '1〜5枠の中で勝率差が小さい接戦2試合を自動でダブル（W）に設定',
-          miniAItems,
-          2
-        );
-      }
-      if (miniBItems.length === 5) {
-        html += buildMultiPlanHtml(
-          '③ mini toto B組（6〜10枠マルチ買いプラン）',
-          'マルチ400円＋シングル100円',
-          '6〜10枠の中で勝率差が小さい接戦2試合を自動でダブル（W）に設定',
-          miniBItems,
-          2
-        );
-      }
-      if (totoAllItems.length >= 10) {
-        html += buildMultiPlanHtml(
-          '④ toto 本戦（全' + totoAllItems.length + '枠マルチ買いプラン）',
-          'マルチ400円＋シングル100円',
-          '全枠中で最も波乱度が高い2試合のみをダブル（W）で押さえる高配当狙い',
-          totoAllItems,
-          2
-        );
-      }
-      html += '</div>';
-      sec500.innerHTML = html;
-      sec500.setAttribute('data-multi-rendered', '1');
-    }
-  }
-
-  function cleanUi() {
-    document.querySelectorAll('button').forEach(function(b) {
-      var t = b.textContent || '';
-      if (t.indexOf('標準に戻す') !== -1 || t.indexOf('主力万全') !== -1 || t.indexOf('主力欠場') !== -1 || t.indexOf('守備不安') !== -1 || t.indexOf('前がかり') !== -1 || t.indexOf('専守防衛') !== -1 || t.indexOf('雨天') !== -1) {
-        if (b.parentElement && b.parentElement.children.length >= 4) b.parentElement.style.display = 'none';
-        b.style.display = 'none';
-      }
-      if (t.indexOf('500円提案') !== -1 && !b.getAttribute('data-hooked')) {
-        b.setAttribute('data-hooked', '1');
-        b.addEventListener('click', function() {
-          document.querySelectorAll('[data-multi-rendered]').forEach(function(el) {
-            el.removeAttribute('data-multi-rendered');
-          });
-          setTimeout(renderAllEnhancements, 100);
+      function sha256Hex(str) {
+        var enc = new TextEncoder().encode(str);
+        return crypto.subtle.digest("SHA-256", enc).then(function(buf) {
+          return Array.from(new Uint8Array(buf)).map(function(b) {
+            return b.toString(16).padStart(2, "0");
+          }).join("");
         });
       }
-    });
 
-    document.querySelectorAll('h1, h2, h3, h4, div, span').forEach(function(el) {
-      if (el.children.length === 0) {
-        var s = el.textContent;
-        if (s.indexOf('スタメン・天候ワンタップ補正') !== -1) {
-          el.textContent = s.replace('スタメン・天候ワンタップ補正', '自動分析・試合別予測データ');
-        }
-        if (/([ァ-ヶー・]+)[A-Z0-9]+/.test(s)) {
-          el.textContent = s.replace(/([ァ-ヶー・]+)[A-Z0-9]+/g, '$1');
-        }
+      function unlockApp() {
+        document.getElementById("pin-overlay").classList.add("hidden");
+        document.getElementById("app").classList.remove("hidden");
+        fetchData();
       }
-    });
-  }
 
-  loadLatestData();
-  setInterval(function() {
-    cleanUi();
-    renderAllEnhancements();
-  }, 500);
-})();
-</script>
+      function initAuth() {
+        if (EXPECTED_HASH === "__INJECTED_PIN_HASH__" || EXPECTED_HASH === "") {
+          unlockApp();
+          return;
+        }
+        if (localStorage.getItem("toto_auth_ok") === EXPECTED_HASH) {
+          unlockApp();
+          return;
+        }
+        document.getElementById("pin-overlay").classList.remove("hidden");
+        document.getElementById("pin-submit").addEventListener("click", function() {
+          var val = document.getElementById("pin-input").value || "";
+          sha256Hex(val).then(function(h) {
+            if (h === EXPECTED_HASH) {
+              localStorage.setItem("toto_auth_ok", h);
+              unlockApp();
+            } else {
+              document.getElementById("pin-err").textContent = "PINが正しくありません";
+            }
+          });
+        });
+      }
+
+      function poissonProbs(lam) {
+        var p0 = Math.exp(-lam);
+        var p1 = lam * p0;
+        var p2 = (lam * lam / 2) * p0;
+        var p3 = Math.max(0.01, 1 - (p0 + p1 + p2));
+        return [p0, p1, p2, p3];
+      }
+
+      function calc1x2(hLam, aLam) {
+        var hp = poissonProbs(hLam);
+        var ap = poissonProbs(aLam);
+        var p1 = 0, p0 = 0, p2 = 0;
+        for (var i = 0; i < 4; i++) {
+          for (var j = 0; j < 4; j++) {
+            var p = hp[i] * ap[j];
+            if (i > j) p1 += p;
+            else if (i === j) p0 += p;
+            else p2 += p;
+          }
+        }
+        var tot = p1 + p0 + p2 || 1;
+        var arr = [
+          { code: "1", prob: Math.round((p1 / tot) * 100) },
+          { code: "0", prob: Math.round((p0 / tot) * 100) },
+          { code: "2", prob: Math.round((p2 / tot) * 100) }
+        ].sort(function(a, b) { return b.prob - a.prob; });
+        return {
+          top1: arr[0].code,
+          top2: arr[1].code,
+          p1: arr[0].prob,
+          p2: arr[1].prob,
+          diff: arr[0].prob - arr[1].prob,
+          raw: {
+            "1": Math.round((p1 / tot) * 100),
+            "0": Math.round((p0 / tot) * 100),
+            "2": Math.round((p2 / tot) * 100)
+          }
+        };
+      }
+
+      function calcGoalTop2(lam) {
+        var ps = poissonProbs(lam);
+        var arr = [
+          { code: "0", prob: Math.round(ps[0] * 100) },
+          { code: "1", prob: Math.round(ps[1] * 100) },
+          { code: "2", prob: Math.round(ps[2] * 100) },
+          { code: "3", prob: Math.round(ps[3] * 100) }
+        ].sort(function(a, b) { return b.prob - a.prob; });
+        return {
+          top1: arr[0].code,
+          top2: arr[1].code,
+          p1: arr[0].prob,
+          p2: arr[1].prob,
+          diff: arr[0].prob - arr[1].prob
+        };
+      }
+
+      function buildPlanCard(title, subInfo, items, wCount) {
+        var sorted = items.map(function(it, idx) { return { idx: idx, diff: it.diff }; })
+          .sort(function(a, b) { return a.diff - b.diff; });
+        var wSet = sorted.slice(0, wCount).map(function(x) { return x.idx; });
+
+        var multiHtml = items.map(function(it, idx) {
+          if (wSet.indexOf(idx) !== -1) {
+            return '<span class="w-pair">' + it.top1 + '/' + it.top2 + '</span>';
+          }
+          return '<span>' + it.top1 + '</span>';
+        }).join(' － ');
+
+        var singleHtml = items.map(function(it) { return it.top1; }).join(' － ');
+        var multiCost = Math.pow(2, wSet.length) * 100;
+        var totalCost = multiCost + 100;
+
+        return (
+          '<div class="plan-card">' +
+            '<div class="plan-header">' +
+              '<span class="plan-title">' + title + '</span>' +
+              '<span class="plan-badge">マルチ' + multiCost + '円＋シングル100円（計' + totalCost + '円）</span>' +
+            '</div>' +
+            '<div class="plan-sub">' + subInfo + '</div>' +
+            '<div class="ticket-box">' +
+              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + multiCost + '円 / 接戦' + wSet.length + '枠をダブル）</div>' +
+              '<div class="ticket-line">' + multiHtml + '</div>' +
+            '</div>' +
+            '<div class="ticket-box">' +
+              '<div class="ticket-label sub">◆ 押さえ：本命シングル買い（100円）</div>' +
+              '<div class="ticket-line">' + singleHtml + '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+
+      function renderRound(roundKey) {
+        if (!appData || !appData.rounds || !appData.rounds[roundKey]) return;
+        var rObj = appData.rounds[roundKey];
+        var matches = rObj.matches || [];
+        var actuals = rObj.actual_results || {};
+
+        document.getElementById("round-title-badge").textContent = rObj.title || roundKey;
+        document.getElementById("last-updated-text").textContent =
+          "最終取得: " + (appData.last_updated || "-") + "（順位・天候・スタメン自動分析済）";
+
+        var analyzed = matches.map(function(m) {
+          var hLam = parseFloat(m.h_xg || 1.3);
+          var aLam = parseFloat(m.a_xg || 1.3);
+          var c1x2 = calc1x2(hLam, aLam);
+          return {
+            f: m.f,
+            h: m.h,
+            a: m.a,
+            v: m.v || [34, 32, 34],
+            hLam: hLam,
+            aLam: aLam,
+            analysis: m.analysis || "",
+            c1x2: c1x2,
+            gH: calcGoalTop2(hLam),
+            gA: calcGoalTop2(aLam)
+          };
+        });
+
+        // 1. ①直前予想（上位2つずつ表示）
+        document.getElementById("lbl-toto-main").textContent =
+          "toto 本戦（全" + analyzed.length + "枠・上位2つ表示）";
+        document.getElementById("val-toto-main").textContent =
+          analyzed.map(function(x) { return x.c1x2.top1 + "/" + x.c1x2.top2; }).join(" － ") || "-";
+
+        document.getElementById("val-mini-a").textContent =
+          analyzed.slice(0, 5).map(function(x) { return x.c1x2.top1 + "/" + x.c1x2.top2; }).join(" － ") || "-";
+
+        document.getElementById("val-mini-b").textContent =
+          analyzed.length >= 10
+            ? analyzed.slice(5, 10).map(function(x) { return x.c1x2.top1 + "/" + x.c1x2.top2; }).join(" － ")
+            : "-";
+
+        var g3Pairs = [];
+        analyzed.slice(0, 3).forEach(function(x) {
+          g3Pairs.push(x.gH.top1 + "/" + x.gH.top2);
+          g3Pairs.push(x.gA.top1 + "/" + x.gA.top2);
+        });
+        document.getElementById("val-goal3").textContent = g3Pairs.join(" － ") || "-";
+
+        // 試合カード一覧
+        var mHtml = analyzed.map(function(x) {
+          var g3Tag = x.f <= 3 ? '<span class="goal3-tag">GOAL3</span>' : '';
+          var vStr = x.v[0] + "% / " + x.v[1] + "% / " + x.v[2] + "%";
+          var pStr = "[1]" + x.c1x2.raw["1"] + "% [0]" + x.c1x2.raw["0"] + "% [2]" + x.c1x2.raw["2"] + "%";
+          return (
+            '<div class="match-card">' +
+              '<div class="match-top">' +
+                '<div class="match-teams">第' + x.f + '枠 ' + g3Tag + '：' + x.h + ' vs ' + x.a + '</div>' +
+                '<div class="match-rec">推奨：' + x.c1x2.top1 + ' / ' + x.c1x2.top2 + '</div>' +
+              '</div>' +
+              '<div class="match-metrics">予測λ: ' + x.hLam.toFixed(2) + ' - ' + x.aLam.toFixed(2) + ' ｜ 勝率: ' + pStr + ' ｜ 推計投票率: ' + vStr + '</div>' +
+              '<div class="match-analysis">📊 ' + x.analysis + '</div>' +
+            '</div>'
+          );
+        }).join("");
+        document.getElementById("matches-list").innerHTML = mHtml || '<div class="empty-msg">試合データがありません</div>';
+
+        // 2. ②500円提案（マルチ買い＋GOAL3対応）
+        var plansHtml = "";
+        if (analyzed.length >= 3) {
+          var g3Items = [];
+          var g3Desc = [];
+          analyzed.slice(0, 3).forEach(function(x) {
+            g3Items.push(x.gH);
+            g3Items.push(x.gA);
+            g3Desc.push("第" + x.f + "枠 " + x.h + "(λ" + x.hLam.toFixed(2) + ") vs " + x.a + "(λ" + x.aLam.toFixed(2) + ")");
+          });
+          plansHtml += buildPlanCard(
+            "① toto GOAL3（6枠マルチ買いプラン）",
+            "対象3試合の予測得点期待値：" + g3Desc.join(" ／ "),
+            g3Items,
+            2
+          );
+        }
+        if (analyzed.length >= 5) {
+          plansHtml += buildPlanCard(
+            "② mini toto A組（1〜5枠マルチ買いプラン）",
+            "1〜5枠の中で勝率差が最も小さい接戦2試合を自動でダブル（W）に設定",
+            analyzed.slice(0, 5).map(function(x) { return x.c1x2; }),
+            2
+          );
+        }
+        if (analyzed.length >= 10) {
+          plansHtml += buildPlanCard(
+            "③ mini toto B組（6〜10枠マルチ買いプラン）",
+            "6〜10枠の中で勝率差が最も小さい接戦2試合を自動でダブル（W）に設定",
+            analyzed.slice(5, 10).map(function(x) { return x.c1x2; }),
+            2
+          );
+        }
+        if (analyzed.length >= 10) {
+          plansHtml += buildPlanCard(
+            "④ toto 本戦（全" + analyzed.length + "枠マルチ買いプラン）",
+            "全試合中で最も拮抗している2試合のみをダブル（W）で押さえる高配当狙い",
+            analyzed.map(function(x) { return x.c1x2; }),
+            2
+          );
+        }
+        document.getElementById("plans-list").innerHTML = plansHtml || '<div class="empty-msg">提案を生成できる試合数がありません</div>';
+
+        // 3. ③結果照合
+        var actKeys = Object.keys(actuals);
+        if (actKeys.length === 0) {
+          document.getElementById("results-list").innerHTML =
+            '<div class="empty-msg">対象試合の終了後に結果データが自動取得され、上位2つ予想の的中照合が表示されます。</div>';
+        } else {
+          var hitTop1 = 0, hitTop2 = 0;
+          var rRows = analyzed.map(function(x) {
+            var a = actuals[String(x.f)];
+            if (!a) return "";
+            var ok1 = (a.res === x.c1x2.top1);
+            var ok2 = (a.res === x.c1x2.top1 || a.res === x.c1x2.top2);
+            if (ok1) hitTop1++;
+            if (ok2) hitTop2++;
+            return (
+              '<div class="match-card">' +
+                '<div class="match-top">' +
+                  '<div class="match-teams">第' + x.f + '枠：' + x.h + ' ' + a.hs + ' - ' + a.as + ' ' + x.a + '</div>' +
+                  '<div class="match-rec">結果: [' + a.res + '] ｜ 予想: ' + x.c1x2.top1 + '/' + x.c1x2.top2 + ' ' + (ok2 ? '✅的中' : '❌不的中') + '</div>' +
+                '</div>' +
+              '</div>'
+            );
+          }).join("");
+          document.getElementById("results-list").innerHTML =
+            '<div class="summary-box"><div class="summary-title">的中サマリー：本命的中 ' + hitTop1 + '試合 ／ 上位2つカバー的中 ' + hitTop2 + '試合</div></div>' + rRows;
+        }
+
+        // 4. ④振り返り・今節ポイント
+        var closeGames = analyzed.slice().sort(function(a, b) { return a.c1x2.diff - b.c1x2.diff; }).slice(0, 3);
+        var solidGames = analyzed.slice().sort(function(a, b) { return b.c1x2.diff - a.c1x2.diff; }).slice(0, 3);
+        var revHtml =
+          '<div class="plan-card">' +
+            '<div class="plan-title" style="margin-bottom:8px;">⚠️ 波乱注意・接戦枠（マルチ買い推奨カード）</div>' +
+            closeGames.map(function(g) {
+              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（上位2択: ' + g.c1x2.top1 + '/' + g.c1x2.top2 + '、勝率差 ' + g.c1x2.diff + '%）</div>';
+            }).join("") +
+          '</div>' +
+          '<div class="plan-card">' +
+            '<div class="plan-title" style="margin-bottom:8px;">🛡️ 鉄板候補枠（シングル固定推奨カード）</div>' +
+            solidGames.map(function(g) {
+              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: [' + g.c1x2.top1 + '] 勝率 ' + g.c1x2.p1 + '%）</div>';
+            }).join("") +
+          '</div>';
+        document.getElementById("review-list").innerHTML = revHtml;
+      }
+
+      function fetchData() {
+        fetch("data.json?t=" + Date.now())
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            appData = data;
+            var sel = document.getElementById("round-select");
+            sel.innerHTML = "";
+            var keys = Object.keys(data.rounds || {});
+            keys.forEach(function(k) {
+              var opt = document.createElement("option");
+              opt.value = k;
+              opt.textContent = k;
+              if (k === data.current_round) opt.selected = true;
+              sel.appendChild(opt);
+            });
+            var activeKey = data.current_round || keys[0];
+            if (activeKey) renderRound(activeKey);
+          })
+          .catch(function() {
+            document.getElementById("round-title-badge").textContent = "data.json 読み込みエラー";
+          });
+      }
+
+      // イベント登録
+      document.getElementById("round-select").addEventListener("change", function(e) {
+        renderRound(e.target.value);
+      });
+      document.getElementById("reload-btn").addEventListener("click", function() {
+        fetchData();
+      });
+      document.querySelectorAll(".tab-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
+          document.querySelectorAll(".tab-content").forEach(function(c) { c.classList.add("hidden"); });
+          btn.classList.add("active");
+          document.getElementById(btn.getAttribute("data-tab")).classList.remove("hidden");
+        });
+      });
+
+      initAuth();
+    })();
+  </script>
 </body>
 </html>
