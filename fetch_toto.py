@@ -78,28 +78,26 @@ def norm_team(name):
 
 
 def get_toto_schedule_info():
-    """Yahoo! totoスケジュールおよびスマホ版toto公式から最新販売中の開催回・締切を取得"""
     html = fetch_url("https://toto.yahoo.co.jp/schedule/toto", 10)
     if html:
         soup = BeautifulSoup(html, "html.parser")
         txt = soup.get_text(" ", strip=True)
-        # 「第1672回（2026/11/7-2026/11/14） 販売中」のパターンを抽出
         m_sale = re.search(r"第(\d{4})回[（(]([^）)]+)[）)]\s*販売中", txt)
         if m_sale:
             rid, period = m_sale.group(1), m_sale.group(2)
-            # スマホ版公式から正確なネット締切時刻も取得
-            sp_url = "https://sp.toto-dream.com/dcs/subos/screen/si01/ssin025/PGSSIN02501ForwardSalesTermtotoSP.form?holdCntId={}".format(rid)
+            sp_base = "https://sp.toto-dream.com/dcs/subos/screen/si01/ssin025/"
+            sp_url = sp_base + "PGSSIN02501ForwardSalesTermtotoSP.form?holdCntId={}".format(rid)
             sp_html = fetch_url(sp_url, 10)
             dead_str = period
             if sp_html:
                 sp_txt = BeautifulSoup(sp_html, "html.parser").get_text(" ", strip=True)
-                m_end = re.search(r"販売終了日\s*(\d{4}年\d{1,2}月\d{1,2}日\([月火水木金土日]\)).*?ネット決済\)\s*(\d{2}:\d{2})", sp_txt)
+                pat = r"販売終了日\s*(\d{4}年\d{1,2}月\d{1,2}日\([月火水木金土日]\)).*?ネット決済\)\s*(\d{2}:\d{2})"
+                m_end = re.search(pat, sp_txt)
                 if m_end:
                     dead_str = "{} {}締切".format(m_end.group(1), m_end.group(2))
-            print("[Schedule Found] 第{}回 ({})".format(rid, dead_str))
+            print("[Schedule Found]", "第{}回".format(rid), dead_str)
             return "第{}回".format(rid), dead_str
 
-        # 販売中が見つからない場合は直近の「これから」を取得
         m_next = re.findall(r"第(\d{4})回[（(]([^）)]+)[）)]\s*これから", txt)
         if m_next:
             rid, period = m_next[-1]
@@ -322,7 +320,7 @@ def main():
     st = get_club_stats()
     if st:
         data["club_stats"] = st
-    r_num, deadline_str = get_toto_round_num()
+    r_num, deadline_str = get_toto_schedule_info()
     scorers = get_top_scorers()
     res = get_future_matches(data["club_stats"], scorers, r_num, deadline_str)
     if res:
