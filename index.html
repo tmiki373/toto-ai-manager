@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>toto AI Manager - アンサンブル推論＆鉄板強調マルチ戦略</title>
+  <title>toto AI Manager - アンサンブル推論＆期待値・想定リターン戦略</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -191,7 +191,7 @@
     /* 予算別提案プランカード */
     .plan-card {
       background: #111827; border: 1px solid #334155; border-radius: 12px;
-      padding: 16px; margin-bottom: 14px;
+      padding: 16px; margin-bottom: 16px;
     }
     .plan-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -205,7 +205,26 @@
     .plan-badge.b1000 {
       background: #1e3a8a; color: #93c5fd;
     }
-    .plan-sub { font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
+    .plan-sub { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+
+    /* 期待値＆想定リターン3連パネル */
+    .ev-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px;
+    }
+    @media (max-width: 700px) { .ev-grid { grid-template-columns: 1fr; } }
+    .ev-box {
+      background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px;
+    }
+    .ev-box.highlight {
+      border-color: #10b981;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, #0f172a 100%);
+    }
+    .ev-label { font-size: 11px; color: #94a3b8; font-weight: bold; margin-bottom: 3px; }
+    .ev-value { font-size: 15px; font-weight: 900; color: #f8fafc; }
+    .ev-value.gold { color: #fbbf24; }
+    .ev-value.green { color: #4ade80; }
+    .ev-note { font-size: 11px; color: #cbd5e1; margin-top: 2px; }
+
     .ticket-box {
       background: #1e293b; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
     }
@@ -289,10 +308,10 @@
       <div id="matches-list"></div>
     </div>
 
-    <!-- タブ2: 500円・1000円提案（マルチ買い＋GOAL3対応） -->
+    <!-- タブ2: 500円・1000円提案（期待値＆想定リターン金額表示） -->
     <div id="tab2" class="tab-content hidden">
       <div class="budget-bar">
-        <div id="plans-heading" class="section-heading" style="margin-bottom:0;">💰 予算500円以内・的中率最大化マルチ購入プラン（Wマルチ400円＋シングル100円）</div>
+        <div id="plans-heading" class="section-heading" style="margin-bottom:0;">💰 予算500円プラン｜期待値・想定リターン金額シミュレーション</div>
         <div class="budget-switch">
           <button id="btn-budget-500" class="budget-btn active" data-budget="500">💵 500円プラン</button>
           <button id="btn-budget-1000" class="budget-btn" data-budget="1000">💴 1,000円プラン</button>
@@ -368,6 +387,10 @@
         });
       }
 
+      function formatYen(num) {
+        return Math.round(num).toLocaleString("ja-JP") + "円";
+      }
+
       function poissonProbs(lam) {
         var p0 = Math.exp(-lam);
         var p1 = lam * p0;
@@ -376,7 +399,7 @@
         return [p0, p1, p2, p3];
       }
 
-      function calc1x2DynamicDC(hLam, aLam) {
+      function calc1x2DynamicDC(hLam, aLam, mktV) {
         var totLam = hLam + aLam;
         var rho = Math.max(-0.16, Math.min(-0.06, -0.12 + (totLam - 2.4) * 0.03));
         var hp = poissonProbs(hLam);
@@ -397,10 +420,34 @@
           }
         }
         var tot = p1 + p0 + p2 || 1;
+        var aiProbMap = {
+          "1": p1 / tot,
+          "0": p0 / tot,
+          "2": p2 / tot
+        };
+
+        // 市場人気分布（投票率が取れていればそれを使用し、なければ一般投票の人気偏重を近似）
+        var mktProbMap;
+        if (mktV && mktV.length >= 3 && (mktV[0] + mktV[1] + mktV[2]) > 0) {
+          var ms = mktV[0] + mktV[1] + mktV[2];
+          mktProbMap = {
+            "1": Math.max(0.05, mktV[0] / ms),
+            "0": Math.max(0.05, mktV[1] / ms),
+            "2": Math.max(0.05, mktV[2] / ms)
+          };
+        } else {
+          // 一般投票は1・2の強い方に人気が集中しやすいバイアスを付与
+          var b1 = Math.pow(aiProbMap["1"], 1.18);
+          var b0 = Math.pow(aiProbMap["0"], 0.92);
+          var b2 = Math.pow(aiProbMap["2"], 1.18);
+          var bs = b1 + b0 + b2;
+          mktProbMap = { "1": b1 / bs, "0": b0 / bs, "2": b2 / bs };
+        }
+
         var arr = [
-          { code: "1", prob: Math.round((p1 / tot) * 100) },
-          { code: "0", prob: Math.round((p0 / tot) * 100) },
-          { code: "2", prob: Math.round((p2 / tot) * 100) }
+          { code: "1", prob: Math.round(aiProbMap["1"] * 100) },
+          { code: "0", prob: Math.round(aiProbMap["0"] * 100) },
+          { code: "2", prob: Math.round(aiProbMap["2"] * 100) }
         ].sort(function(a, b) { return b.prob - a.prob; });
 
         return {
@@ -409,32 +456,46 @@
           p1: arr[0].prob,
           p2: arr[1].prob,
           diff: arr[0].prob - arr[1].prob,
+          aiMap: aiProbMap,
+          mktMap: mktProbMap,
           raw: {
-            "1": Math.round((p1 / tot) * 100),
-            "0": Math.round((p0 / tot) * 100),
-            "2": Math.round((p2 / tot) * 100)
+            "1": Math.round(aiProbMap["1"] * 100),
+            "0": Math.round(aiProbMap["0"] * 100),
+            "2": Math.round(aiProbMap["2"] * 100)
           }
         };
       }
 
       function calcGoalTop2(lam) {
         var ps = poissonProbs(lam);
+        var aiMap = { "0": ps[0], "1": ps[1], "2": ps[2], "3": ps[3] };
+        // GOAL3の一般投票傾向（1点・2点に人気が集まりやすい）
+        var mktBase = { "0": 0.24, "1": 0.36, "2": 0.25, "3": 0.15 };
+        var mktMap = {
+          "0": aiMap["0"] * 0.65 + mktBase["0"] * 0.35,
+          "1": aiMap["1"] * 0.65 + mktBase["1"] * 0.35,
+          "2": aiMap["2"] * 0.65 + mktBase["2"] * 0.35,
+          "3": aiMap["3"] * 0.65 + mktBase["3"] * 0.35
+        };
+
         var arr = [
           { code: "0", prob: Math.round(ps[0] * 100) },
           { code: "1", prob: Math.round(ps[1] * 100) },
           { code: "2", prob: Math.round(ps[2] * 100) },
           { code: "3", prob: Math.round(ps[3] * 100) }
         ].sort(function(a, b) { return b.prob - a.prob; });
+
         return {
           top1: arr[0].code,
           top2: arr[1].code,
           p1: arr[0].prob,
           p2: arr[1].prob,
-          diff: arr[0].prob - arr[1].prob
+          diff: arr[0].prob - arr[1].prob,
+          aiMap: aiMap,
+          mktMap: mktMap
         };
       }
 
-      /* 接戦・対抗カバー優先枠の抽出 */
       function selectBestCoverIndices(items, count) {
         return items
           .map(function(it, idx) {
@@ -445,7 +506,6 @@
           .map(function(x) { return x.idx; });
       }
 
-      /* 本命の中でも特に信頼度が高い「鉄板枠」の抽出 */
       function selectSuperSolidIndices(items, count) {
         if (!highlightSolid || !items || items.length === 0) return [];
         return items
@@ -486,98 +546,176 @@
         );
       }
 
-      /* 予算500円プラン（Wマルチ2枠400円 ＋ 本命シングル100円 ＝ 計500円） */
-      function buildPlanCard500(title, subInfo, items, solidCount) {
-        var wSet = selectBestCoverIndices(items, 2);
-        var solidSet = selectSuperSolidIndices(items, solidCount);
+      /* 重複なしの購入チケット列（500円=5通り、1000円=10通り）を生成し、厳密な当選確率・想定配当・期待値を計算 */
+      function evaluatePlanMetrics(items, budget, gameType) {
+        var coverOrder = selectBestCoverIndices(items, Math.min(5, items.length));
+        var wCount = budget === 1000 ? 3 : 2;
+        var wSet = coverOrder.slice(0, wCount);
 
-        var multiHtml = items.map(function(it, idx) {
-          if (wSet.indexOf(idx) !== -1) {
-            return '<span class="w-pair">' + it.top1 + '/' + it.top2 + '</span>';
+        // Wマルチの全組み合わせ（2^wCount 通り）
+        var tickets = [];
+        var totalComb = Math.pow(2, wSet.length);
+        for (var mask = 0; mask < totalComb; mask++) {
+          var combo = items.map(function(it, idx) {
+            var pos = wSet.indexOf(idx);
+            if (pos !== -1 && ((mask >> pos) & 1) === 1) {
+              return it.top2;
+            }
+            return it.top1;
+          });
+          tickets.push(combo);
+        }
+
+        // 重複しない押さえシングルを追加（500円なら第3接戦枠、1000円なら第4・第5接戦枠）
+        var extraIndices = budget === 1000 ? coverOrder.slice(3, 5) : coverOrder.slice(2, 3);
+        extraIndices.forEach(function(flipIdx) {
+          var singleCombo = items.map(function(it, idx) {
+            return idx === flipIdx ? it.top2 : it.top1;
+          });
+          tickets.push(singleCombo);
+        });
+
+        var cost = tickets.length * 100;
+        var sumHitProb1st = 0;
+        var sumHitProb2nd3rd = 0;
+        var expectedReturnYen = 0;
+        var payouts = [];
+
+        // くじ種ごとの現実的な想定1等配当レンジ（円）
+        var minPay = 2500, maxPay = 200000;
+        if (gameType === "goal3") {
+          minPay = 3500; maxPay = 180000;
+        } else if (gameType === "toto_main") {
+          minPay = 500000; maxPay = 100000000;
+        }
+
+        tickets.forEach(function(combo) {
+          var pAi = 1.0;
+          var pMkt = 1.0;
+          for (var i = 0; i < combo.length; i++) {
+            var code = combo[i];
+            pAi *= Math.max(0.02, items[i].aiMap[code] || 0.25);
+            pMkt *= Math.max(0.02, items[i].mktMap[code] || 0.25);
           }
-          return renderPickToken(it.top1, idx, solidSet);
-        }).join(' － ');
 
-        var singleHtml = items.map(function(it, idx) {
-          return renderPickToken(it.top1, idx, solidSet);
-        }).join(' － ');
+          // 理論オッズ（還元率50% ÷ 市場支持率）から1等想定配当を算出
+          var rawPayout = (100 * 0.50) / pMkt;
+          var estPayout1st = Math.max(minPay, Math.min(maxPay, rawPayout));
+          payouts.push(estPayout1st);
 
-        var multiCost = Math.pow(2, wSet.length) * 100;
-        var totalCost = multiCost + 100;
-        var addedCover = wSet.reduce(function(acc, idx) { return acc + items[idx].p2; }, 0);
+          sumHitProb1st += pAi;
+          expectedReturnYen += pAi * estPayout1st;
 
-        return (
-          '<div class="plan-card">' +
-            '<div class="plan-header">' +
-              '<span class="plan-title">' + title + '</span>' +
-              '<span class="plan-badge">マルチ' + multiCost + '円＋シングル100円（計' + totalCost + '円）</span>' +
-            '</div>' +
-            '<div class="plan-sub">' + subInfo + '（対抗カバー上乗せ期待値: +' + addedCover + '%）</div>' +
-            '<div class="ticket-box">' +
-              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + multiCost + '円 / カバー効率上位' + wSet.length + '枠をダブル）</div>' +
-              '<div class="ticket-line">' + multiHtml + '</div>' +
-            '</div>' +
-            '<div class="ticket-box">' +
-              '<div class="ticket-label sub">◆ 押さえ：本命シングル買い（100円）</div>' +
-              '<div class="ticket-line">' + singleHtml + '</div>' +
-            '</div>' +
-          '</div>'
-        );
+          // toto本戦（13枠）の場合は2等（1枠外れ）・3等（2枠外れ）の期待リターンも加算
+          if (gameType === "toto_main") {
+            var sumOddsRatio = 0;
+            for (var k = 0; k < combo.length; k++) {
+              var pk = Math.max(0.05, items[k].aiMap[combo[k]] || 0.3);
+              sumOddsRatio += (1 - pk) / pk;
+            }
+            var p2nd = pAi * sumOddsRatio;
+            var p3rd = pAi * (sumOddsRatio * sumOddsRatio * 0.42);
+            var estPay2nd = Math.max(30000, Math.min(800000, estPayout1st / 55));
+            var estPay3rd = Math.max(5000, Math.min(60000, estPay2nd / 12));
+            sumHitProb2nd3rd += (p2nd + p3rd);
+            expectedReturnYen += (p2nd * estPay2nd) + (p3rd * estPay3rd);
+          }
+        });
+
+        payouts.sort(function(a, b) { return a - b; });
+        var minEstPay = payouts[0] || minPay;
+        var maxEstPay = payouts[payouts.length - 1] || maxPay;
+        var evRatioPct = Math.round((expectedReturnYen / Math.max(100, cost)) * 100);
+
+        return {
+          cost: cost,
+          ticketCount: tickets.length,
+          wSet: wSet,
+          extraIndices: extraIndices,
+          hitProb1stPct: sumHitProb1st * 100,
+          hitProbAnyPct: (sumHitProb1st + sumHitProb2nd3rd) * 100,
+          minEstPay: minEstPay,
+          maxEstPay: maxEstPay,
+          expectedReturnYen: expectedReturnYen,
+          evRatioPct: evRatioPct
+        };
       }
 
-      /* 予算1,000円プラン（Wマルチ3枠800円 ＋ 第4接戦シングル100円 ＋ 第5接戦シングル100円 ＝ 計1,000円） */
-      function buildPlanCard1000(title, subInfo, items, solidCount) {
-        var top5Cover = selectBestCoverIndices(items, Math.min(5, items.length));
+      function buildPlanCard(title, subInfo, items, budget, solidCount, gameType) {
+        var m = evaluatePlanMetrics(items, budget, gameType);
         var solidSet = selectSuperSolidIndices(items, solidCount);
-        var wSet = top5Cover.slice(0, 3);
-        var idx4 = top5Cover.length >= 4 ? top5Cover[3] : -1;
-        var idx5 = top5Cover.length >= 5 ? top5Cover[4] : -1;
 
         var multiHtml = items.map(function(it, idx) {
-          if (wSet.indexOf(idx) !== -1) {
+          if (m.wSet.indexOf(idx) !== -1) {
             return '<span class="w-pair">' + it.top1 + '/' + it.top2 + '</span>';
           }
           return renderPickToken(it.top1, idx, solidSet);
         }).join(' － ');
 
-        var sub1Html = items.map(function(it, idx) {
-          if (idx === idx4) return '<span class="w-pair">' + it.top2 + '</span>';
-          return renderPickToken(it.top1, idx, solidSet);
-        }).join(' － ');
+        var extraHtml = m.extraIndices.map(function(flipIdx, orderIdx) {
+          var line = items.map(function(it, idx) {
+            if (idx === flipIdx) return '<span class="w-pair">' + it.top2 + '</span>';
+            return renderPickToken(it.top1, idx, solidSet);
+          }).join(' － ');
+          var labelNum = budget === 1000 ? '押さえシングル' + (orderIdx + 1) : '押さえシングル';
+          return (
+            '<div class="ticket-box">' +
+              '<div class="ticket-label sub">◆ ' + labelNum + '（100円 / 第' + (flipIdx + 1) + '枠を対抗[' + items[flipIdx].top2 + ']へ変更）</div>' +
+              '<div class="ticket-line">' + line + '</div>' +
+            '</div>'
+          );
+        }).join('');
 
-        var sub2Html = items.map(function(it, idx) {
-          if (idx === idx5) return '<span class="w-pair">' + it.top2 + '</span>';
-          return renderPickToken(it.top1, idx, solidSet);
-        }).join(' － ');
+        // 当選確率・想定リターン金額・期待値の表示フォーマット
+        var probMainText = gameType === "toto_main"
+          ? "1〜3等当選率 約 " + m.hitProbAnyPct.toFixed(2) + "%"
+          : "1等全的中率 約 " + m.hitProb1stPct.toFixed(1) + "%";
+        var probSubText = gameType === "toto_main"
+          ? "（1等13枠全的中: 約 " + m.hitProb1stPct.toFixed(4) + "%）"
+          : "（全" + m.ticketCount + "通り合算の1等的中期待確率）";
 
-        var multiCost = Math.pow(2, wSet.length) * 100;
-        var extraTickets = (idx4 !== -1 ? 1 : 0) + (idx5 !== -1 ? 1 : 0);
-        var totalCost = multiCost + extraTickets * 100;
-        var addedCover = top5Cover.reduce(function(acc, idx) { return acc + items[idx].p2; }, 0);
+        var returnMainText = gameType === "toto_main"
+          ? "1等 約 " + Math.round(m.minEstPay / 10000).toLocaleString() + "万〜" + Math.round(m.maxEstPay / 10000).toLocaleString() + "万円"
+          : "約 " + formatYen(m.minEstPay) + " 〜 " + formatYen(m.maxEstPay);
+        var returnSubText = gameType === "toto_main"
+          ? "（2等目安: 約15万〜40万円 / 3等目安: 約1.5万〜4万円）"
+          : "（順当決着時〜穴目絡み決着時の1等想定配当）";
+
+        var evBadge = m.evRatioPct >= 100 ? "🔥 期待値プラス圏" : "📊 標準還元レンジ";
+        var evMainText = "約 " + formatYen(m.expectedReturnYen) + "（期待値 " + m.evRatioPct + "%）";
+
+        var multiCost = Math.pow(2, m.wSet.length) * 100;
+        var extraCost = m.extraIndices.length * 100;
 
         return (
           '<div class="plan-card">' +
             '<div class="plan-header">' +
               '<span class="plan-title">' + title + '</span>' +
-              '<span class="plan-badge b1000">Wマルチ' + multiCost + '円＋押さえシングル' + (extraTickets * 100) + '円（計' + totalCost + '円）</span>' +
+              '<span class="plan-badge' + (budget === 1000 ? ' b1000' : '') + '">Wマルチ' + multiCost + '円＋シングル' + extraCost + '円（計' + m.cost + '円）</span>' +
             '</div>' +
-            '<div class="plan-sub">' + subInfo + '（上位' + top5Cover.length + '枠の対抗カバー合計期待値: +' + addedCover + '%）</div>' +
+            '<div class="plan-sub">' + subInfo + '</div>' +
+            '<div class="ev-grid">' +
+              '<div class="ev-box">' +
+                '<div class="ev-label">🎯 当選確率（全' + m.ticketCount + '口合計）</div>' +
+                '<div class="ev-value">' + probMainText + '</div>' +
+                '<div class="ev-note">' + probSubText + '</div>' +
+              '</div>' +
+              '<div class="ev-box highlight">' +
+                '<div class="ev-label">💴 リターンが期待される金額（想定配当）</div>' +
+                '<div class="ev-value gold">' + returnMainText + '</div>' +
+                '<div class="ev-note">' + returnSubText + '</div>' +
+              '</div>' +
+              '<div class="ev-box highlight">' +
+                '<div class="ev-label">📈 理論期待値（期待リターン額）</div>' +
+                '<div class="ev-value green">' + evMainText + '</div>' +
+                '<div class="ev-note">' + evBadge + '（投資' + m.cost + '円あたり）</div>' +
+              '</div>' +
+            '</div>' +
             '<div class="ticket-box">' +
-              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + multiCost + '円 / 接戦TOP' + wSet.length + '枠をダブル）</div>' +
+              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + multiCost + '円 / 接戦TOP' + m.wSet.length + '枠をダブル）</div>' +
               '<div class="ticket-line">' + multiHtml + '</div>' +
             '</div>' +
-            (idx4 !== -1 ? (
-              '<div class="ticket-box">' +
-                '<div class="ticket-label sub">◆ 押さえ①：第4接戦枠（第' + (idx4 + 1) + '枠）対抗シングル（100円）</div>' +
-                '<div class="ticket-line">' + sub1Html + '</div>' +
-              '</div>'
-            ) : '') +
-            (idx5 !== -1 ? (
-              '<div class="ticket-box">' +
-                '<div class="ticket-label sub">◆ 押さえ②：第5接戦枠（第' + (idx5 + 1) + '枠）対抗シングル（100円）</div>' +
-                '<div class="ticket-line">' + sub2Html + '</div>' +
-              '</div>'
-            ) : '') +
+            extraHtml +
           '</div>'
         );
       }
@@ -585,14 +723,12 @@
       function renderPlansSection(analyzed) {
         var headingEl = document.getElementById("plans-heading");
         if (selectedBudget === 1000) {
-          headingEl.textContent = "💰 予算1,000円以内・高カバー率マルチ購入プラン（Wマルチ800円＋シングル200円）";
+          headingEl.textContent = "💰 予算1,000円プラン（全10通り）｜期待値・想定リターン金額";
         } else {
-          headingEl.textContent = "💰 予算500円以内・的中率最大化マルチ購入プラン（Wマルチ400円＋シングル100円）";
+          headingEl.textContent = "💰 予算500円プラン（全5通り）｜期待値・想定リターン金額";
         }
 
-        var builder = selectedBudget === 1000 ? buildPlanCard1000 : buildPlanCard500;
         var plansHtml = "";
-
         if (analyzed.length >= 3) {
           var g3Items = [];
           var g3Desc = [];
@@ -601,41 +737,43 @@
             g3Items.push(x.gA);
             g3Desc.push("第" + x.f + "枠 " + x.h + "(λ" + x.hLam.toFixed(2) + ") vs " + x.a + "(λ" + x.aLam.toFixed(2) + ")");
           });
-          plansHtml += builder(
+          plansHtml += buildPlanCard(
             "① toto GOAL3（6枠マルチ買いプラン）",
             "対象3試合の予測λ：" + g3Desc.join(" ／ "),
             g3Items,
-            2
+            selectedBudget,
+            2,
+            "goal3"
           );
         }
         if (analyzed.length >= 5) {
-          plansHtml += builder(
+          plansHtml += buildPlanCard(
             "② mini toto A組（1〜5枠マルチ買いプラン）",
-            selectedBudget === 1000
-              ? "1〜5枠の接戦3枠をダブル（800円）＋残り2枠もシングル2口で全枠カバー"
-              : "1〜5枠で対抗の出現確率が高い2試合を自動ダブル（W）化",
+            "1〜5枠の接戦上位をダブル化し、さらに次点接戦枠を重複なしシングルで追加カバー",
             analyzed.slice(0, 5).map(function(x) { return x.c1x2; }),
-            2
+            selectedBudget,
+            2,
+            "mini_a"
           );
         }
         if (analyzed.length >= 10) {
-          plansHtml += builder(
+          plansHtml += buildPlanCard(
             "③ mini toto B組（6〜10枠マルチ買いプラン）",
-            selectedBudget === 1000
-              ? "6〜10枠の接戦3枠をダブル（800円）＋残り2枠もシングル2口で全枠カバー"
-              : "6〜10枠で対抗の出現確率が高い2試合を自動ダブル（W）化",
+            "6〜10枠の接戦上位をダブル化し、さらに次点接戦枠を重複なしシングルで追加カバー",
             analyzed.slice(5, 10).map(function(x) { return x.c1x2; }),
-            2
+            selectedBudget,
+            2,
+            "mini_b"
           );
         }
         if (analyzed.length >= 10) {
-          plansHtml += builder(
+          plansHtml += buildPlanCard(
             "④ toto 本戦（全" + analyzed.length + "枠マルチ買いプラン）",
-            selectedBudget === 1000
-              ? "全枠中の接戦TOP3枠をダブル（800円）＋第4・第5接戦枠をシングル2口でカバー"
-              : "全枠中で対抗カバー効率が最も高い2試合を自動ダブル（W）化",
+            "1等高額配当を狙いつつ、接戦上位枠のマルチ＋次点接戦シングルで2等・3等も網羅",
             analyzed.map(function(x) { return x.c1x2; }),
-            3
+            selectedBudget,
+            3,
+            "toto_main"
           );
         }
 
@@ -657,7 +795,7 @@
         var analyzed = matches.map(function(m) {
           var hLam = parseFloat(m.h_xg || 1.3);
           var aLam = parseFloat(m.a_xg || 1.3);
-          var c1x2 = calc1x2DynamicDC(hLam, aLam);
+          var c1x2 = calc1x2DynamicDC(hLam, aLam, m.v);
           return {
             f: m.f,
             h: m.h,
@@ -675,7 +813,7 @@
         var all1x2 = analyzed.map(function(x) { return x.c1x2; });
         var mainSolidSet = selectSuperSolidIndices(all1x2, 3);
 
-        // 1. ①直前予想（【本命】と【もう1口】＋鉄板枠強調）
+        // 1. ①直前予想
         document.getElementById("lbl-toto-main").textContent =
           "toto 本戦（全" + analyzed.length + "枠｜鉄板上位3枠強調・もう1口は接戦3枠変更）";
         document.getElementById("val-toto-main").innerHTML =
