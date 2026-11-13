@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>toto AI Manager - アンサンブル推論＆期待値・戦略ガイド</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -410,7 +413,8 @@
 
   <script>
     (function() {
-      var EXPECTED_HASH = "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60";
+      var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
+      var GITHUB_RAW_DATA_URL = "https://raw.githubusercontent.com/tmiki373/toto-ai-manager/main/data.json";
       var appData = null;
       var currentRoundKey = "";
       var selectedBudget = 500;
@@ -440,7 +444,7 @@
       }
 
       function initAuth() {
-        if (EXPECTED_HASH === "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60" || EXPECTED_HASH === "") {
+        if (EXPECTED_HASH === "__INJECTED_PIN_HASH__" || EXPECTED_HASH === "") {
           unlockApp();
           return;
         }
@@ -1111,11 +1115,22 @@
         if (isManualClick) {
           btn.disabled = true;
           btn.classList.remove("done");
-          btn.textContent = "⏳ 最新データ確認中...";
+          btn.textContent = "⏳ 最新データ取得中...";
         }
 
-        fetch("data.json?t=" + Date.now(), { cache: "no-store" })
-          .then(function(res) { return res.json(); })
+        var ts = Date.now();
+        var sourceLabel = "GitHub直通";
+        fetch(GITHUB_RAW_DATA_URL + "?t=" + ts, { cache: "no-store" })
+          .then(function(res) {
+            if (!res.ok) throw new Error("GitHub raw HTTP " + res.status);
+            return res.json();
+          })
+          .catch(function() {
+            sourceLabel = "ローカル同期";
+            return fetch("data.json?t=" + ts, { cache: "no-store" }).then(function(r) {
+              return r.json();
+            });
+          })
           .then(function(data) {
             appData = data;
             var sel = document.getElementById("round-select");
@@ -1133,10 +1148,10 @@
             if (isManualClick) {
               var nowStr = new Date().toTimeString().slice(0, 5);
               if (prevUpdated && prevUpdated !== data.last_updated) {
-                statusMsg = "✨ 新しいデータに更新完了 (" + nowStr + "確認)";
+                statusMsg = "✨ 新しいデータに更新完了 [" + sourceLabel + " / " + nowStr + "]";
                 btn.textContent = "✅ 更新完了！";
               } else {
-                statusMsg = "✓ サーバー上の最新状態です (" + nowStr + "確認)";
+                statusMsg = "✓ 最新データ取得済 [" + sourceLabel + " / " + nowStr + "]";
                 btn.textContent = "✅ 最新確認済";
               }
               btn.classList.add("done");
