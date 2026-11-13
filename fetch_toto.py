@@ -31,6 +31,34 @@ STADIUM_COORDS = {
     "鹿児島": (31.564, 130.561), "琉球": (26.306, 127.781)
 }
 
+TEAM_ALIAS_MAP = {
+    "北海道コンサドーレ札幌": "札幌", "コンサドーレ札幌": "札幌",
+    "ヴァンラーレ八戸": "八戸", "ベガルタ仙台": "仙台",
+    "ブラウブリッツ秋田": "秋田", "モンテディオ山形": "山形", "いわきFC": "いわき",
+    "鹿島アントラーズ": "鹿島", "水戸ホーリーホック": "水戸", "栃木シティ": "栃木C",
+    "浦和レッズ": "浦和", "浦和レッドダイヤモンズ": "浦和",
+    "RB大宮アルディージャ": "大宮", "大宮アルディージャ": "大宮",
+    "ジェフユナイテッド千葉": "千葉", "ジェフユナイテッド市原・千葉": "千葉",
+    "柏レイソル": "柏", "FC東京": "FC東京", "東京ヴェルディ": "東京V",
+    "FC町田ゼルビア": "町田", "川崎フロンターレ": "川崎F",
+    "横浜F・マリノス": "横浜FM", "横浜Fマリノス": "横浜FM",
+    "横浜FC": "横浜FC", "湘南ベルマーレ": "湘南", "ヴァンフォーレ甲府": "甲府",
+    "アルビレックス新潟": "新潟", "カターレ富山": "富山", "清水エスパルス": "清水",
+    "ジュビロ磐田": "磐田", "藤枝MYFC": "藤枝", "名古屋グランパス": "名古屋",
+    "京都サンガF.C.": "京都", "京都サンガFC": "京都",
+    "ガンバ大阪": "G大阪", "セレッソ大阪": "C大阪",
+    "ヴィッセル神戸": "神戸", "ファジアーノ岡山": "岡山", "サンフレッチェ広島": "広島",
+    "徳島ヴォルティス": "徳島", "FC今治": "今治", "アビスパ福岡": "福岡",
+    "サガン鳥栖": "鳥栖", "V・ファーレン長崎": "長崎", "Vファーレン長崎": "長崎",
+    "大分トリニータ": "大分", "テゲバジャーロ宮崎": "宮崎",
+    "栃木SC": "栃木SC", "ザスパ群馬": "群馬", "ザスパクサツ群馬": "群馬",
+    "松本山雅FC": "松本", "AC長野パルセイロ": "長野", "ツエーゲン金沢": "金沢",
+    "アスルクラロ沼津": "沼津", "FC岐阜": "岐阜", "ガイナーレ鳥取": "鳥取",
+    "レノファ山口FC": "山口", "カマタマーレ讃岐": "讃岐", "愛媛FC": "愛媛",
+    "高知ユナイテッドSC": "高知", "ギラヴァンツ北九州": "北九州", "ロアッソ熊本": "熊本",
+    "鹿児島ユナイテッドFC": "鹿児島", "FC琉球": "琉球"
+}
+
 
 def load_existing_data():
     if not os.path.exists(DATA_FILE):
@@ -68,40 +96,41 @@ def fetch_url(url, timeout=12):
 
 
 def norm_team(name):
-    """全角英数字・記号を半角へ正規化した上でJクラブ略称へ統一"""
     nfkc = unicodedata.normalize("NFKC", name or "")
     clean = re.sub(r"\s+", "", nfkc)
-    mp = {
-        "北海道コンサドーレ札幌": "札幌", "コンサドーレ札幌": "札幌",
-        "ヴァンラーレ八戸": "八戸", "ベガルタ仙台": "仙台",
-        "ブラウブリッツ秋田": "秋田", "モンテディオ山形": "山形", "いわきFC": "いわき",
-        "鹿島アントラーズ": "鹿島", "水戸ホーリーホック": "水戸", "栃木シティ": "栃木C",
-        "浦和レッズ": "浦和", "浦和レッドダイヤモンズ": "浦和",
-        "RB大宮アルディージャ": "大宮", "大宮アルディージャ": "大宮",
-        "ジェフユナイテッド千葉": "千葉", "ジェフユナイテッド市原・千葉": "千葉",
-        "柏レイソル": "柏", "FC東京": "FC東京", "東京ヴェルディ": "東京V",
-        "FC町田ゼルビア": "町田", "川崎フロンターレ": "川崎F",
-        "横浜F・マリノス": "横浜FM", "横浜Fマリノス": "横浜FM",
-        "横浜FC": "横浜FC", "湘南ベルマーレ": "湘南", "ヴァンフォーレ甲府": "甲府",
-        "アルビレックス新潟": "新潟", "カターレ富山": "富山", "清水エスパルス": "清水",
-        "ジュビロ磐田": "磐田", "藤枝MYFC": "藤枝", "名古屋グランパス": "名古屋",
-        "京都サンガF.C.": "京都", "京都サンガFC": "京都",
-        "ガンバ大阪": "G大阪", "セレッソ大阪": "C大阪",
-        "ヴィッセル神戸": "神戸", "ファジアーノ岡山": "岡山", "サンフレッチェ広島": "広島",
-        "徳島ヴォルティス": "徳島", "FC今治": "今治", "アビスパ福岡": "福岡",
-        "サガン鳥栖": "鳥栖", "V・ファーレン長崎": "長崎", "Vファーレン長崎": "長崎",
-        "大分トリニータ": "大分", "テゲバジャーロ宮崎": "宮崎",
-        "栃木SC": "栃木SC", "ザスパ群馬": "群馬", "ザスパクサツ群馬": "群馬",
-        "松本山雅FC": "松本", "AC長野パルセイロ": "長野", "ツエーゲン金沢": "金沢",
-        "アスルクラロ沼津": "沼津", "FC岐阜": "岐阜", "ガイナーレ鳥取": "鳥取",
-        "レノファ山口FC": "山口", "カマタマーレ讃岐": "讃岐", "愛媛FC": "愛媛",
-        "高知ユナイテッドSC": "高知", "ギラヴァンツ北九州": "北九州", "ロアッソ熊本": "熊本",
-        "鹿児島ユナイテッドFC": "鹿児島", "FC琉球": "琉球"
-    }
-    for k, v in mp.items():
+    for k in sorted(TEAM_ALIAS_MAP.keys(), key=len, reverse=True):
+        v = TEAM_ALIAS_MAP[k]
         if k in clean or v == clean:
             return v
     return clean
+
+
+def extract_two_teams_in_order(text, stats):
+    """テキスト内のクラブ名出現位置を長い名称優先で検出し、最初の2クラブ(ホーム, アウェイ)を返す"""
+    nfkc = unicodedata.normalize("NFKC", text or "")
+    # キーワード辞書（長い順）
+    patterns = []
+    for k, v in TEAM_ALIAS_MAP.items():
+        if v in stats:
+            patterns.append((k, v))
+    for v in stats.keys():
+        patterns.append((v, v))
+    patterns.sort(key=lambda x: len(x[0]), reverse=True)
+
+    masked = nfkc
+    found = []
+    for pat, canonical in patterns:
+        idx = masked.find(pat)
+        if idx != -1:
+            found.append((idx, canonical))
+            masked = masked[:idx] + ("_" * len(pat)) + masked[idx + len(pat):]
+
+    found.sort(key=lambda x: x[0])
+    ordered_teams = []
+    for _, tm in found:
+        if tm not in ordered_teams:
+            ordered_teams.append(tm)
+    return ordered_teams[:2]
 
 
 def damp_multiplier(raw_mult, low=0.78, high=1.24):
@@ -133,7 +162,6 @@ def calc_travel_penalty(h_team, a_team):
 
 
 def parse_toto_schedule_page(html, stats, today):
-    """スポーツくじ公式/楽天totoの指定試合ページから回号・締切・第1〜13枠の指定試合を抽出"""
     if not html:
         return "", "", []
     soup = BeautifulSoup(html, "html.parser")
@@ -156,37 +184,31 @@ def parse_toto_schedule_page(html, stats, today):
     wds = ["月", "火", "水", "木", "金", "土", "日"]
     frame_map = {}
 
-    for tr in soup.find_all("tr"):
-        row_raw = tr.get_text(" ", strip=True)
-        row_txt = unicodedata.normalize("NFKC", row_raw)
-        # 行内に "VS" または "vs" を含む試合行を対象にする
-        if not re.search(r"\bVS\b", row_txt, re.IGNORECASE):
+    for blk in soup.find_all(["tr", "li", "div"]):
+        row_txt = unicodedata.normalize("NFKC", blk.get_text(" ", strip=True))
+        if len(row_txt) < 8 or len(row_txt) > 220:
             continue
 
-        cells = [unicodedata.normalize("NFKC", c.get_text(" ", strip=True)) for c in tr.find_all(["td", "th"])]
+        # 枠番号 1〜13 を先頭または最初のセルから抽出
         f_idx = None
+        cells = [unicodedata.normalize("NFKC", c.get_text(" ", strip=True)) for c in blk.find_all(["td", "th", "span", "p"])]
         for c in cells[:3]:
-            m_num = re.fullmatch(r"0?([1-9]|1[0-3])", c.strip())
+            m_num = re.fullmatch(r"(?:第)?0?([1-9]|1[0-3])(?:枠)?", c.strip())
             if m_num:
                 f_idx = int(m_num.group(1))
                 break
         if f_idx is None:
-            m_head = re.match(r"^0?([1-9]|1[0-3])\b", row_txt)
+            m_head = re.match(r"^(?:第\s*)?0?([1-9]|1[0-3])(?:\s*枠)?\b", row_txt)
             if m_head:
                 f_idx = int(m_head.group(1))
         if f_idx is None or f_idx in frame_map:
             continue
 
-        # チーム名抽出（"ホーム VS アウェイ" の前後）
-        m_vs = re.search(r"([^\s/]+)\s+VS\s+([^\s/]+)", row_txt, re.IGNORECASE)
-        if not m_vs:
+        teams = extract_two_teams_in_order(row_txt, stats)
+        if len(teams) != 2:
             continue
-        hn = norm_team(m_vs.group(1))
-        an = norm_team(m_vs.group(2))
-        if hn not in stats or an not in stats:
-            continue
+        hn, an = teams[0], teams[1]
 
-        # 日付 MM/DD 抽出
         match_d = today
         m_md = re.search(r"(\d{1,2})/(\d{1,2})", row_txt)
         if m_md:
@@ -207,23 +229,28 @@ def parse_toto_schedule_page(html, stats, today):
 
 
 def get_official_toto_card(stats, today):
-    """【最重要】スポーツくじ公式(sp/store)および楽天totoから公式指定13試合(枠順通り)を取得"""
     rid = ""
     dead_str = ""
     official_games = []
 
-    # 1. まずスポーツくじ公式SP版（パラメータなしで現在販売中のtotoを表示）を取得
-    sp_top_url = "https://sp.toto-dream.com/dcs/subos/screen/si01/ssin025/PGSSIN02501ForwardSalesTermtotoSP.form"
-    sp_html = fetch_url(sp_top_url, 12)
-    rid, dead_str, official_games = parse_toto_schedule_page(sp_html, stats, today)
-    print("[Official SP Top]", "rid:", rid, "games:", len(official_games))
+    candidate_urls = [
+        "https://sp.toto-dream.com/dcs/subos/screen/si01/ssin025/PGSSIN02501ForwardSalesTermtotoSP.form",
+        "https://toto.yahoo.co.jp/schedule/toto"
+    ]
+    for u in candidate_urls:
+        h = fetch_url(u, 12)
+        r_cand, d_cand, g_cand = parse_toto_schedule_page(h, stats, today)
+        if r_cand and not rid:
+            rid = r_cand
+        if d_cand and not dead_str:
+            dead_str = d_cand
+        if len(g_cand) > len(official_games):
+            official_games = g_cand
+        if len(official_games) >= 13:
+            break
 
-    # 2. 回号がまだ取れていない場合、Yahoo! toto または スポーツくじPCトップから回号を検出
     if not rid:
-        for u in [
-            "https://toto.yahoo.co.jp/schedule/toto",
-            "https://store.toto-dream.com/dcs/subos/screen/ps01/spsl000/PGSPSL00001MoveTotoLoto.form"
-        ]:
+        for u in candidate_urls:
             h = fetch_url(u, 10)
             if h:
                 t = unicodedata.normalize("NFKC", BeautifulSoup(h, "html.parser").get_text(" ", strip=True))
@@ -236,7 +263,6 @@ def get_official_toto_card(stats, today):
                     rid = m_any.group(1)
                     break
 
-    # 3. 試合リストが13試合揃っていない場合はPC版公式・楽天totoへフォールバック
     if len(official_games) < 10 and rid:
         fallback_urls = [
             "https://sp.toto-dream.com/dcs/subos/screen/si01/ssin025/PGSSIN02501ForwardSalesTermtotoSP.form?holdCntId={}".format(rid),
@@ -264,7 +290,6 @@ def get_official_toto_card(stats, today):
 
 
 def get_official_vote_rates(rid):
-    """スポーツくじ公式・Yahoo! totoから第1〜13枠のリアルタイム投票率を取得"""
     votes = {}
     urls = []
     if rid:
@@ -398,7 +423,6 @@ def get_club_stats_by_league():
 
 
 def get_match_links_for_dates(stats, target_dates):
-    """公式指定試合の開催日(J1/J2/J3/ルヴァン杯すべて含む)からスタメン確認用URLを収集"""
     link_map = {}
     for iso_d in sorted(list(target_dates)):
         ymd = iso_d.replace("-", "")
@@ -410,13 +434,7 @@ def get_match_links_for_dates(stats, target_dates):
             txt = blk.get_text(" ", strip=True)
             if len(txt) > 200 or len(txt) < 6:
                 continue
-            teams = []
-            for sub in blk.find_all(["td", "span", "p", "a", "div"]):
-                s = sub.get_text(strip=True)
-                if 2 <= len(s) <= 18:
-                    nm = norm_team(s)
-                    if nm in stats and nm not in teams:
-                        teams.append(nm)
+            teams = extract_two_teams_in_order(txt, stats)
             if len(teams) == 2:
                 for a_tag in blk.find_all("a", href=True):
                     href = a_tag["href"]
@@ -442,13 +460,7 @@ def get_recent_match_dates_and_results(stats, existing_data, today):
             txt = blk.get_text(" ", strip=True)
             if len(txt) > 180 or len(txt) < 6:
                 continue
-            teams = []
-            for sub in blk.find_all(["td", "span", "p", "a", "div"]):
-                s = sub.get_text(strip=True)
-                if 2 <= len(s) <= 18:
-                    nm = norm_team(s)
-                    if nm in stats and nm not in teams:
-                        teams.append(nm)
+            teams = extract_two_teams_in_order(txt, stats)
             if len(teams) == 2:
                 for tm in teams:
                     if tm not in last_played:
@@ -651,7 +663,6 @@ def build_round_predictions(official_games, stats, last_played, home_adv, atk_st
     target_dates = set(g[2] for g in official_games)
     link_map = get_match_links_for_dates(stats, target_dates)
 
-    # 開催日を日付順（例: 11月14日(土)・11月15日(日)）に整形
     sorted_by_date = sorted(official_games, key=lambda x: x[1])
     udates = []
     for g in sorted_by_date:
