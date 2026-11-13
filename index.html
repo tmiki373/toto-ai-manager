@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>toto AI Manager - 全自動予想＆500円マルチ戦略</title>
+  <title>toto AI Manager - アンサンブル推論＆鉄板強調マルチ戦略</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -69,13 +69,47 @@
     }
     .tab-btn.active { background: #f97316; color: #fff; border-color: #f97316; }
 
+    /* 予算切り替えバー */
+    .budget-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
+    }
+    .budget-switch {
+      display: inline-flex; background: #111827; border: 1px solid #334155;
+      border-radius: 10px; padding: 4px; gap: 4px;
+    }
+    .budget-btn {
+      background: transparent; color: #94a3b8; border: none;
+      padding: 8px 18px; border-radius: 7px; font-size: 13px; font-weight: bold;
+      cursor: pointer; transition: 0.15s;
+    }
+    .budget-btn.active {
+      background: #10b981; color: #052e16;
+    }
+
     /* 最適買い目サマリー枠 */
     .summary-box {
       background: #0f172a; border: 2px solid #10b981; border-radius: 14px;
       padding: 18px 20px; margin-bottom: 20px;
     }
+    .summary-header {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 10px; margin-bottom: 10px;
+    }
     .summary-title {
-      color: #4ade80; font-size: 16px; font-weight: bold; margin-bottom: 14px;
+      color: #4ade80; font-size: 16px; font-weight: bold;
+    }
+    .toggle-solid-btn {
+      background: #991b1b; color: #fecaca; border: 1px solid #ef4444;
+      padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: bold;
+      cursor: pointer; transition: 0.15s;
+    }
+    .toggle-solid-btn.off {
+      background: #1e293b; color: #94a3b8; border-color: #475569;
+    }
+    .legend-bar {
+      font-size: 12px; color: #cbd5e1; margin-bottom: 14px;
+      display: flex; align-items: center; flex-wrap: wrap; gap: 14px;
     }
     .pick-group { margin-bottom: 14px; }
     .pick-group:last-child { margin-bottom: 0; }
@@ -83,7 +117,7 @@
     .pick-values {
       background: #111827; border-left: 4px solid #f97316; border-radius: 6px;
       padding: 10px 14px; font-size: 15px; font-weight: bold; color: #f8fafc;
-      letter-spacing: 1px; line-height: 1.9;
+      letter-spacing: 1px; line-height: 2.0;
     }
     .line-tag-main {
       display: inline-block; background: #065f46; color: #6ee7b7;
@@ -98,9 +132,29 @@
     .pick-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
     @media (max-width: 700px) { .pick-grid-2 { grid-template-columns: 1fr; } .tabs { grid-template-columns: repeat(2, 1fr); } }
 
+    /* 鉄板（特に本命）と対抗変更のハイライト */
+    .super-solid {
+      display: inline-block;
+      background: linear-gradient(135deg, #dc2626, #ea580c);
+      color: #ffffff;
+      font-weight: 900;
+      padding: 1px 7px;
+      border-radius: 5px;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.55);
+      border: 1px solid #fca5a5;
+    }
+    .w-pair {
+      display: inline-block;
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.18);
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(251, 191, 36, 0.45);
+    }
+
     /* セクション見出し */
     .section-heading {
-      font-size: 15px; font-weight: bold; color: #f8fafc; margin-bottom: 12px;
+      font-size: 15px; font-weight: bold; color: #f8fafc; margin-bottom: 8px;
       display: flex; align-items: center; gap: 6px;
     }
 
@@ -108,6 +162,10 @@
     .match-card {
       background: #111827; border: 1px solid #1f2937; border-left: 4px solid #eab308;
       border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    }
+    .match-card.solid-card {
+      border-left: 4px solid #ef4444;
+      background: linear-gradient(90deg, rgba(127, 29, 29, 0.22) 0%, #111827 35%);
     }
     .match-top {
       display: flex; justify-content: space-between; align-items: center;
@@ -118,6 +176,11 @@
       background: #1e293b; color: #38bdf8; border: 1px solid #0284c7;
       font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-right: 6px;
     }
+    .solid-tag {
+      background: #dc2626; color: #fff; border: 1px solid #fca5a5;
+      font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px;
+      font-weight: bold;
+    }
     .match-rec { font-size: 14px; font-weight: bold; color: #fbbf24; }
     .match-metrics { font-size: 12px; color: #38bdf8; margin-bottom: 8px; }
     .match-analysis {
@@ -125,7 +188,7 @@
       font-size: 12px; padding: 7px 10px; border-radius: 6px;
     }
 
-    /* 500円提案プランカード */
+    /* 予算別提案プランカード */
     .plan-card {
       background: #111827; border: 1px solid #334155; border-radius: 12px;
       padding: 16px; margin-bottom: 14px;
@@ -139,6 +202,9 @@
       background: #065f46; color: #6ee7b7; font-size: 12px; font-weight: bold;
       padding: 3px 10px; border-radius: 999px;
     }
+    .plan-badge.b1000 {
+      background: #1e3a8a; color: #93c5fd;
+    }
     .plan-sub { font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
     .ticket-box {
       background: #1e293b; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
@@ -146,8 +212,7 @@
     .ticket-box:last-child { margin-bottom: 0; }
     .ticket-label { font-size: 11px; color: #fbbf24; font-weight: bold; margin-bottom: 4px; }
     .ticket-label.sub { color: #cbd5e1; }
-    .ticket-line { font-size: 15px; font-weight: bold; color: #f8fafc; letter-spacing: 1px; }
-    .w-pair { color: #fbbf24; background: rgba(251, 191, 36, 0.18); padding: 1px 6px; border-radius: 4px; }
+    .ticket-line { font-size: 15px; font-weight: bold; color: #f8fafc; letter-spacing: 1px; line-height: 1.9; }
 
     .hidden { display: none !important; }
     .empty-msg {
@@ -184,7 +249,7 @@
 
     <div class="tabs">
       <button class="tab-btn active" data-tab="tab1">⚡ ①直前予想</button>
-      <button class="tab-btn" data-tab="tab2">💰 ②500円提案</button>
+      <button class="tab-btn" data-tab="tab2">💰 ②500円/1000円提案</button>
       <button class="tab-btn" data-tab="tab3">🏁 ③結果照合</button>
       <button class="tab-btn" data-tab="tab4">📈 ④振り返り</button>
     </div>
@@ -192,34 +257,47 @@
     <!-- タブ1: 直前予想 -->
     <div id="tab1" class="tab-content">
       <div class="summary-box">
-        <div class="summary-title">🏆 リアルタイム算出・最適買い目（【本命】と【もう1口】の2パターン）</div>
+        <div class="summary-header">
+          <div class="summary-title">🏆 アンサンブル推論・最適買い目（【本命】と【もう1口】の2パターン）</div>
+          <button id="toggle-solid-btn" class="toggle-solid-btn">🔥 鉄板強調: ON</button>
+        </div>
+        <div class="legend-bar">
+          <span><span class="super-solid">1</span> ＝ 本命の中でも特に信頼度が高い鉄板枠</span>
+          <span><span class="w-pair">0</span> ＝ もう1口で対抗へ変更する接戦枠</span>
+        </div>
         <div class="pick-group">
           <div id="lbl-toto-main" class="pick-label">toto 本戦（全13枠）</div>
           <div id="val-toto-main" class="pick-values">-</div>
         </div>
         <div class="pick-grid-2">
           <div class="pick-group">
-            <div class="pick-label">mini toto A組（1〜5枠）</div>
+            <div class="pick-label">mini toto A組（1〜5枠・鉄板上位2枠強調）</div>
             <div id="val-mini-a" class="pick-values">-</div>
           </div>
           <div class="pick-group">
-            <div class="pick-label">mini toto B組（6〜10枠）</div>
+            <div class="pick-label">mini toto B組（6〜10枠・鉄板上位2枠強調）</div>
             <div id="val-mini-b" class="pick-values">-</div>
           </div>
         </div>
         <div class="pick-group">
-          <div class="pick-label">toto GOAL3（第1〜3枠の計6枠）</div>
+          <div class="pick-label">toto GOAL3（第1〜3枠の計6枠・鉄板上位2枠強調）</div>
           <div id="val-goal3" class="pick-values">-</div>
         </div>
       </div>
 
-      <div class="section-heading">⚡ 自動分析・試合別予測データ</div>
+      <div class="section-heading">⚡ 多要素アンサンブル分析・試合別予測データ</div>
       <div id="matches-list"></div>
     </div>
 
-    <!-- タブ2: 500円提案（マルチ買い＋GOAL3対応） -->
+    <!-- タブ2: 500円・1000円提案（マルチ買い＋GOAL3対応） -->
     <div id="tab2" class="tab-content hidden">
-      <div class="section-heading">💰 予算500円以内・マルチ買い対応 最適購入プラン（Wマルチ400円＋シングル100円）</div>
+      <div class="budget-bar">
+        <div id="plans-heading" class="section-heading" style="margin-bottom:0;">💰 予算500円以内・的中率最大化マルチ購入プラン（Wマルチ400円＋シングル100円）</div>
+        <div class="budget-switch">
+          <button id="btn-budget-500" class="budget-btn active" data-budget="500">💵 500円プラン</button>
+          <button id="btn-budget-1000" class="budget-btn" data-budget="1000">💴 1,000円プラン</button>
+        </div>
+      </div>
       <div id="plans-list"></div>
     </div>
 
@@ -240,6 +318,9 @@
     (function() {
       var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
       var appData = null;
+      var currentRoundKey = "";
+      var selectedBudget = 500;
+      var highlightSolid = true;
 
       try {
         Object.keys(localStorage).forEach(function(k) {
@@ -295,13 +376,21 @@
         return [p0, p1, p2, p3];
       }
 
-      function calc1x2(hLam, aLam) {
+      function calc1x2DynamicDC(hLam, aLam) {
+        var totLam = hLam + aLam;
+        var rho = Math.max(-0.16, Math.min(-0.06, -0.12 + (totLam - 2.4) * 0.03));
         var hp = poissonProbs(hLam);
         var ap = poissonProbs(aLam);
         var p1 = 0, p0 = 0, p2 = 0;
+
         for (var i = 0; i < 4; i++) {
           for (var j = 0; j < 4; j++) {
             var p = hp[i] * ap[j];
+            if (i === 0 && j === 0) p *= Math.max(0.1, 1 - hLam * aLam * rho);
+            else if (i === 1 && j === 0) p *= Math.max(0.1, 1 + aLam * rho);
+            else if (i === 0 && j === 1) p *= Math.max(0.1, 1 + hLam * rho);
+            else if (i === 1 && j === 1) p *= Math.max(0.1, 1 - rho);
+
             if (i > j) p1 += p;
             else if (i === j) p0 += p;
             else p2 += p;
@@ -313,6 +402,7 @@
           { code: "0", prob: Math.round((p0 / tot) * 100) },
           { code: "2", prob: Math.round((p2 / tot) * 100) }
         ].sort(function(a, b) { return b.prob - a.prob; });
+
         return {
           top1: arr[0].code,
           top2: arr[1].code,
@@ -344,22 +434,50 @@
         };
       }
 
-      /* 本命1行目 ＋ もう1口（接戦上位flipCount枠を第2候補へ変更）2行目 を生成 */
-      function formatTwoLines(items, flipCount) {
-        if (!items || items.length === 0) return "-";
-        var sorted = items.map(function(it, idx) { return { idx: idx, diff: it.diff }; })
-          .sort(function(a, b) { return a.diff - b.diff; });
-        var flipSet = sorted.slice(0, flipCount).map(function(x) { return x.idx; });
+      /* 接戦・対抗カバー優先枠の抽出 */
+      function selectBestCoverIndices(items, count) {
+        return items
+          .map(function(it, idx) {
+            return { idx: idx, coverScore: it.p2 * 2 - it.diff };
+          })
+          .sort(function(a, b) { return b.coverScore - a.coverScore; })
+          .slice(0, count)
+          .map(function(x) { return x.idx; });
+      }
 
-        var line1 = items.map(function(it) {
-          return '<span>' + it.top1 + '</span>';
+      /* 本命の中でも特に信頼度が高い「鉄板枠」の抽出 */
+      function selectSuperSolidIndices(items, count) {
+        if (!highlightSolid || !items || items.length === 0) return [];
+        return items
+          .map(function(it, idx) {
+            return { idx: idx, solidScore: it.p1 * 1.5 + it.diff };
+          })
+          .sort(function(a, b) { return b.solidScore - a.solidScore; })
+          .slice(0, count)
+          .map(function(x) { return x.idx; });
+      }
+
+      function renderPickToken(code, idx, solidSet) {
+        if (solidSet.indexOf(idx) !== -1) {
+          return '<span class="super-solid" title="鉄板本命（特に信頼度が高い枠）">' + code + '</span>';
+        }
+        return '<span>' + code + '</span>';
+      }
+
+      function formatTwoLines(items, flipCount, solidCount) {
+        if (!items || items.length === 0) return "-";
+        var flipSet = selectBestCoverIndices(items, flipCount);
+        var solidSet = selectSuperSolidIndices(items, solidCount);
+
+        var line1 = items.map(function(it, idx) {
+          return renderPickToken(it.top1, idx, solidSet);
         }).join(" － ");
 
         var line2 = items.map(function(it, idx) {
           if (flipSet.indexOf(idx) !== -1) {
-            return '<span class="w-pair">' + it.top2 + '</span>';
+            return '<span class="w-pair" title="対抗へ変更">' + it.top2 + '</span>';
           }
-          return '<span>' + it.top1 + '</span>';
+          return renderPickToken(it.top1, idx, solidSet);
         }).join(" － ");
 
         return (
@@ -368,21 +486,25 @@
         );
       }
 
-      function buildPlanCard(title, subInfo, items, wCount) {
-        var sorted = items.map(function(it, idx) { return { idx: idx, diff: it.diff }; })
-          .sort(function(a, b) { return a.diff - b.diff; });
-        var wSet = sorted.slice(0, wCount).map(function(x) { return x.idx; });
+      /* 予算500円プラン（Wマルチ2枠400円 ＋ 本命シングル100円 ＝ 計500円） */
+      function buildPlanCard500(title, subInfo, items, solidCount) {
+        var wSet = selectBestCoverIndices(items, 2);
+        var solidSet = selectSuperSolidIndices(items, solidCount);
 
         var multiHtml = items.map(function(it, idx) {
           if (wSet.indexOf(idx) !== -1) {
             return '<span class="w-pair">' + it.top1 + '/' + it.top2 + '</span>';
           }
-          return '<span>' + it.top1 + '</span>';
+          return renderPickToken(it.top1, idx, solidSet);
         }).join(' － ');
 
-        var singleHtml = items.map(function(it) { return it.top1; }).join(' － ');
+        var singleHtml = items.map(function(it, idx) {
+          return renderPickToken(it.top1, idx, solidSet);
+        }).join(' － ');
+
         var multiCost = Math.pow(2, wSet.length) * 100;
         var totalCost = multiCost + 100;
+        var addedCover = wSet.reduce(function(acc, idx) { return acc + items[idx].p2; }, 0);
 
         return (
           '<div class="plan-card">' +
@@ -390,9 +512,9 @@
               '<span class="plan-title">' + title + '</span>' +
               '<span class="plan-badge">マルチ' + multiCost + '円＋シングル100円（計' + totalCost + '円）</span>' +
             '</div>' +
-            '<div class="plan-sub">' + subInfo + '</div>' +
+            '<div class="plan-sub">' + subInfo + '（対抗カバー上乗せ期待値: +' + addedCover + '%）</div>' +
             '<div class="ticket-box">' +
-              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + multiCost + '円 / 接戦' + wSet.length + '枠をダブル）</div>' +
+              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + multiCost + '円 / カバー効率上位' + wSet.length + '枠をダブル）</div>' +
               '<div class="ticket-line">' + multiHtml + '</div>' +
             '</div>' +
             '<div class="ticket-box">' +
@@ -403,20 +525,139 @@
         );
       }
 
+      /* 予算1,000円プラン（Wマルチ3枠800円 ＋ 第4接戦シングル100円 ＋ 第5接戦シングル100円 ＝ 計1,000円） */
+      function buildPlanCard1000(title, subInfo, items, solidCount) {
+        var top5Cover = selectBestCoverIndices(items, Math.min(5, items.length));
+        var solidSet = selectSuperSolidIndices(items, solidCount);
+        var wSet = top5Cover.slice(0, 3);
+        var idx4 = top5Cover.length >= 4 ? top5Cover[3] : -1;
+        var idx5 = top5Cover.length >= 5 ? top5Cover[4] : -1;
+
+        var multiHtml = items.map(function(it, idx) {
+          if (wSet.indexOf(idx) !== -1) {
+            return '<span class="w-pair">' + it.top1 + '/' + it.top2 + '</span>';
+          }
+          return renderPickToken(it.top1, idx, solidSet);
+        }).join(' － ');
+
+        var sub1Html = items.map(function(it, idx) {
+          if (idx === idx4) return '<span class="w-pair">' + it.top2 + '</span>';
+          return renderPickToken(it.top1, idx, solidSet);
+        }).join(' － ');
+
+        var sub2Html = items.map(function(it, idx) {
+          if (idx === idx5) return '<span class="w-pair">' + it.top2 + '</span>';
+          return renderPickToken(it.top1, idx, solidSet);
+        }).join(' － ');
+
+        var multiCost = Math.pow(2, wSet.length) * 100;
+        var extraTickets = (idx4 !== -1 ? 1 : 0) + (idx5 !== -1 ? 1 : 0);
+        var totalCost = multiCost + extraTickets * 100;
+        var addedCover = top5Cover.reduce(function(acc, idx) { return acc + items[idx].p2; }, 0);
+
+        return (
+          '<div class="plan-card">' +
+            '<div class="plan-header">' +
+              '<span class="plan-title">' + title + '</span>' +
+              '<span class="plan-badge b1000">Wマルチ' + multiCost + '円＋押さえシングル' + (extraTickets * 100) + '円（計' + totalCost + '円）</span>' +
+            '</div>' +
+            '<div class="plan-sub">' + subInfo + '（上位' + top5Cover.length + '枠の対抗カバー合計期待値: +' + addedCover + '%）</div>' +
+            '<div class="ticket-box">' +
+              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + multiCost + '円 / 接戦TOP' + wSet.length + '枠をダブル）</div>' +
+              '<div class="ticket-line">' + multiHtml + '</div>' +
+            '</div>' +
+            (idx4 !== -1 ? (
+              '<div class="ticket-box">' +
+                '<div class="ticket-label sub">◆ 押さえ①：第4接戦枠（第' + (idx4 + 1) + '枠）対抗シングル（100円）</div>' +
+                '<div class="ticket-line">' + sub1Html + '</div>' +
+              '</div>'
+            ) : '') +
+            (idx5 !== -1 ? (
+              '<div class="ticket-box">' +
+                '<div class="ticket-label sub">◆ 押さえ②：第5接戦枠（第' + (idx5 + 1) + '枠）対抗シングル（100円）</div>' +
+                '<div class="ticket-line">' + sub2Html + '</div>' +
+              '</div>'
+            ) : '') +
+          '</div>'
+        );
+      }
+
+      function renderPlansSection(analyzed) {
+        var headingEl = document.getElementById("plans-heading");
+        if (selectedBudget === 1000) {
+          headingEl.textContent = "💰 予算1,000円以内・高カバー率マルチ購入プラン（Wマルチ800円＋シングル200円）";
+        } else {
+          headingEl.textContent = "💰 予算500円以内・的中率最大化マルチ購入プラン（Wマルチ400円＋シングル100円）";
+        }
+
+        var builder = selectedBudget === 1000 ? buildPlanCard1000 : buildPlanCard500;
+        var plansHtml = "";
+
+        if (analyzed.length >= 3) {
+          var g3Items = [];
+          var g3Desc = [];
+          analyzed.slice(0, 3).forEach(function(x) {
+            g3Items.push(x.gH);
+            g3Items.push(x.gA);
+            g3Desc.push("第" + x.f + "枠 " + x.h + "(λ" + x.hLam.toFixed(2) + ") vs " + x.a + "(λ" + x.aLam.toFixed(2) + ")");
+          });
+          plansHtml += builder(
+            "① toto GOAL3（6枠マルチ買いプラン）",
+            "対象3試合の予測λ：" + g3Desc.join(" ／ "),
+            g3Items,
+            2
+          );
+        }
+        if (analyzed.length >= 5) {
+          plansHtml += builder(
+            "② mini toto A組（1〜5枠マルチ買いプラン）",
+            selectedBudget === 1000
+              ? "1〜5枠の接戦3枠をダブル（800円）＋残り2枠もシングル2口で全枠カバー"
+              : "1〜5枠で対抗の出現確率が高い2試合を自動ダブル（W）化",
+            analyzed.slice(0, 5).map(function(x) { return x.c1x2; }),
+            2
+          );
+        }
+        if (analyzed.length >= 10) {
+          plansHtml += builder(
+            "③ mini toto B組（6〜10枠マルチ買いプラン）",
+            selectedBudget === 1000
+              ? "6〜10枠の接戦3枠をダブル（800円）＋残り2枠もシングル2口で全枠カバー"
+              : "6〜10枠で対抗の出現確率が高い2試合を自動ダブル（W）化",
+            analyzed.slice(5, 10).map(function(x) { return x.c1x2; }),
+            2
+          );
+        }
+        if (analyzed.length >= 10) {
+          plansHtml += builder(
+            "④ toto 本戦（全" + analyzed.length + "枠マルチ買いプラン）",
+            selectedBudget === 1000
+              ? "全枠中の接戦TOP3枠をダブル（800円）＋第4・第5接戦枠をシングル2口でカバー"
+              : "全枠中で対抗カバー効率が最も高い2試合を自動ダブル（W）化",
+            analyzed.map(function(x) { return x.c1x2; }),
+            3
+          );
+        }
+
+        document.getElementById("plans-list").innerHTML =
+          plansHtml || '<div class="empty-msg">提案を生成できる試合数がありません</div>';
+      }
+
       function renderRound(roundKey) {
         if (!appData || !appData.rounds || !appData.rounds[roundKey]) return;
+        currentRoundKey = roundKey;
         var rObj = appData.rounds[roundKey];
         var matches = rObj.matches || [];
         var actuals = rObj.actual_results || {};
 
         document.getElementById("round-title-badge").textContent = rObj.title || roundKey;
         document.getElementById("last-updated-text").textContent =
-          "最終取得: " + (appData.last_updated || "-") + "（順位・天候・スタメン自動分析済）";
+          "最終取得: " + (appData.last_updated || "-") + "（会場別傾き・遠征距離・集合知・動的Dixon-Coles補正済）";
 
         var analyzed = matches.map(function(m) {
           var hLam = parseFloat(m.h_xg || 1.3);
           var aLam = parseFloat(m.a_xg || 1.3);
-          var c1x2 = calc1x2(hLam, aLam);
+          var c1x2 = calc1x2DynamicDC(hLam, aLam);
           return {
             f: m.f,
             h: m.h,
@@ -431,18 +672,21 @@
           };
         });
 
-        // 1. ①直前予想（【本命】と【もう1口】の2行表示）
+        var all1x2 = analyzed.map(function(x) { return x.c1x2; });
+        var mainSolidSet = selectSuperSolidIndices(all1x2, 3);
+
+        // 1. ①直前予想（【本命】と【もう1口】＋鉄板枠強調）
         document.getElementById("lbl-toto-main").textContent =
-          "toto 本戦（全" + analyzed.length + "枠｜もう1口は接戦3枠を対抗に変更）";
+          "toto 本戦（全" + analyzed.length + "枠｜鉄板上位3枠強調・もう1口は接戦3枠変更）";
         document.getElementById("val-toto-main").innerHTML =
-          formatTwoLines(analyzed.map(function(x) { return x.c1x2; }), 3);
+          formatTwoLines(all1x2, 3, 3);
 
         document.getElementById("val-mini-a").innerHTML =
-          formatTwoLines(analyzed.slice(0, 5).map(function(x) { return x.c1x2; }), 2);
+          formatTwoLines(all1x2.slice(0, 5), 2, 2);
 
         document.getElementById("val-mini-b").innerHTML =
           analyzed.length >= 10
-            ? formatTwoLines(analyzed.slice(5, 10).map(function(x) { return x.c1x2; }), 2)
+            ? formatTwoLines(all1x2.slice(5, 10), 2, 2)
             : "-";
 
         var g3Items = [];
@@ -450,65 +694,30 @@
           g3Items.push(x.gH);
           g3Items.push(x.gA);
         });
-        document.getElementById("val-goal3").innerHTML = formatTwoLines(g3Items, 2);
+        document.getElementById("val-goal3").innerHTML = formatTwoLines(g3Items, 2, 2);
 
         // 試合カード一覧
-        var mHtml = analyzed.map(function(x) {
+        var mHtml = analyzed.map(function(x, idx) {
+          var isSolid = mainSolidSet.indexOf(idx) !== -1;
           var g3Tag = x.f <= 3 ? '<span class="goal3-tag">GOAL3</span>' : '';
-          var vStr = x.v[0] + "% / " + x.v[1] + "% / " + x.v[2] + "%";
+          var solidTag = isSolid ? '<span class="solid-tag">🔥 鉄板本命</span>' : '';
           var pStr = "[1]" + x.c1x2.raw["1"] + "% [0]" + x.c1x2.raw["0"] + "% [2]" + x.c1x2.raw["2"] + "%";
+          var vStr = Math.round(x.v[0]) + "% / " + Math.round(x.v[1]) + "% / " + Math.round(x.v[2]) + "%";
           return (
-            '<div class="match-card">' +
+            '<div class="match-card' + (isSolid ? ' solid-card' : '') + '">' +
               '<div class="match-top">' +
-                '<div class="match-teams">第' + x.f + '枠 ' + g3Tag + '：' + x.h + ' vs ' + x.a + '</div>' +
-                '<div class="match-rec">本命：' + x.c1x2.top1 + '（対抗：' + x.c1x2.top2 + '）</div>' +
+                '<div class="match-teams">第' + x.f + '枠 ' + solidTag + g3Tag + '：' + x.h + ' vs ' + x.a + '</div>' +
+                '<div class="match-rec">本命：' + x.c1x2.top1 + '（' + x.c1x2.p1 + '%） ／ 対抗：' + x.c1x2.top2 + '（' + x.c1x2.p2 + '%）</div>' +
               '</div>' +
-              '<div class="match-metrics">予測λ: ' + x.hLam.toFixed(2) + ' - ' + x.aLam.toFixed(2) + ' ｜ 勝率: ' + pStr + ' ｜ 推計投票率: ' + vStr + '</div>' +
+              '<div class="match-metrics">予測λ: ' + x.hLam.toFixed(2) + ' - ' + x.aLam.toFixed(2) + ' ｜ AI勝率: ' + pStr + ' ｜ 投票率: ' + vStr + '</div>' +
               '<div class="match-analysis">📊 ' + x.analysis + '</div>' +
             '</div>'
           );
         }).join("");
         document.getElementById("matches-list").innerHTML = mHtml || '<div class="empty-msg">試合データがありません</div>';
 
-        // 2. ②500円提案（マルチ買い＋GOAL3対応）
-        var plansHtml = "";
-        if (analyzed.length >= 3) {
-          var g3Desc = [];
-          analyzed.slice(0, 3).forEach(function(x) {
-            g3Desc.push("第" + x.f + "枠 " + x.h + "(λ" + x.hLam.toFixed(2) + ") vs " + x.a + "(λ" + x.aLam.toFixed(2) + ")");
-          });
-          plansHtml += buildPlanCard(
-            "① toto GOAL3（6枠マルチ買いプラン）",
-            "対象3試合の予測得点期待値：" + g3Desc.join(" ／ "),
-            g3Items,
-            2
-          );
-        }
-        if (analyzed.length >= 5) {
-          plansHtml += buildPlanCard(
-            "② mini toto A組（1〜5枠マルチ買いプラン）",
-            "1〜5枠の中で勝率差が最も小さい接戦2試合を自動でダブル（W）に設定",
-            analyzed.slice(0, 5).map(function(x) { return x.c1x2; }),
-            2
-          );
-        }
-        if (analyzed.length >= 10) {
-          plansHtml += buildPlanCard(
-            "③ mini toto B組（6〜10枠マルチ買いプラン）",
-            "6〜10枠の中で勝率差が最も小さい接戦2試合を自動でダブル（W）に設定",
-            analyzed.slice(5, 10).map(function(x) { return x.c1x2; }),
-            2
-          );
-        }
-        if (analyzed.length >= 10) {
-          plansHtml += buildPlanCard(
-            "④ toto 本戦（全" + analyzed.length + "枠マルチ買いプラン）",
-            "全試合中で最も拮抗している2試合のみをダブル（W）で押さえる高配当狙い",
-            analyzed.map(function(x) { return x.c1x2; }),
-            2
-          );
-        }
-        document.getElementById("plans-list").innerHTML = plansHtml || '<div class="empty-msg">提案を生成できる試合数がありません</div>';
+        // 2. ②500円/1000円提案
+        renderPlansSection(analyzed);
 
         // 3. ③結果照合
         var actKeys = Object.keys(actuals);
@@ -538,19 +747,22 @@
         }
 
         // 4. ④振り返り・今節ポイント
-        var closeGames = analyzed.slice().sort(function(a, b) { return a.c1x2.diff - b.c1x2.diff; }).slice(0, 3);
-        var solidGames = analyzed.slice().sort(function(a, b) { return b.c1x2.diff - a.c1x2.diff; }).slice(0, 3);
+        var coverIdx = selectBestCoverIndices(all1x2, 3);
+        var solidGames = analyzed.slice().sort(function(a, b) {
+          return (b.c1x2.p1 * 1.5 + b.c1x2.diff) - (a.c1x2.p1 * 1.5 + a.c1x2.diff);
+        }).slice(0, 3);
         var revHtml =
           '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:8px;">⚠️ 波乱注意・接戦枠（もう1口で変更される重点枠）</div>' +
-            closeGames.map(function(g) {
-              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: ' + g.c1x2.top1 + ' → 対抗: ' + g.c1x2.top2 + '、勝率差 ' + g.c1x2.diff + '%）</div>';
+            '<div class="plan-title" style="margin-bottom:8px;">🔥 鉄板本命TOP3（最も信頼度が高い軸カード）</div>' +
+            solidGames.map(function(g) {
+              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: [' + g.c1x2.top1 + '] 勝率 ' + g.c1x2.p1 + '% / 対抗差 +' + g.c1x2.diff + '%）</div>';
             }).join("") +
           '</div>' +
           '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:8px;">🛡️ 鉄板候補枠（本命固定推奨カード）</div>' +
-            solidGames.map(function(g) {
-              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: [' + g.c1x2.top1 + '] 勝率 ' + g.c1x2.p1 + '%）</div>';
+            '<div class="plan-title" style="margin-bottom:8px;">⚠️ カバー優先度TOP3（もう1口・Wマルチ推奨枠）</div>' +
+            coverIdx.map(function(idx) {
+              var g = analyzed[idx];
+              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: ' + g.c1x2.top1 + ' ' + g.c1x2.p1 + '% → 対抗: ' + g.c1x2.top2 + ' ' + g.c1x2.p2 + '%）</div>';
             }).join("") +
           '</div>';
         document.getElementById("review-list").innerHTML = revHtml;
@@ -585,12 +797,32 @@
       document.getElementById("reload-btn").addEventListener("click", function() {
         fetchData();
       });
+      document.getElementById("toggle-solid-btn").addEventListener("click", function() {
+        highlightSolid = !highlightSolid;
+        var btn = document.getElementById("toggle-solid-btn");
+        if (highlightSolid) {
+          btn.textContent = "🔥 鉄板強調: ON";
+          btn.classList.remove("off");
+        } else {
+          btn.textContent = "🔥 鉄板強調: OFF";
+          btn.classList.add("off");
+        }
+        if (currentRoundKey) renderRound(currentRoundKey);
+      });
       document.querySelectorAll(".tab-btn").forEach(function(btn) {
         btn.addEventListener("click", function() {
           document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
           document.querySelectorAll(".tab-content").forEach(function(c) { c.classList.add("hidden"); });
           btn.classList.add("active");
           document.getElementById(btn.getAttribute("data-tab")).classList.remove("hidden");
+        });
+      });
+      document.querySelectorAll(".budget-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          document.querySelectorAll(".budget-btn").forEach(function(b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          selectedBudget = parseInt(btn.getAttribute("data-budget"), 10) || 500;
+          if (currentRoundKey) renderRound(currentRoundKey);
         });
       });
 
