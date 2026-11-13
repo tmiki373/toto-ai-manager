@@ -58,8 +58,8 @@ jobs:
           git add data.json index.html
           if ! git diff --staged --quiet; then
             git commit -m "Auto update toto data & predictions"
-            git pull --rebase origin main
-            git push
+            git pull --rebase -X ours origin main || git rebase --skip
+            git push origin main
           fi
 
       - name: Setup Pages
