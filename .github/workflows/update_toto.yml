@@ -27,13 +27,13 @@ on:
     # 土曜・日曜 22:30 JST (13:30 UTC) - 当日終了試合のスコア・的中結果自動反映
     - cron: '30 13 * * 0,6'
 
-# 連続でファイルを更新した際に書き込み競合を防ぐ制御
 concurrency:
   group: update-toto-data
   cancel-in-progress: true
 
 permissions:
   contents: write
+  pages: write
 
 jobs:
   update-data:
@@ -72,6 +72,8 @@ jobs:
           '
 
       - name: Commit and push updated data
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -81,3 +83,4 @@ jobs:
             git pull --rebase origin main
             git push
           fi
+          gh api repos/${{ github.repository }}/pages/builds -X POST || true
