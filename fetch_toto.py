@@ -1,5 +1,6 @@
 import json
 import math
+import os
 import re
 import datetime
 import urllib.request
@@ -28,6 +29,22 @@ STADIUM_COORDS = {
     "北九州": (33.890, 130.888), "熊本": (32.837, 130.800), "鹿児島": (31.564, 130.561),
     "琉球": (26.306, 127.781)
 }
+
+
+def load_existing_data():
+    """過去の履歴・前回投票率・学習済みパラメータを引き継ぐために既存data.jsonを読み込む"""
+    if not os.path.exists(DATA_FILE):
+        return {"rounds": {}, "model_params": {"home_adv": 1.12}}
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            d = json.load(f)
+            if isinstance(d, dict):
+                d.setdefault("rounds", {})
+                d.setdefault("model_params", {"home_adv": 1.12})
+                return d
+    except Exception as e:
+        print("[Load existing data warning]", e)
+    return {"rounds": {}, "model_params": {"home_adv": 1.12}}
 
 
 def fetch_url(url, timeout=12):
@@ -79,7 +96,7 @@ def norm_team(name):
 
 
 def damp_multiplier(raw_mult, low=0.78, high=1.24):
-    """過剰適合防止のソフトクリッピング安全弁（極端な倍率膨張を対数減衰）"""
+    """過剰適合・異常値防止の対数ダンピング安全弁"""
     if raw_mult >= 1.0:
         excess = raw_mult - 1.0
         span = high - 1.0
@@ -108,7 +125,6 @@ def calc_travel_penalty(h_team, a_team):
 
 
 def get_toto_schedule_and_votes():
-    """最新販売回号・締切日時と、公開されている場合は各枠の一般投票率(集合知)を取得"""
     round_str = "最新開催回"
     dead_str = "公式スケジュール準拠"
     market_votes = {}
@@ -138,7 +154,6 @@ def get_toto_schedule_and_votes():
                 round_str = "第{}回".format(rid)
                 dead_str = period
 
-    # Yahoo! toto投票状況ページから一般投票率(1/0/2)を取得試行（公開前なら空で安全にスキップ）
     v_html = fetch_url("https://toto.yahoo.co.jp/vote/toto", 10)
     if v_html:
         v_soup = BeautifulSoup(v_html, "html.parser")
@@ -151,7 +166,6 @@ def get_toto_schedule_and_votes():
                 if 1 <= f_idx <= 13 and 95.0 <= sum(pcts[:3]) <= 105.0:
                     market_votes[f_idx] = [pcts[0], pcts[1], pcts[2]]
 
-    print("[Schedule & Market Votes]", round_str, "Votes loaded:", len(market_votes))
     return round_str, dead_str, market_votes
 
 
@@ -171,11 +185,10 @@ def parse_recent_form_score(row_text):
     return mult, "直近5戦{}/15pt".format(pts)
 
 
-def get_club_stats():
-    """シーズン基礎力＋直近5戦フォーム＋ホーム/アウェイ別傾き＋終盤モチベーションを算出"""
-    raw_rows = []
-    total_gf = 0
-    total_played = 0
+def get_club_stats_by_league():
+    """【改良①・②】J1/J2/J3個別平均キャリブレーション ＋ ピタゴラス勝率乖離 ＋ 直近5戦フォーム"""
+    league_rows = {"J1": [], "J2": [], "J3": []}
+    league_totals = {"J1": [0, 0], "J2": [0, 0], "J3": [0, 0]}
 
     urls = [
         ("https://www.jleague.jp/standings/j1/", "J1"),
@@ -200,12 +213,10 @@ def get_club_stats():
                 rk, pts, pl = nums[0], nums[1], max(1, nums[2])
                 w, d, l = nums[3], nums[4], nums[5]
                 gf, ga = nums[6], nums[7]
-                total_gf += gf
-                total_played += pl
+                league_totals[div][0] += gf
+                league_totals[div][1] += pl
 
-                # テーブル内にホーム/アウェイ別戦績列が含まれている場合は会場別傾きを抽出
-                home_tilt = 1.0
-                away_tilt = 1.0
+                home_tilt, away_tilt = 1.0, 1.0
                 if len(nums) >= 16:
                     h_w, h_l = nums[9], nums[11]
                     a_w, a_l = nums[13], nums[15]
@@ -213,57 +224,158 @@ def get_club_stats():
                     away_tilt = round(max(0.92, min(1.08, 1.0 + (a_w - a_l) * 0.012)), 3)
 
                 recent_mult, recent_tag = parse_recent_form_score("".join(cells))
-                raw_rows.append((t, div, rk, pts, pl, w, d, l, gf, ga, recent_mult, recent_tag, home_tilt, away_tilt))
+                league_rows[div].append(
+                    (t, div, rk, pts, pl, w, d, l, gf, ga, recent_mult, recent_tag, home_tilt, away_tilt)
+                )
 
-    dyn_avg = round(total_gf / max(1, total_played), 3) if total_played > 0 else 1.30
-    print("[Dynamic League Avg Goals]", dyn_avg)
+    league_avgs = {}
+    for div in ["J1", "J2", "J3"]:
+        gf_sum, pl_sum = league_totals[div]
+        league_avgs[div] = round(gf_sum / max(1, pl_sum), 3) if pl_sum > 0 else 1.30
+    print("[League Avg Goals]", league_avgs)
 
     stats = {}
-    for (t, div, rk, pts, pl, w, d, l, gf, ga, recent_mult, recent_tag, h_tilt, a_tilt) in raw_rows:
-        atk_base = ((gf / pl) * 0.80) + (dyn_avg * 0.20)
-        def_base = ((ga / pl) * 0.80) + (dyn_avg * 0.20)
+    for div, rows in league_rows.items():
+        l_avg = league_avgs[div]
+        for (t, div, rk, pts, pl, w, d, l, gf, ga, recent_mult, recent_tag, h_tilt, a_tilt) in rows:
+            # リーグ個別平均へのベイズ平滑化
+            atk_base = ((gf / pl) * 0.80) + (l_avg * 0.20)
+            def_base = ((ga / pl) * 0.80) + (l_avg * 0.20)
 
-        gd_per_game = (gf - ga) / pl
-        season_mult = 0.94 + ((w / pl) * 0.14) + max(-0.06, min(0.06, gd_per_game * 0.04))
-        blended_form = (season_mult * 0.65) + (recent_mult * 0.35)
+            # ピタゴラス期待勝率（得失点から算出する真の実力値）と実勝率の統合
+            pyth_exp = (gf ** 1.35) / max(1.0, (gf ** 1.35) + (ga ** 1.35))
+            actual_win_rate = (w + d * 0.35) / pl
+            true_strength_mult = 0.93 + (pyth_exp * 0.10) + (actual_win_rate * 0.06)
 
-        motive_mult = 1.0
-        motive_tag = ""
-        if (div == "J1" and rk <= 3) or (div in ["J2", "J3"] and rk <= 6):
-            motive_mult = 1.05
-            motive_tag = "・優勝/昇格圏"
-        elif rk >= 17:
-            motive_mult = 1.04
-            motive_tag = "・残留争い"
+            # シーズン基礎実力(65%) + 直近5戦勢い(35%)
+            blended_form = (true_strength_mult * 0.65) + (recent_mult * 0.35)
 
-        extra = "・" + recent_tag if recent_tag else ""
-        tr_str = "[{} {}位{}{}] 勝点{}/{}勝{}分{}敗".format(div, rk, motive_tag, extra, pts, w, d, l)
-        stats[t] = {
-            "atk": round(atk_base * blended_form * motive_mult, 3),
-            "def_v": round(def_base / (blended_form * motive_mult), 3),
-            "h_tilt": h_tilt,
-            "a_tilt": a_tilt,
-            "trend": tr_str,
-            "rk": rk
-        }
+            # 終盤戦モチベーション判定
+            motive_mult = 1.0
+            motive_tag = ""
+            if (div == "J1" and rk <= 3) or (div in ["J2", "J3"] and rk <= 6):
+                motive_mult = 1.05
+                motive_tag = "・優勝/昇格圏"
+            elif rk >= 17:
+                motive_mult = 1.04
+                motive_tag = "・残留争い"
+
+            extra = "・" + recent_tag if recent_tag else ""
+            tr_str = "[{} {}位{}{}] 勝点{}/{}勝{}分{}敗".format(div, rk, motive_tag, extra, pts, w, d, l)
+            stats[t] = {
+                "div": div,
+                "l_avg": l_avg,
+                "atk": round(atk_base * blended_form * motive_mult, 3),
+                "def_v": round(def_base / (blended_form * motive_mult), 3),
+                "h_tilt": h_tilt,
+                "a_tilt": a_tilt,
+                "trend": tr_str,
+                "rk": rk
+            }
 
     print("[Club Stats] Fetched:", len(stats))
-    return stats, dyn_avg
+    return stats
 
 
-def get_top_scorers():
-    scorers = set()
-    for div in ["j1", "j2", "j3"]:
-        html = fetch_url("https://www.jleague.jp/stats/{}/goal.html".format(div), 10)
+def get_recent_match_dates_and_results(stats, existing_data, today):
+    """【追加要素①・③】過去7日間の試合日から休養日数(過密日程)を特定し、同時に過去節の結果照合を自動更新"""
+    last_played = {}
+    recent_scores = {}
+
+    for back in range(1, 8):
+        past_d = today - datetime.timedelta(days=back)
+        ymd = past_d.strftime("%Y%m%d")
+        html = fetch_url("https://www.jleague.jp/match/search/all/{}/".format(ymd), 8)
         if not html:
             continue
         soup = BeautifulSoup(html, "html.parser")
-        for tr in soup.find_all("tr")[:35]:
-            for a in tr.find_all("a"):
-                nm = re.sub(r"\s+", "", a.get_text(strip=True))
-                if 2 <= len(nm) <= 12 and not any(x in nm for x in ["J1", "J2", "J3", "詳細", "順位"]):
-                    scorers.add(nm)
-    return scorers
+        for blk in soup.find_all(["tr", "li", "div"]):
+            txt = blk.get_text(" ", strip=True)
+            if len(txt) > 180 or len(txt) < 6:
+                continue
+            teams = []
+            for sub in blk.find_all(["td", "span", "p", "a", "div"]):
+                s = sub.get_text(strip=True)
+                if 2 <= len(s) <= 16:
+                    nm = norm_team(s)
+                    if nm in stats and nm not in teams:
+                        teams.append(nm)
+            if len(teams) == 2:
+                # 最も新しい試合日のみ記録
+                for tm in teams:
+                    if tm not in last_played:
+                        last_played[tm] = past_d
+                m_sc = re.search(r"(\d+)\s*[-－ー]\s*(\d+)", txt)
+                if m_sc:
+                    hs, as_ = int(m_sc.group(1)), int(m_sc.group(2))
+                    res_code = "1" if hs > as_ else ("2" if hs < as_ else "0")
+                    recent_scores["{}-{}".format(teams[0], teams[1])] = {
+                        "hs": hs, "as": as_, "res": res_code
+                    }
+
+    # 既存ラウンドの結果照合を自動更新し、予測誤差からホーム優位係数をベイズ自己学習
+    home_adv = float(existing_data.get("model_params", {}).get("home_adv", 1.12))
+    pred_home_wins, actual_home_wins, sample_cnt = 0.0, 0.0, 0
+
+    for rk, r_obj in existing_data.get("rounds", {}).items():
+        act = r_obj.setdefault("actual_results", {})
+        for m in r_obj.get("matches", []):
+            pair_key = "{}-{}".format(m.get("h"), m.get("a"))
+            if pair_key in recent_scores:
+                act[str(m["f"])] = recent_scores[pair_key]
+            f_str = str(m.get("f"))
+            if f_str in act and "v" in m:
+                pred_home_wins += (m["v"][0] / 100.0)
+                actual_home_wins += (1.0 if act[f_str]["res"] == "1" else 0.0)
+                sample_cnt += 1
+
+    if sample_cnt >= 10:
+        err = (actual_home_wins - pred_home_wins) / sample_cnt
+        home_adv = round(max(1.05, min(1.18, home_adv + err * 0.15)), 3)
+        print("[Self-Tuning Home Adv]", home_adv, "Samples:", sample_cnt)
+
+    return last_played, home_adv
+
+
+def get_key_players_and_suspensions(stats):
+    """【改良③・追加要素②】得点上位(攻撃主力)＋出場時間上位(守備・GK主力)＋公式出場停止情報を取得"""
+    atk_stars = set()
+    all_regulars = set()
+    suspended_teams = set()
+
+    for div in ["j1", "j2", "j3"]:
+        g_html = fetch_url("https://www.jleague.jp/stats/{}/goal.html".format(div), 8)
+        if g_html:
+            soup = BeautifulSoup(g_html, "html.parser")
+            for tr in soup.find_all("tr")[:35]:
+                for a in tr.find_all("a"):
+                    nm = re.sub(r"\s+", "", a.get_text(strip=True))
+                    if 2 <= len(nm) <= 12 and not any(x in nm for x in ["J1", "J2", "J3", "詳細", "順位"]):
+                        atk_stars.add(nm)
+                        all_regulars.add(nm)
+
+        p_html = fetch_url("https://www.jleague.jp/stats/{}/playtime.html".format(div), 8)
+        if p_html:
+            soup = BeautifulSoup(p_html, "html.parser")
+            for tr in soup.find_all("tr")[:50]:
+                for a in tr.find_all("a"):
+                    nm = re.sub(r"\s+", "", a.get_text(strip=True))
+                    if 2 <= len(nm) <= 12 and not any(x in nm for x in ["J1", "J2", "J3", "詳細", "順位"]):
+                        all_regulars.add(nm)
+
+    # 公式ニュース/出場停止関連から出場停止対象クラブを検出
+    s_html = fetch_url("https://www.jleague.jp/news/", 8)
+    if s_html:
+        soup = BeautifulSoup(s_html, "html.parser")
+        for a in soup.find_all("a"):
+            t = a.get_text(strip=True)
+            if "出場停止" in t:
+                for tm in stats.keys():
+                    if tm in t:
+                        suspended_teams.add(tm)
+
+    print("[Players & Suspensions] AtkStars:", len(atk_stars), "Regulars:", len(all_regulars), "SuspTeams:", len(suspended_teams))
+    return atk_stars, all_regulars, suspended_teams
 
 
 def check_weather(home_team, target_date_iso):
@@ -295,30 +407,45 @@ def check_weather(home_team, target_date_iso):
         return 1.0, "晴/曇"
 
 
-def check_lineup_status(match_url, top_scorers):
+def check_lineup_and_suspension(match_url, h_team, a_team, atk_stars, all_regulars, suspended_teams):
+    """攻撃主力・守備主力の先発状況と出場停止情報を統合判定"""
+    h_atk_m = 0.96 if h_team in suspended_teams else 1.0
+    a_atk_m = 0.96 if a_team in suspended_teams else 1.0
+    h_def_m = 1.04 if h_team in suspended_teams else 1.0
+    a_def_m = 1.04 if a_team in suspended_teams else 1.0
+    susp_note = ""
+    if h_team in suspended_teams or a_team in suspended_teams:
+        susp_note = "(出場停止影響あり)"
+
     if not match_url:
-        return 1.0, 1.0, "スタメン発表前"
+        return h_atk_m, h_def_m, a_atk_m, a_def_m, "スタメン発表前" + susp_note
+
     html = fetch_url(match_url, 10)
     if not html:
-        return 1.0, 1.0, "スタメン発表前"
+        return h_atk_m, h_def_m, a_atk_m, a_def_m, "スタメン発表前" + susp_note
+
     soup = BeautifulSoup(html, "html.parser")
     txt = soup.get_text(" ", strip=True)
     if "先発" not in txt and "スターティング" not in txt:
-        return 1.0, 1.0, "スタメン発表前"
+        return h_atk_m, h_def_m, a_atk_m, a_def_m, "スタメン発表前" + susp_note
+
     clean_txt = re.sub(r"\s+", "", txt)
-    hits = [p for p in top_scorers if p in clean_txt]
-    if len(hits) >= 2:
-        return 1.07, 1.07, "スタメン確定(主力出場:{}ほか)".format(hits[0])
-    elif len(hits) == 1:
-        return 1.03, 0.96, "スタメン確定(主力出場:{})".format(hits[0])
-    return 0.91, 0.91, "スタメン確定(ターンオーバー傾向)"
+    hit_atk = [p for p in atk_stars if p in clean_txt]
+    hit_reg = [p for p in all_regulars if p in clean_txt]
+
+    if len(hit_atk) >= 2 and len(hit_reg) >= 6:
+        return 1.07, 0.95, 1.07, 0.95, "スタメン確定(攻守主力万全:{}ほか)".format(hit_atk[0])
+    elif len(hit_reg) >= 4:
+        return 1.02, 0.98, 1.02, 0.98, "スタメン確定(主力中心:{}ほか)".format(hit_reg[0])
+    return 0.91, 1.08, 0.91, 1.08, "スタメン確定(ターンオーバー/守備変更傾向)"
 
 
-def calc_vote_dynamic_dc(h_lam, a_lam):
-    """試合ペース(合計得点期待値)連動型の動的Dixon-Coles補正付き勝率算出"""
+def calc_vote_league_dc(h_lam, a_lam, div):
+    """リーグ別引き分け傾向 × 試合ペース連動型の動的Dixon-Coles勝率算出"""
     tot_lam = h_lam + a_lam
-    # ロースコア予想(tot_lam < 2.2)ほど引き分け相関を強め、撃ち合い予想では弱める
-    rho = max(-0.16, min(-0.06, -0.12 + (tot_lam - 2.4) * 0.03))
+    # J2は引き分け率が高いため相関をやや強め、J3は撃ち合い傾向のため弱める
+    league_bias = -0.015 if div == "J2" else (0.015 if div == "J3" else 0.0)
+    rho = max(-0.17, min(-0.05, -0.12 + league_bias + (tot_lam - 2.4) * 0.03))
 
     def pois(k, lam):
         return (lam ** k) * math.exp(-lam) / math.factorial(k)
@@ -350,25 +477,38 @@ def calc_vote_dynamic_dc(h_lam, a_lam):
     return [r1, r0, r2]
 
 
-def blend_with_market_wisdom(h_lam, a_lam, mkt_v):
-    """一般投票率(集合知)が取得できた場合、人気偏重を除去した上で25%ベイズ統合する"""
+def blend_with_smart_market(h_lam, a_lam, div, mkt_v, prev_v):
+    """【改良④】市場投票率(集合知) ＋ 直前投票率急変(スマートマネー)をベイズ統合"""
     if not mkt_v or len(mkt_v) < 3:
         return h_lam, a_lam, ""
-    # フェイバリット・ロングショットバイアス除去 (累乗0.85で正規化)
+
     debiased = [max(1.0, x) ** 0.85 for x in mkt_v]
     s = sum(debiased)
     m_p1, m_p2 = debiased[0] / s, debiased[2] / s
 
-    stat_v = calc_vote_dynamic_dc(h_lam, a_lam)
+    # 直前投票率の急変検知（前回取得時より+3%以上支持が伸びた目を玄人資金流入と判定）
+    smart_h, smart_a = 1.0, 1.0
+    smart_tag = ""
+    if prev_v and len(prev_v) >= 3:
+        diff_1 = mkt_v[0] - prev_v[0]
+        diff_2 = mkt_v[2] - prev_v[2]
+        if diff_1 >= 3.0:
+            smart_h = 1.03
+            smart_tag = "・直前H人気急上昇"
+        elif diff_2 >= 3.0:
+            smart_a = 1.03
+            smart_tag = "・直前A人気急上昇"
+
+    stat_v = calc_vote_league_dc(h_lam, a_lam, div)
     s_p1, s_p2 = stat_v[0] / 100.0, stat_v[2] / 100.0
 
-    # 統計75% + 集合知25% の比率シフトをλへ穏やかに反映 (最大±8%以内に制限)
-    h_shift = damp_multiplier(1.0 + (m_p1 - s_p1) * 0.25, 0.92, 1.08)
-    a_shift = damp_multiplier(1.0 + (m_p2 - s_p2) * 0.25, 0.92, 1.08)
-    return round(h_lam * h_shift, 2), round(a_lam * a_shift, 2), " / 集合知融合済"
+    h_shift = damp_multiplier((1.0 + (m_p1 - s_p1) * 0.25) * smart_h, 0.92, 1.08)
+    a_shift = damp_multiplier((1.0 + (m_p2 - s_p2) * 0.25) * smart_a, 0.92, 1.08)
+    return round(h_lam * h_shift, 2), round(a_lam * a_shift, 2), " / 集合知融合済" + smart_tag
 
 
-def get_future_matches(stats, dyn_avg, top_scorers, round_num_str, deadline_str, market_votes):
+def get_future_matches(stats, last_played, home_adv, atk_stars, all_regulars, suspended_teams,
+                       round_num_str, deadline_str, market_votes, prev_round_votes):
     jst = datetime.timezone(datetime.timedelta(hours=9))
     today = datetime.datetime.now(jst).date()
     wds = ["月", "火", "水", "木", "金", "土", "日"]
@@ -442,21 +582,38 @@ def get_future_matches(stats, dyn_avg, top_scorers, round_num_str, deadline_str,
     d_label = "・".join(udates[:2])
 
     matches = []
-    for i, (_, iso_d, ds, hn, an, m_link) in enumerate(target, 1):
-        hs = stats.get(hn, {"atk": dyn_avg, "def_v": dyn_avg, "h_tilt": 1.0, "a_tilt": 1.0, "trend": ""})
-        as_ = stats.get(an, {"atk": dyn_avg, "def_v": dyn_avg, "h_tilt": 1.0, "a_tilt": 1.0, "trend": ""})
+    for i, (m_date, iso_d, ds, hn, an, m_link) in enumerate(target, 1):
+        hs = stats.get(hn, {"div": "J1", "l_avg": 1.30, "atk": 1.30, "def_v": 1.30, "h_tilt": 1.0, "a_tilt": 1.0, "trend": ""})
+        as_ = stats.get(an, {"div": "J1", "l_avg": 1.30, "atk": 1.30, "def_v": 1.30, "h_tilt": 1.0, "a_tilt": 1.0, "trend": ""})
+        div = hs.get("div", "J1")
+        l_avg = hs.get("l_avg", 1.30)
 
         w_mult, w_label = check_weather(hn, iso_d)
-        hm_lu, am_lu, lu_label = check_lineup_status(m_link, top_scorers)
+        h_atk_lu, h_def_lu, a_atk_lu, a_def_lu, lu_label = check_lineup_and_suspension(
+            m_link, hn, an, atk_stars, all_regulars, suspended_teams
+        )
         travel_mult, travel_tag = calc_travel_penalty(hn, an)
 
-        # 相対マッチアップ基礎値（会場別傾き含む）
-        h_base = hs["atk"] * (as_["def_v"] / dyn_avg) * 1.12 * hs["h_tilt"]
-        a_base = as_["atk"] * (hs["def_v"] / dyn_avg) * 0.92 * as_["a_tilt"]
+        # 相対休養日数（過密日程疲労）の算出
+        h_rest = (m_date - last_played[hn]).days if hn in last_played else 7
+        a_rest = (m_date - last_played[an]).days if an in last_played else 7
+        rest_diff = h_rest - a_rest
+        h_rest_mult, a_rest_mult, rest_note = 1.0, 1.0, ""
+        if rest_diff <= -2 and h_rest <= 4:
+            h_rest_mult = 0.94
+            rest_note = " / H過密(中{}日)".format(h_rest - 1)
+        elif rest_diff >= 2 and a_rest <= 4:
+            a_rest_mult = 0.94
+            rest_note = " / A過密(中{}日)".format(a_rest - 1)
 
-        # 環境・コンディション合成倍率に対数ダンピング安全弁を適用（暴走防止）
-        h_env_mult = damp_multiplier(w_mult * hm_lu)
-        a_env_mult = damp_multiplier(w_mult * am_lu * travel_mult)
+        # リーグ別基準の相対マッチアップ計算（学習済みhome_advを適用）
+        away_adv = round(2.04 - home_adv, 3)
+        h_base = hs["atk"] * ((as_["def_v"] * a_def_lu) / l_avg) * home_adv * hs["h_tilt"]
+        a_base = as_["atk"] * ((hs["def_v"] * h_def_lu) / l_avg) * away_adv * as_["a_tilt"]
+
+        # 環境・疲労・戦力合成倍率に対数ダンピング安全弁を適用
+        h_env_mult = damp_multiplier(w_mult * h_atk_lu * h_rest_mult)
+        a_env_mult = damp_multiplier(w_mult * a_atk_lu * a_rest_mult * travel_mult)
 
         h_rel = h_base * h_env_mult
         a_rel = a_base * a_env_mult
@@ -471,19 +628,19 @@ def get_future_matches(stats, dyn_avg, top_scorers, round_num_str, deadline_str,
             h_rel *= 0.89
             cs_tag = " / A完封優位"
 
-        # 市場投票率（集合知）とのアンサンブル統合
         mkt_v = market_votes.get(i)
-        final_h_lam, final_a_lam, mkt_tag = blend_with_market_wisdom(h_rel, a_rel, mkt_v)
+        prev_v = prev_round_votes.get(i)
+        final_h_lam, final_a_lam, mkt_tag = blend_with_smart_market(h_rel, a_rel, div, mkt_v, prev_v)
 
         final_h_lam = round(max(0.30, min(3.30, final_h_lam)), 2)
         final_a_lam = round(max(0.25, min(3.10, final_a_lam)), 2)
 
-        model_v = calc_vote_dynamic_dc(final_h_lam, final_a_lam)
+        model_v = calc_vote_league_dc(final_h_lam, final_a_lam, div)
         display_v = mkt_v if mkt_v else model_v
 
         grp = "A" if i <= 5 else ("B" if i <= 10 else "C")
         tr_note = " / {}".format(travel_tag) if travel_tag else ""
-        auto_note = "天候:{} / {}{}{}{}".format(w_label, lu_label, tr_note, cs_tag, mkt_tag)
+        auto_note = "天候:{} / {}{}{}{}{}".format(w_label, lu_label, rest_note, tr_note, cs_tag, mkt_tag)
         matches.append({
             "f": i, "grp": grp, "h": hn, "a": an,
             "v": display_v,
@@ -494,7 +651,7 @@ def get_future_matches(stats, dyn_avg, top_scorers, round_num_str, deadline_str,
 
     rk = "{} (開催: {} / {})".format(round_num_str, d_label, deadline_str)
     return rk, {
-        "title": "{} | 開催日: {} | 締切: {} (全{}試合・アンサンブル推論モデル適用済)".format(
+        "title": "{} | 開催日: {} | 締切: {} (全{}試合・自己学習アンサンブル適用済)".format(
             round_num_str, d_label, deadline_str, len(matches)
         ),
         "goal3_frames": [x for x in [1, 2, 3] if x <= len(matches)],
@@ -505,25 +662,58 @@ def get_future_matches(stats, dyn_avg, top_scorers, round_num_str, deadline_str,
 
 def main():
     jst = datetime.timezone(datetime.timedelta(hours=9))
-    data = {
-        "current_round": "",
-        "last_updated": datetime.datetime.now(jst).strftime("%Y-%m-%d %H:%M JST"),
-        "club_stats": {},
-        "rounds": {}
-    }
-    st, dyn_avg = get_club_stats()
-    if st:
-        data["club_stats"] = st
+    now_jst = datetime.datetime.now(jst)
+    today = now_jst.date()
+
+    existing_data = load_existing_data()
+    st = get_club_stats_by_league()
+    last_played, home_adv = get_recent_match_dates_and_results(st, existing_data, today)
     r_num, deadline_str, mkt_votes = get_toto_schedule_and_votes()
-    scorers = get_top_scorers()
-    res = get_future_matches(data["club_stats"], dyn_avg, scorers, r_num, deadline_str, mkt_votes)
+    atk_stars, all_regulars, suspended_teams = get_key_players_and_suspensions(st)
+
+    # 前回保存されていた同節の投票率を取得（直前スマートマネー変化検知用）
+    prev_round_votes = {}
+    for k, r_obj in existing_data.get("rounds", {}).items():
+        if r_num in k:
+            for m in r_obj.get("matches", []):
+                if "v" in m:
+                    prev_round_votes[int(m["f"])] = m["v"]
+
+    res = get_future_matches(
+        st, last_played, home_adv, atk_stars, all_regulars, suspended_teams,
+        r_num, deadline_str, mkt_votes, prev_round_votes
+    )
+
+    rounds = existing_data.get("rounds", {})
+    current_rk = existing_data.get("current_round", "")
     if res:
         rk, obj = res
-        data["rounds"][rk] = obj
-        data["current_round"] = rk
+        # 既に同じ回号キーがある場合は結果照合データを保持したまま最新予想へ更新
+        old_act = {}
+        for old_k in list(rounds.keys()):
+            if r_num in old_k:
+                old_act = rounds[old_k].get("actual_results", {})
+                if old_k != rk:
+                    del rounds[old_k]
+        obj["actual_results"] = old_act
+        rounds[rk] = obj
+        current_rk = rk
         print("[SUCCESS]", rk, len(obj["matches"]))
+
+    # 直近5節分のみ保持してファイル肥大化を防止
+    if len(rounds) > 5:
+        for old_k in list(rounds.keys())[:-5]:
+            del rounds[old_k]
+
+    out_data = {
+        "current_round": current_rk,
+        "last_updated": now_jst.strftime("%Y-%m-%d %H:%M JST"),
+        "model_params": {"home_adv": home_adv},
+        "club_stats": st,
+        "rounds": rounds
+    }
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(out_data, f, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":
