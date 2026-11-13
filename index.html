@@ -47,6 +47,10 @@
       font-size: 13px; padding: 5px 14px; border-radius: 999px; margin-bottom: 6px;
     }
     .last-updated { font-size: 12px; color: #94a3b8; }
+    .reload-status-pill {
+      display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: bold; background: #1e293b; color: #38bdf8;
+    }
     .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     select.round-select {
       background: #1e293b; color: #f8fafc; border: 1px solid #334155;
@@ -55,8 +59,11 @@
     .reload-btn {
       background: #2563eb; color: #fff; border: none; padding: 9px 16px;
       border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;
+      transition: 0.15s;
     }
     .reload-btn:hover { background: #1d4ed8; }
+    .reload-btn:disabled { background: #475569; cursor: wait; }
+    .reload-btn.done { background: #059669; }
 
     /* タブナビゲーション */
     .tabs {
@@ -403,7 +410,7 @@
 
   <script>
     (function() {
-      var EXPECTED_HASH = "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60";
+      var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
       var appData = null;
       var currentRoundKey = "";
       var selectedBudget = 500;
@@ -429,11 +436,11 @@
       function unlockApp() {
         document.getElementById("pin-overlay").classList.add("hidden");
         document.getElementById("app").classList.remove("hidden");
-        fetchData();
+        fetchData(false);
       }
 
       function initAuth() {
-        if (EXPECTED_HASH === "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60" || EXPECTED_HASH === "") {
+        if (EXPECTED_HASH === "__INJECTED_PIN_HASH__" || EXPECTED_HASH === "") {
           unlockApp();
           return;
         }
@@ -700,7 +707,6 @@
         };
       }
 
-      /* 4くじ種の計算結果から「今節の要約・狙い目コメント・おすすめ買い方」を自動生成 */
       function buildStrategyGuideHtml(planConfigs) {
         if (!planConfigs || planConfigs.length === 0) return "";
 
@@ -734,7 +740,6 @@
             : "が当選確率・期待値ともに頭抜けた筆頭候補です。") +
           (skipNames ? " 一方で、" + skipNames + "は期待値・当選確率ともに見劣りするため、今回は見送り（ケン）が賢明です。" : "");
 
-        // 狙い目コメント（箇条書き）
         var comments = [];
         if (bestEv.gameType === "toto_main") {
           comments.push(
@@ -760,7 +765,6 @@
           );
         });
 
-        // おすすめの買い方3パターン
         var switchBtnHtml = selectedBudget === 1000
           ? '<button type="button" id="quick-switch-500" class="quick-500-btn">500円プランへ切替</button>'
           : '';
@@ -951,7 +955,6 @@
           });
         }
 
-        // 戦略ガイドの描画
         var guideBox = document.getElementById("strategy-summary-box");
         guideBox.innerHTML = buildStrategyGuideHtml(configs);
 
@@ -962,7 +965,6 @@
           });
         }
 
-        // 各カードへの推奨ラベル判定
         var byEv = configs.slice().sort(function(a, b) { return b.metrics.evRatioPct - a.metrics.evRatioPct; });
         var bestEvId = byEv.length > 0 ? byEv[0].id : "";
 
@@ -982,7 +984,7 @@
           plansHtml || '<div class="empty-msg">提案を生成できる試合数がありません</div>';
       }
 
-      function renderRound(roundKey) {
+      function renderRound(roundKey, statusMsg) {
         if (!appData || !appData.rounds || !appData.rounds[roundKey]) return;
         currentRoundKey = roundKey;
         var rObj = appData.rounds[roundKey];
@@ -990,8 +992,9 @@
         var actuals = rObj.actual_results || {};
 
         document.getElementById("round-title-badge").textContent = rObj.title || roundKey;
-        document.getElementById("last-updated-text").textContent =
-          "最終取得: " + (appData.last_updated || "-") + "（会場別傾き・遠征距離・集合知・動的Dixon-Coles補正済）";
+        var pillHtml = statusMsg ? '<span class="reload-status-pill">' + statusMsg + '</span>' : '';
+        document.getElementById("last-updated-text").innerHTML =
+          "最終取得: " + (appData.last_updated || "-") + "（会場別傾き・遠征距離・集合知・動的Dixon-Coles補正済）" + pillHtml;
 
         var analyzed = matches.map(function(m) {
           var hLam = parseFloat(m.h_xg || 1.3);
@@ -1014,7 +1017,6 @@
         var all1x2 = analyzed.map(function(x) { return x.c1x2; });
         var mainSolidSet = selectSuperSolidIndices(all1x2, 3);
 
-        // 1. ①直前予想
         document.getElementById("lbl-toto-main").textContent =
           "toto 本戦（全" + analyzed.length + "枠｜鉄板上位3枠強調・もう1口は接戦3枠変更）";
         document.getElementById("val-toto-main").innerHTML =
@@ -1035,7 +1037,6 @@
         });
         document.getElementById("val-goal3").innerHTML = formatTwoLines(g3Items, 2, 2);
 
-        // 試合カード一覧
         var mHtml = analyzed.map(function(x, idx) {
           var isSolid = mainSolidSet.indexOf(idx) !== -1;
           var g3Tag = x.f <= 3 ? '<span class="goal3-tag">GOAL3</span>' : '';
@@ -1055,10 +1056,8 @@
         }).join("");
         document.getElementById("matches-list").innerHTML = mHtml || '<div class="empty-msg">試合データがありません</div>';
 
-        // 2. ②500円/1000円提案
         renderPlansSection(analyzed);
 
-        // 3. ③結果照合
         var actKeys = Object.keys(actuals);
         if (actKeys.length === 0) {
           document.getElementById("results-list").innerHTML =
@@ -1085,7 +1084,6 @@
             '<div class="summary-box"><div class="summary-title">的中サマリー：本命的中 ' + hitTop1 + '試合 ／ 対抗カバー的中 ' + hitTop2 + '試合</div></div>' + rRows;
         }
 
-        // 4. ④振り返り・今節ポイント
         var coverIdx = selectBestCoverIndices(all1x2, 3);
         var solidGames = analyzed.slice().sort(function(a, b) {
           return (b.c1x2.p1 * 1.5 + b.c1x2.diff) - (a.c1x2.p1 * 1.5 + a.c1x2.diff);
@@ -1107,8 +1105,16 @@
         document.getElementById("review-list").innerHTML = revHtml;
       }
 
-      function fetchData() {
-        fetch("data.json?t=" + Date.now())
+      function fetchData(isManualClick) {
+        var btn = document.getElementById("reload-btn");
+        var prevUpdated = appData ? appData.last_updated : "";
+        if (isManualClick) {
+          btn.disabled = true;
+          btn.classList.remove("done");
+          btn.textContent = "⏳ 最新データ確認中...";
+        }
+
+        fetch("data.json?t=" + Date.now(), { cache: "no-store" })
           .then(function(res) { return res.json(); })
           .then(function(data) {
             appData = data;
@@ -1123,18 +1129,39 @@
               sel.appendChild(opt);
             });
             var activeKey = data.current_round || keys[0];
-            if (activeKey) renderRound(activeKey);
+            var statusMsg = "";
+            if (isManualClick) {
+              var nowStr = new Date().toTimeString().slice(0, 5);
+              if (prevUpdated && prevUpdated !== data.last_updated) {
+                statusMsg = "✨ 新しいデータに更新完了 (" + nowStr + "確認)";
+                btn.textContent = "✅ 更新完了！";
+              } else {
+                statusMsg = "✓ サーバー上の最新状態です (" + nowStr + "確認)";
+                btn.textContent = "✅ 最新確認済";
+              }
+              btn.classList.add("done");
+              setTimeout(function() {
+                btn.disabled = false;
+                btn.classList.remove("done");
+                btn.textContent = "⚡ 最新データを再読込";
+              }, 2500);
+            }
+            if (activeKey) renderRound(activeKey, statusMsg);
           })
           .catch(function() {
             document.getElementById("round-title-badge").textContent = "data.json 読み込みエラー";
+            if (isManualClick) {
+              btn.disabled = false;
+              btn.textContent = "⚡ 最新データを再読込";
+            }
           });
       }
 
       document.getElementById("round-select").addEventListener("change", function(e) {
-        renderRound(e.target.value);
+        renderRound(e.target.value, "");
       });
       document.getElementById("reload-btn").addEventListener("click", function() {
-        fetchData();
+        fetchData(true);
       });
       document.getElementById("toggle-solid-btn").addEventListener("click", function() {
         highlightSolid = !highlightSolid;
@@ -1146,7 +1173,7 @@
           btn.textContent = "🔥 鉄板強調: OFF";
           btn.classList.add("off");
         }
-        if (currentRoundKey) renderRound(currentRoundKey);
+        if (currentRoundKey) renderRound(currentRoundKey, "");
       });
       document.querySelectorAll(".tab-btn").forEach(function(btn) {
         btn.addEventListener("click", function() {
@@ -1161,7 +1188,7 @@
           document.querySelectorAll(".budget-btn").forEach(function(b) { b.classList.remove("active"); });
           btn.classList.add("active");
           selectedBudget = parseInt(btn.getAttribute("data-budget"), 10) || 500;
-          if (currentRoundKey) renderRound(currentRoundKey);
+          if (currentRoundKey) renderRound(currentRoundKey, "");
         });
       });
 
