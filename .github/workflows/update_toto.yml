@@ -1,6 +1,13 @@
 name: Auto Update toto Predictions
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'fetch_toto.py'
+      - 'index.html'
+      - '.github/workflows/update_toto.yml'
   workflow_dispatch:
   schedule:
     # 毎日 08:00 JST (23:00 UTC) - 順位表・日程・日曜ナイトゲーム結果の自動照合
