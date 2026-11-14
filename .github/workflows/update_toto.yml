@@ -10,13 +10,21 @@ on:
       - '.github/workflows/update_toto.yml'
   workflow_dispatch:
   schedule:
+    # 毎日 08:00 JST (23:00 UTC)
     - cron: '0 23 * * *'
+    # 水曜 17:15 JST (08:15 UTC)
     - cron: '15 8 * * 3'
+    # 土曜・日曜 11:15 JST (02:15 UTC)
     - cron: '15 2 * * 0,6'
+    # 土曜・日曜 12:15 JST (03:15 UTC)
     - cron: '15 3 * * 0,6'
+    # 土曜・日曜 13:05 JST (04:05 UTC)
     - cron: '5 4 * * 0,6'
+    # 土曜・日曜 14:15 JST (05:15 UTC)
     - cron: '15 5 * * 0,6'
+    # 土曜・日曜 17:15 JST (08:15 UTC)
     - cron: '15 8 * * 0,6'
+    # 土曜・日曜 22:30 JST (13:30 UTC)
     - cron: '30 13 * * 0,6'
 
 concurrency:
