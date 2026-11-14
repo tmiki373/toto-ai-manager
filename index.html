@@ -10,11 +10,9 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background-color: #0b1120;
-      color: #f1f5f9;
+      background-color: #0b1120; color: #f1f5f9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
-      line-height: 1.5;
-      padding: 16px;
+      line-height: 1.5; padding: 16px;
     }
     .container { max-width: 1100px; margin: 0 auto; }
 
@@ -52,7 +50,7 @@
     .last-updated { font-size: 12px; color: #94a3b8; }
     .reload-status-pill {
       display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 4px;
-      font-size: 11px; font-weight: bold; background: #1e293b; color: #38bdf8;
+      font-size: 11px; font-weight: bold; background: #065f46; color: #6ee7b7;
     }
     .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     select.round-select {
@@ -60,18 +58,15 @@
       padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
     }
     .reload-btn {
-      background: #2563eb; color: #fff; border: none; padding: 9px 16px;
+      background: #2563eb; color: #fff; border: none; padding: 10px 18px;
       border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;
       transition: 0.15s;
     }
     .reload-btn:hover { background: #1d4ed8; }
-    .reload-btn:disabled { background: #475569; cursor: wait; }
-    .reload-btn.done { background: #059669; }
+    .reload-btn:active { background: #059669; transform: scale(0.97); }
 
     /* タブナビゲーション */
-    .tabs {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px;
-    }
+    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
     .tab-btn {
       background: #111827; color: #cbd5e1; border: 1px solid #1f2937;
       padding: 12px 8px; border-radius: 10px; font-size: 14px; font-weight: bold;
@@ -79,76 +74,55 @@
     }
     .tab-btn.active { background: #f97316; color: #fff; border-color: #f97316; }
 
-    /* 予算切り替えバー */
+    /* 予算切り替えバー（4段階対応） */
     .budget-bar {
       display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
     }
     .budget-switch {
-      display: inline-flex; background: #111827; border: 1px solid #334155;
+      display: inline-flex; flex-wrap: wrap; background: #111827; border: 1px solid #334155;
       border-radius: 10px; padding: 4px; gap: 4px;
     }
     .budget-btn {
       background: transparent; color: #94a3b8; border: none;
-      padding: 8px 18px; border-radius: 7px; font-size: 13px; font-weight: bold;
+      padding: 8px 14px; border-radius: 7px; font-size: 13px; font-weight: bold;
       cursor: pointer; transition: 0.15s;
     }
-    .budget-btn.active {
-      background: #10b981; color: #052e16;
-    }
+    .budget-btn:hover { color: #f8fafc; }
+    .budget-btn.active { background: #10b981; color: #052e16; }
 
     /* AI総合戦略・狙い目ガイドボックス */
     .strategy-box {
       background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
-      border: 2px solid #38bdf8;
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin-bottom: 18px;
+      border: 2px solid #38bdf8; border-radius: 14px; padding: 18px 20px; margin-bottom: 18px;
     }
     .strategy-header {
       display: flex; justify-content: space-between; align-items: center;
       flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
     }
-    .strategy-title {
-      font-size: 16px; font-weight: bold; color: #38bdf8;
-    }
+    .strategy-title { font-size: 16px; font-weight: bold; color: #38bdf8; }
     .strategy-conclusion {
-      background: rgba(56, 189, 248, 0.12);
-      border-left: 4px solid #38bdf8;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-size: 13.5px;
-      color: #f8fafc;
-      margin-bottom: 14px;
-      line-height: 1.65;
+      background: rgba(56, 189, 248, 0.12); border-left: 4px solid #38bdf8;
+      padding: 10px 14px; border-radius: 6px; font-size: 13.5px; color: #f8fafc;
+      margin-bottom: 14px; line-height: 1.65;
     }
-    .strategy-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
-    }
+    .strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     @media (max-width: 760px) { .strategy-grid { grid-template-columns: 1fr; } }
-    .strategy-col {
-      background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 14px;
-    }
+    .strategy-col { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 14px; }
     .strategy-col-title {
       font-size: 13px; font-weight: bold; color: #fbbf24; margin-bottom: 8px;
       border-bottom: 1px solid #334155; padding-bottom: 5px;
     }
-    .strategy-list {
-      list-style: none; font-size: 12.5px; color: #e2e8f0;
-    }
-    .strategy-list li {
-      margin-bottom: 8px; padding-left: 14px; position: relative; line-height: 1.55;
-    }
+    .strategy-list { list-style: none; font-size: 12.5px; color: #e2e8f0; }
+    .strategy-list li { margin-bottom: 8px; padding-left: 14px; position: relative; line-height: 1.55; }
     .strategy-list li:last-child { margin-bottom: 0; }
-    .strategy-list li::before {
-      content: "•"; color: #38bdf8; font-weight: bold; position: absolute; left: 0;
-    }
-    .quick-500-btn {
+    .strategy-list li::before { content: "•"; color: #38bdf8; font-weight: bold; position: absolute; left: 0; }
+    .quick-budget-btn {
       background: #059669; color: #fff; border: none; border-radius: 6px;
-      padding: 4px 10px; font-size: 11px; font-weight: bold; cursor: pointer;
+      padding: 3px 9px; font-size: 11px; font-weight: bold; cursor: pointer;
       margin-left: 6px; vertical-align: middle;
     }
-    .quick-500-btn:hover { background: #047857; }
+    .quick-budget-btn:hover { background: #047857; }
 
     /* 最適買い目サマリー枠 */
     .summary-box {
@@ -159,17 +133,12 @@
       display: flex; justify-content: space-between; align-items: center;
       flex-wrap: wrap; gap: 10px; margin-bottom: 10px;
     }
-    .summary-title {
-      color: #4ade80; font-size: 16px; font-weight: bold;
-    }
+    .summary-title { color: #4ade80; font-size: 16px; font-weight: bold; }
     .toggle-solid-btn {
       background: #991b1b; color: #fecaca; border: 1px solid #ef4444;
-      padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: bold;
-      cursor: pointer; transition: 0.15s;
+      padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: bold; cursor: pointer;
     }
-    .toggle-solid-btn.off {
-      background: #1e293b; color: #94a3b8; border-color: #475569;
-    }
+    .toggle-solid-btn.off { background: #1e293b; color: #94a3b8; border-color: #475569; }
     .legend-bar {
       font-size: 12px; color: #cbd5e1; margin-bottom: 14px;
       display: flex; align-items: center; flex-wrap: wrap; gap: 14px;
@@ -184,42 +153,31 @@
     }
     .line-tag-main {
       display: inline-block; background: #065f46; color: #6ee7b7;
-      font-size: 11px; padding: 1px 8px; border-radius: 4px; margin-right: 8px;
-      vertical-align: middle;
+      font-size: 11px; padding: 1px 8px; border-radius: 4px; margin-right: 8px; vertical-align: middle;
     }
     .line-tag-sub {
       display: inline-block; background: #78350f; color: #fde68a;
-      font-size: 11px; padding: 1px 8px; border-radius: 4px; margin-right: 8px;
-      vertical-align: middle;
+      font-size: 11px; padding: 1px 8px; border-radius: 4px; margin-right: 8px; vertical-align: middle;
     }
     .pick-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
     @media (max-width: 700px) { .pick-grid-2 { grid-template-columns: 1fr; } .tabs { grid-template-columns: repeat(2, 1fr); } }
 
-    /* 鉄板（特に本命）と対抗変更のハイライト */
+    /* ハイライト装飾 */
     .super-solid {
-      display: inline-block;
-      background: linear-gradient(135deg, #dc2626, #ea580c);
-      color: #ffffff;
-      font-weight: 900;
-      padding: 1px 7px;
-      border-radius: 5px;
-      box-shadow: 0 0 8px rgba(239, 68, 68, 0.55);
-      border: 1px solid #fca5a5;
+      display: inline-block; background: linear-gradient(135deg, #dc2626, #ea580c);
+      color: #ffffff; font-weight: 900; padding: 1px 7px; border-radius: 5px;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.55); border: 1px solid #fca5a5;
     }
     .w-pair {
-      display: inline-block;
-      color: #fbbf24;
-      background: rgba(251, 191, 36, 0.18);
-      padding: 1px 6px;
-      border-radius: 4px;
-      border: 1px solid rgba(251, 191, 36, 0.45);
+      display: inline-block; color: #fbbf24; background: rgba(251, 191, 36, 0.18);
+      padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(251, 191, 36, 0.45);
+    }
+    .fix-sub {
+      display: inline-block; color: #38bdf8; background: rgba(56, 189, 248, 0.18);
+      padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.5);
     }
 
-    /* セクション見出し */
-    .section-heading {
-      font-size: 15px; font-weight: bold; color: #f8fafc; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
+    .section-heading { font-size: 15px; font-weight: bold; color: #f8fafc; margin-bottom: 8px; }
 
     /* 試合カード */
     .match-card {
@@ -241,8 +199,7 @@
     }
     .solid-tag {
       background: #dc2626; color: #fff; border: 1px solid #fca5a5;
-      font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px;
-      font-weight: bold;
+      font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px; font-weight: bold;
     }
     .match-rec { font-size: 14px; font-weight: bold; color: #fbbf24; }
     .match-metrics { font-size: 12px; color: #38bdf8; margin-bottom: 8px; }
@@ -256,22 +213,15 @@
       background: #111827; border: 1px solid #334155; border-radius: 12px;
       padding: 16px; margin-bottom: 16px;
     }
-    .plan-card.recommended-card {
-      border: 2px solid #10b981;
-    }
-    .plan-card.skip-card {
-      opacity: 0.82;
-      border-color: #1f2937;
-    }
+    .plan-card.recommended-card { border: 2px solid #10b981; }
+    .plan-card.skip-card { opacity: 0.82; border-color: #1f2937; }
     .plan-header {
       display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 6px; flex-wrap: wrap; gap: 8px;
     }
     .plan-title-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
     .plan-title { font-size: 15px; font-weight: bold; color: #38bdf8; }
-    .rec-pill {
-      font-size: 11px; font-weight: bold; padding: 2px 9px; border-radius: 999px;
-    }
+    .rec-pill { font-size: 11px; font-weight: bold; padding: 2px 9px; border-radius: 999px; }
     .rec-pill.best-ev { background: #b45309; color: #fef3c7; border: 1px solid #f59e0b; }
     .rec-pill.best-prob { background: #047857; color: #d1fae5; border: 1px solid #10b981; }
     .rec-pill.skip { background: #374151; color: #9ca3af; }
@@ -279,19 +229,15 @@
       background: #065f46; color: #6ee7b7; font-size: 12px; font-weight: bold;
       padding: 3px 10px; border-radius: 999px;
     }
-    .plan-badge.b1000 {
-      background: #1e3a8a; color: #93c5fd;
-    }
+    .plan-badge.b1000 { background: #1e3a8a; color: #93c5fd; }
+    .plan-badge.b1500 { background: #581c87; color: #e9d5ff; }
+    .plan-badge.b2000 { background: #7c2d12; color: #fed7aa; }
     .plan-sub { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
 
-    /* 期待値＆想定リターン3連パネル */
-    .ev-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px;
-    }
+    /* 期待値3連パネル */
+    .ev-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
     @media (max-width: 700px) { .ev-grid { grid-template-columns: 1fr; } }
-    .ev-box {
-      background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px;
-    }
+    .ev-box { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px; }
     .ev-box.highlight {
       border-color: #10b981;
       background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, #0f172a 100%);
@@ -302,11 +248,10 @@
     .ev-value.green { color: #4ade80; }
     .ev-note { font-size: 11px; color: #cbd5e1; margin-top: 2px; }
 
-    .ticket-box {
-      background: #1e293b; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
-    }
+    .ticket-box { background: #1e293b; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
     .ticket-box:last-child { margin-bottom: 0; }
     .ticket-label { font-size: 11px; color: #fbbf24; font-weight: bold; margin-bottom: 4px; }
+    .ticket-label.sub-multi { color: #38bdf8; }
     .ticket-label.sub { color: #cbd5e1; }
     .ticket-line { font-size: 15px; font-weight: bold; color: #f8fafc; letter-spacing: 1px; line-height: 1.9; }
 
@@ -339,13 +284,13 @@
       </div>
       <div class="header-controls">
         <select id="round-select" class="round-select"></select>
-        <button id="reload-btn" class="reload-btn">⚡ 最新データを再読込</button>
+        <button id="reload-btn" class="reload-btn" onclick="window.reloadLatestData()">⚡ 最新データを再読込</button>
       </div>
     </div>
 
     <div class="tabs">
       <button class="tab-btn active" data-tab="tab1">⚡ ①直前予想</button>
-      <button class="tab-btn" data-tab="tab2">💰 ②500円/1000円提案</button>
+      <button class="tab-btn" data-tab="tab2">💰 ②500〜2000円提案</button>
       <button class="tab-btn" data-tab="tab3">🏁 ③結果照合</button>
       <button class="tab-btn" data-tab="tab4">📈 ④振り返り</button>
     </div>
@@ -385,13 +330,15 @@
       <div id="matches-list"></div>
     </div>
 
-    <!-- タブ2: 500円・1000円提案（戦略要約・狙い目コメント付き） -->
+    <!-- タブ2: 500円 / 1,000円 / 1,500円 / 2,000円 提案 -->
     <div id="tab2" class="tab-content hidden">
       <div class="budget-bar">
         <div id="plans-heading" class="section-heading" style="margin-bottom:0;">💰 予算500円プラン｜期待値・想定リターン金額</div>
         <div class="budget-switch">
-          <button id="btn-budget-500" class="budget-btn active" data-budget="500">💵 500円プラン</button>
-          <button id="btn-budget-1000" class="budget-btn" data-budget="1000">💴 1,000円プラン</button>
+          <button id="btn-budget-500" class="budget-btn active" data-budget="500">💵 500円</button>
+          <button id="btn-budget-1000" class="budget-btn" data-budget="1000">💴 1,000円</button>
+          <button id="btn-budget-1500" class="budget-btn" data-budget="1500">💎 1,500円</button>
+          <button id="btn-budget-2000" class="budget-btn" data-budget="2000">👑 2,000円</button>
         </div>
       </div>
       <div id="strategy-summary-box"></div>
@@ -411,22 +358,26 @@
     </div>
   </div>
 
+  <!-- EMBEDDED_DATA_START -->
+  <script id="embedded-toto-data">window.__EMBEDDED_TOTO_DATA__ = null;</script>
+  <!-- EMBEDDED_DATA_END -->
+
   <script>
     (function() {
-      var EXPECTED_HASH = "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60";
-      var GITHUB_RAW_DATA_URL = "https://raw.githubusercontent.com/tmiki373/toto-ai-manager/main/data.json";
-      var appData = null;
+      var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
+      var appData = window.__EMBEDDED_TOTO_DATA__ || null;
       var currentRoundKey = "";
       var selectedBudget = 500;
       var highlightSolid = true;
 
-      try {
-        Object.keys(localStorage).forEach(function(k) {
-          if (k !== "toto_auth_ok" && k.indexOf("toto") !== -1) {
-            localStorage.removeItem(k);
-          }
-        });
-      } catch (e) {}
+      window.reloadLatestData = function() {
+        var btn = document.getElementById("reload-btn");
+        if (btn) {
+          btn.textContent = "⏳ 強制再読込中...";
+          btn.style.background = "#059669";
+        }
+        window.location.replace(window.location.pathname + "?r=" + Date.now());
+      };
 
       function sha256Hex(str) {
         var enc = new TextEncoder().encode(str);
@@ -440,11 +391,11 @@
       function unlockApp() {
         document.getElementById("pin-overlay").classList.add("hidden");
         document.getElementById("app").classList.remove("hidden");
-        fetchData(false);
+        loadAllData();
       }
 
       function initAuth() {
-        if (EXPECTED_HASH === "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60" || EXPECTED_HASH === "") {
+        if (EXPECTED_HASH === "__INJECTED_PIN_HASH__" || EXPECTED_HASH === "") {
           unlockApp();
           return;
         }
@@ -481,8 +432,7 @@
       function calc1x2DynamicDC(hLam, aLam, mktV) {
         var totLam = hLam + aLam;
         var rho = Math.max(-0.16, Math.min(-0.06, -0.12 + (totLam - 2.4) * 0.03));
-        var hp = poissonProbs(hLam);
-        var ap = poissonProbs(aLam);
+        var hp = poissonProbs(hLam), ap = poissonProbs(aLam);
         var p1 = 0, p0 = 0, p2 = 0;
 
         for (var i = 0; i < 4; i++) {
@@ -492,18 +442,13 @@
             else if (i === 1 && j === 0) p *= Math.max(0.1, 1 + aLam * rho);
             else if (i === 0 && j === 1) p *= Math.max(0.1, 1 + hLam * rho);
             else if (i === 1 && j === 1) p *= Math.max(0.1, 1 - rho);
-
             if (i > j) p1 += p;
             else if (i === j) p0 += p;
             else p2 += p;
           }
         }
         var tot = p1 + p0 + p2 || 1;
-        var aiProbMap = {
-          "1": p1 / tot,
-          "0": p0 / tot,
-          "2": p2 / tot
-        };
+        var aiProbMap = { "1": p1 / tot, "0": p0 / tot, "2": p2 / tot };
 
         var mktProbMap;
         if (mktV && mktV.length >= 3 && (mktV[0] + mktV[1] + mktV[2]) > 0) {
@@ -530,8 +475,10 @@
         return {
           top1: arr[0].code,
           top2: arr[1].code,
+          top3: arr[2].code,
           p1: arr[0].prob,
           p2: arr[1].prob,
+          p3: arr[2].prob,
           diff: arr[0].prob - arr[1].prob,
           aiMap: aiProbMap,
           mktMap: mktProbMap,
@@ -564,8 +511,10 @@
         return {
           top1: arr[0].code,
           top2: arr[1].code,
+          top3: arr[2].code,
           p1: arr[0].prob,
           p2: arr[1].prob,
+          p3: arr[2].prob,
           diff: arr[0].prob - arr[1].prob,
           aiMap: aiMap,
           mktMap: mktMap
@@ -622,30 +571,89 @@
         );
       }
 
+      /* 500円 / 1000円 / 1500円 / 2000円 の重複なしポートフォリオ構築＆期待値計算 */
       function evaluatePlanMetrics(items, budget, gameType) {
-        var coverOrder = selectBestCoverIndices(items, Math.min(5, items.length));
-        var wCount = budget === 1000 ? 3 : 2;
-        var wSet = coverOrder.slice(0, wCount);
+        var coverOrder = selectBestCoverIndices(items, items.length);
+        var wCount = 2;
+        if (budget === 1000 || budget === 1500) wCount = 3;
+        else if (budget === 2000) wCount = 4;
 
-        var tickets = [];
-        var totalComb = Math.pow(2, wSet.length);
-        for (var mask = 0; mask < totalComb; mask++) {
-          var combo = items.map(function(it, idx) {
-            var pos = wSet.indexOf(idx);
-            if (pos !== -1 && ((mask >> pos) & 1) === 1) {
-              return it.top2;
-            }
-            return it.top1;
-          });
-          tickets.push(combo);
+        var wSet = coverOrder.slice(0, wCount);
+        var subMulti = null;
+        var singleMods = [];
+
+        if (budget === 500) {
+          if (coverOrder.length >= 3) {
+            singleMods.push({ idx: coverOrder[2], code: items[coverOrder[2]].top2, tier: "対抗" });
+          }
+        } else if (budget === 1000) {
+          if (coverOrder.length >= 4) {
+            singleMods.push({ idx: coverOrder[3], code: items[coverOrder[3]].top2, tier: "対抗" });
+          }
+          if (coverOrder.length >= 5) {
+            singleMods.push({ idx: coverOrder[4], code: items[coverOrder[4]].top2, tier: "対抗" });
+          }
+        } else if (budget === 1500) {
+          /* 8口(メインW3) + 4口(サブW2: 第4接戦枠を対抗固定) + 3口(押さえシングル) = 15口(1,500円) */
+          if (coverOrder.length >= 4) {
+            subMulti = {
+              fixedIdx: coverOrder[3],
+              fixedCode: items[coverOrder[3]].top2,
+              wSet: coverOrder.slice(0, 2)
+            };
+          }
+          var candIdx = 4;
+          while (singleMods.length < 3 && candIdx < coverOrder.length) {
+            var cIdx = coverOrder[candIdx];
+            singleMods.push({ idx: cIdx, code: items[cIdx].top2, tier: "対抗" });
+            candIdx++;
+          }
+          var t3Order = 0;
+          while (singleMods.length < 3 && t3Order < coverOrder.length) {
+            var bIdx = coverOrder[t3Order];
+            singleMods.push({ idx: bIdx, code: items[bIdx].top3, tier: "第3候補(波乱ケア)" });
+            t3Order++;
+          }
+        } else if (budget === 2000) {
+          /* 16口(メインW4) + 4口(サブW2: 第5接戦枠を対抗固定) = 20口(2,000円) */
+          if (coverOrder.length >= 5) {
+            subMulti = {
+              fixedIdx: coverOrder[4],
+              fixedCode: items[coverOrder[4]].top2,
+              wSet: coverOrder.slice(0, 2)
+            };
+          }
         }
 
-        var extraIndices = budget === 1000 ? coverOrder.slice(3, 5) : coverOrder.slice(2, 3);
-        extraIndices.forEach(function(flipIdx) {
-          var singleCombo = items.map(function(it, idx) {
-            return idx === flipIdx ? it.top2 : it.top1;
-          });
-          tickets.push(singleCombo);
+        var tickets = [];
+        /* メインマルチ展開 */
+        var mainTotal = Math.pow(2, wSet.length);
+        for (var mask = 0; mask < mainTotal; mask++) {
+          tickets.push(items.map(function(it, idx) {
+            var pos = wSet.indexOf(idx);
+            if (pos !== -1 && ((mask >> pos) & 1) === 1) return it.top2;
+            return it.top1;
+          }));
+        }
+
+        /* サブマルチ展開（1500円・2000円用） */
+        if (subMulti) {
+          var subTotal = Math.pow(2, subMulti.wSet.length);
+          for (var sm = 0; sm < subTotal; sm++) {
+            tickets.push(items.map(function(it, idx) {
+              if (idx === subMulti.fixedIdx) return subMulti.fixedCode;
+              var pos = subMulti.wSet.indexOf(idx);
+              if (pos !== -1 && ((sm >> pos) & 1) === 1) return it.top2;
+              return it.top1;
+            }));
+          }
+        }
+
+        /* 押さえシングル展開 */
+        singleMods.forEach(function(mod) {
+          tickets.push(items.map(function(it, idx) {
+            return idx === mod.idx ? mod.code : it.top1;
+          }));
         });
 
         var cost = tickets.length * 100;
@@ -662,12 +670,11 @@
         }
 
         tickets.forEach(function(combo) {
-          var pAi = 1.0;
-          var pMkt = 1.0;
+          var pAi = 1.0, pMkt = 1.0;
           for (var i = 0; i < combo.length; i++) {
             var code = combo[i];
-            pAi *= Math.max(0.02, items[i].aiMap[code] || 0.25);
-            pMkt *= Math.max(0.02, items[i].mktMap[code] || 0.25);
+            pAi *= Math.max(0.02, items[i].aiMap[code] || 0.15);
+            pMkt *= Math.max(0.02, items[i].mktMap[code] || 0.15);
           }
 
           var rawPayout = (100 * 0.50) / pMkt;
@@ -701,7 +708,8 @@
           cost: cost,
           ticketCount: tickets.length,
           wSet: wSet,
-          extraIndices: extraIndices,
+          subMulti: subMulti,
+          singleMods: singleMods,
           hitProb1stPct: sumHitProb1st * 100,
           hitProbAnyPct: (sumHitProb1st + sumHitProb2nd3rd) * 100,
           minEstPay: minEstPay,
@@ -728,7 +736,7 @@
 
         var skipList = planConfigs.filter(function(p) {
           return p.id !== bestEv.id && p.id !== bestSteady.id &&
-            (p.metrics.evRatioPct < 70 || (p.gameType === "goal3" && p.metrics.hitProb1stPct < 5.0));
+            (p.metrics.evRatioPct < 70 || (p.gameType === "goal3" && p.metrics.hitProb1stPct < 6.0));
         });
 
         var bestEvProbTxt = bestEv.gameType === "toto_main"
@@ -738,27 +746,27 @@
         var skipNames = skipList.map(function(s) { return "「" + s.shortName + "」"; }).join("と");
 
         var conclusionHtml =
-          "今節は<strong>「" + bestEv.shortName + "（期待値 " + bestEv.metrics.evRatioPct + "%・" + bestEvProbTxt + "）」</strong>" +
+          "【予算 " + selectedBudget.toLocaleString() + "円】今節は<strong>「" + bestEv.shortName + "（期待値 " + bestEv.metrics.evRatioPct + "%・" + bestEvProbTxt + "）」</strong>" +
           (bestEv.id !== bestSteady.id
-            ? "または<strong>「" + bestSteady.shortName + "（当選率 " + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%・期待値 " + bestSteady.metrics.evRatioPct + "%）」</strong>が最も狙い目です。"
+            ? "または<strong>「" + bestSteady.shortName + "（1等当選率 " + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%・期待値 " + bestSteady.metrics.evRatioPct + "%）」</strong>が最も狙い目です。"
             : "が当選確率・期待値ともに頭抜けた筆頭候補です。") +
           (skipNames ? " 一方で、" + skipNames + "は期待値・当選確率ともに見劣りするため、今回は見送り（ケン）が賢明です。" : "");
 
         var comments = [];
         if (bestEv.gameType === "toto_main") {
           comments.push(
-            "<li><strong>" + bestEv.shortName + "が圧倒的な期待値（" + bestEv.metrics.evRatioPct + "%）</strong>：1〜3等合算の当選率が <strong>" + bestEv.metrics.hitProbAnyPct.toFixed(2) + "%</strong>（約" + Math.max(2, Math.round(100 / Math.max(1, bestEv.metrics.hitProbAnyPct))) + "回に1回）と現実的な水準にあり、理論期待リターンが <strong>約" + formatYen(bestEv.metrics.expectedReturnYen) + "</strong> と突出しています。</li>"
+            "<li><strong>" + bestEv.shortName + "が圧倒的な期待値（" + bestEv.metrics.evRatioPct + "%）</strong>：1〜3等合算の当選率が <strong>" + bestEv.metrics.hitProbAnyPct.toFixed(2) + "%</strong>（約" + Math.max(2, Math.round(100 / Math.max(1, bestEv.metrics.hitProbAnyPct))) + "回に1回）あり、理論期待リターンが <strong>約" + formatYen(bestEv.metrics.expectedReturnYen) + "</strong> と突出しています。</li>"
           );
         } else {
           comments.push(
-            "<li><strong>" + bestEv.shortName + "が期待値トップ（" + bestEv.metrics.evRatioPct + "%）</strong>：投資" + bestEv.metrics.cost + "円に対して期待リターンが <strong>約" + formatYen(bestEv.metrics.expectedReturnYen) + "</strong> と最も効率が高い組み合わせです。</li>"
+            "<li><strong>" + bestEv.shortName + "が期待値トップ（" + bestEv.metrics.evRatioPct + "%）</strong>：投資" + formatYen(bestEv.metrics.cost) + "に対して期待リターンが <strong>約" + formatYen(bestEv.metrics.expectedReturnYen) + "</strong> と最も効率が高い組み合わせです。</li>"
           );
         }
 
         if (bestSteady) {
           var isProfitable = bestSteady.metrics.minEstPay > bestSteady.metrics.cost;
           comments.push(
-            "<li><strong>" + bestSteady.shortName + "は「" + (isProfitable ? "当たれば確実にプラス" : "手堅く的中を狙える") + "」高確率枠（" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%）</strong>：全的中率が <strong>" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%</strong>（約" + Math.max(2, Math.round(100 / Math.max(1, bestSteady.metrics.hitProb1stPct))) + "回に1回）あり、想定配当も <strong>約" + formatYen(bestSteady.metrics.minEstPay) + "〜" + formatYen(bestSteady.metrics.maxEstPay) + "</strong> 見込めます。</li>"
+            "<li><strong>" + bestSteady.shortName + "は「" + (isProfitable ? "順当でもプラス収支" : "手堅く的中を狙える") + "」高確率枠（" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%）</strong>：全的中率が <strong>" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%</strong>（約" + Math.max(2, Math.round(100 / Math.max(1, bestSteady.metrics.hitProb1stPct))) + "回に1回）あり、想定配当も <strong>約" + formatYen(bestSteady.metrics.minEstPay) + "〜" + formatYen(bestSteady.metrics.maxEstPay) + "</strong> 見込めます。</li>"
           );
         }
 
@@ -769,20 +777,27 @@
           );
         });
 
-        var switchBtnHtml = selectedBudget === 1000
-          ? '<button type="button" id="quick-switch-500" class="quick-500-btn">500円プランへ切替</button>'
-          : '';
+        var splitAdvice = "";
+        if (selectedBudget === 500) {
+          splitAdvice = "<li><strong>パターンC【1,000円分散戦術】「" + bestSteady.shortName + "（500円）」＋「" + bestEv.shortName + "（500円）」の計1,000円購入</strong>：手堅い的中と高配当を500円ずつ両睨みするバランス戦術です。</li>";
+        } else if (selectedBudget === 1000) {
+          splitAdvice = '<li><strong>パターンC【500円×2種分散戦術】「500円プラン」に切り替えて「' + bestSteady.shortName + '」＋「' + bestEv.shortName + '」を各500円（計1,000円）購入</strong><button type="button" class="quick-budget-btn" data-target-budget="500">500円プランへ切替</button>：予算1,000円のまま、手堅い的中と高配当を同時に狙えます。</li>';
+        } else if (selectedBudget === 1500) {
+          splitAdvice = '<li><strong>パターンC【1,000円＋500円ハイブリッド戦術】「' + bestEv.shortName + '（1,000円プラン）」＋「' + bestSteady.shortName + '（500円プラン）」の計1,500円購入</strong><button type="button" class="quick-budget-btn" data-target-budget="1000">1,000円表示</button><button type="button" class="quick-budget-btn" data-target-budget="500">500円表示</button>：本命くじ種を厚く張りつつ、mini totoで保険をかける実戦的な配分です。</li>';
+        } else {
+          splitAdvice = '<li><strong>パターンC【1,000円×2種ダブル主砲戦術】「1,000円プラン」に切り替えて「' + bestSteady.shortName + '」＋「' + bestEv.shortName + '」を各1,000円（計2,000円）購入</strong><button type="button" class="quick-budget-btn" data-target-budget="1000">1,000円プランへ切替</button>：mini toto（10口）で高確率的中を押さえつつ、toto本戦（10口）で高額配当も狙う最強の2,000円分散布陣です。</li>';
+        }
 
         var patterns = [
-          "<li><strong>パターンA【一番おすすめ・期待値重視】「" + bestEv.shortName + "」を" + selectedBudget + "円購入</strong>：期待値" + bestEv.metrics.evRatioPct + "%の恩恵を最大限に活かす買い方です。下のメインWマルチ＋押さえシングルをそのまま購入します。</li>",
-          "<li><strong>パターンB【堅実・的中体験重視】「" + bestSteady.shortName + "」を" + selectedBudget + "円購入</strong>：「まずは" + bestSteady.metrics.hitProb1stPct.toFixed(0) + "%前後の確率でしっかり当てて数千円プラスにしたい」場合に最適です。</li>",
-          "<li><strong>パターンC【いいとこ取り・分散戦術】「500円プラン」にして「" + bestSteady.shortName + "」＋「" + bestEv.shortName + "」を各500円（計1,000円）購入</strong>" + switchBtnHtml + "：手堅い的中と高配当の両方を同時に狙える最もバランスの良い買い方です。</li>"
+          "<li><strong>パターンA【一番おすすめ・期待値集中】「" + bestEv.shortName + "」を" + formatYen(selectedBudget) + "（全" + (selectedBudget / 100) + "口）購入</strong>：期待値" + bestEv.metrics.evRatioPct + "%の恩恵を最大限に活かす買い方です。</li>",
+          "<li><strong>パターンB【堅実・的中率最大化】「" + bestSteady.shortName + "」を" + formatYen(selectedBudget) + "（全" + (selectedBudget / 100) + "口）購入</strong>：1等当選率を <strong>" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%</strong> まで引き上げ、着実な的中を狙う買い方です。</li>",
+          splitAdvice
         ];
 
         return (
           '<div class="strategy-box">' +
             '<div class="strategy-header">' +
-              '<div class="strategy-title">🧭 AI総合戦略・今節の狙い目ガイド</div>' +
+              '<div class="strategy-title">🧭 AI総合戦略・今節の狙い目ガイド（予算 ' + formatYen(selectedBudget) + ' モード）</div>' +
             '</div>' +
             '<div class="strategy-conclusion">' + conclusionHtml + '</div>' +
             '<div class="strategy-grid">' +
@@ -804,6 +819,8 @@
         var items = cfg.items;
         var solidSet = selectSuperSolidIndices(items, cfg.solidCount);
 
+        /* メインWマルチ表示 */
+        var mainMultiCost = Math.pow(2, m.wSet.length) * 100;
         var multiHtml = items.map(function(it, idx) {
           if (m.wSet.indexOf(idx) !== -1) {
             return '<span class="w-pair">' + it.top1 + '/' + it.top2 + '</span>';
@@ -811,15 +828,38 @@
           return renderPickToken(it.top1, idx, solidSet);
         }).join(' － ');
 
-        var extraHtml = m.extraIndices.map(function(flipIdx, orderIdx) {
-          var line = items.map(function(it, idx) {
-            if (idx === flipIdx) return '<span class="w-pair">' + it.top2 + '</span>';
+        /* サブWマルチ表示（1500円・2000円プラン用） */
+        var subMultiHtml = "";
+        var subMultiCost = 0;
+        if (m.subMulti) {
+          subMultiCost = Math.pow(2, m.subMulti.wSet.length) * 100;
+          var smLine = items.map(function(it, idx) {
+            if (idx === m.subMulti.fixedIdx) {
+              return '<span class="fix-sub" title="対抗に固定">' + m.subMulti.fixedCode + '</span>';
+            }
+            if (m.subMulti.wSet.indexOf(idx) !== -1) {
+              return '<span class="w-pair">' + it.top1 + '/' + it.top2 + '</span>';
+            }
             return renderPickToken(it.top1, idx, solidSet);
           }).join(' － ');
-          var labelNum = budget === 1000 ? '押さえシングル' + (orderIdx + 1) : '押さえシングル';
+          subMultiHtml =
+            '<div class="ticket-box">' +
+              '<div class="ticket-label sub-multi">◆ サブ：Wマルチ買い（' + subMultiCost + '円 / 第' + (m.subMulti.fixedIdx + 1) + '枠を対抗[' + m.subMulti.fixedCode + ']固定＋接戦TOP' + m.subMulti.wSet.length + '枠をダブル）</div>' +
+              '<div class="ticket-line">' + smLine + '</div>' +
+            '</div>';
+        }
+
+        /* 押さえシングル表示 */
+        var extraCost = m.singleMods.length * 100;
+        var extraHtml = m.singleMods.map(function(mod, orderIdx) {
+          var line = items.map(function(it, idx) {
+            if (idx === mod.idx) return '<span class="w-pair">' + mod.code + '</span>';
+            return renderPickToken(it.top1, idx, solidSet);
+          }).join(' － ');
+          var labelNum = m.singleMods.length > 1 ? '押さえシングル' + (orderIdx + 1) : '押さえシングル';
           return (
             '<div class="ticket-box">' +
-              '<div class="ticket-label sub">◆ ' + labelNum + '（100円 / 第' + (flipIdx + 1) + '枠を対抗[' + items[flipIdx].top2 + ']へ変更）</div>' +
+              '<div class="ticket-label sub">◆ ' + labelNum + '（100円 / 第' + (mod.idx + 1) + '枠を' + mod.tier + '[' + mod.code + ']へ変更）</div>' +
               '<div class="ticket-line">' + line + '</div>' +
             '</div>'
           );
@@ -830,7 +870,7 @@
           : "1等全的中率 約 " + m.hitProb1stPct.toFixed(1) + "%";
         var probSubText = cfg.gameType === "toto_main"
           ? "（1等13枠全的中: 約 " + m.hitProb1stPct.toFixed(4) + "%）"
-          : "（全" + m.ticketCount + "通り合算の1等的中期待確率）";
+          : "（重複なし全" + m.ticketCount + "通り合算の1等的中確率）";
 
         var returnMainText = cfg.gameType === "toto_main"
           ? "1等 約 " + Math.round(m.minEstPay / 10000).toLocaleString() + "万〜" + Math.round(m.maxEstPay / 10000).toLocaleString() + "万円"
@@ -842,8 +882,15 @@
         var evBadge = m.evRatioPct >= 100 ? "🔥 期待値プラス圏" : "📊 標準還元レンジ";
         var evMainText = "約 " + formatYen(m.expectedReturnYen) + "（期待値 " + m.evRatioPct + "%）";
 
-        var multiCost = Math.pow(2, m.wSet.length) * 100;
-        var extraCost = m.extraIndices.length * 100;
+        var breakdownParts = ["メインWマルチ" + mainMultiCost + "円"];
+        if (subMultiCost > 0) breakdownParts.push("サブWマルチ" + subMultiCost + "円");
+        if (extraCost > 0) breakdownParts.push("シングル" + extraCost + "円");
+        var badgeText = breakdownParts.join("＋") + "（計" + formatYen(m.cost) + "）";
+
+        var badgeClass = "plan-badge";
+        if (budget === 1000) badgeClass += " b1000";
+        else if (budget === 1500) badgeClass += " b1500";
+        else if (budget === 2000) badgeClass += " b2000";
 
         var cardClass = "plan-card";
         var pillHtml = "";
@@ -862,7 +909,7 @@
           '<div class="' + cardClass + '">' +
             '<div class="plan-header">' +
               '<div class="plan-title-wrap"><span class="plan-title">' + cfg.title + '</span>' + pillHtml + '</div>' +
-              '<span class="plan-badge' + (budget === 1000 ? ' b1000' : '') + '">Wマルチ' + multiCost + '円＋シングル' + extraCost + '円（計' + m.cost + '円）</span>' +
+              '<span class="' + badgeClass + '">' + badgeText + '</span>' +
             '</div>' +
             '<div class="plan-sub">' + cfg.subInfo + '</div>' +
             '<div class="ev-grid">' +
@@ -879,13 +926,14 @@
               '<div class="ev-box highlight">' +
                 '<div class="ev-label">📈 理論期待値（期待リターン額）</div>' +
                 '<div class="ev-value green">' + evMainText + '</div>' +
-                '<div class="ev-note">' + evBadge + '（投資' + m.cost + '円あたり）</div>' +
+                '<div class="ev-note">' + evBadge + '（投資' + formatYen(m.cost) + 'あたり）</div>' +
               '</div>' +
             '</div>' +
             '<div class="ticket-box">' +
-              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + multiCost + '円 / 接戦TOP' + m.wSet.length + '枠をダブル）</div>' +
+              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + mainMultiCost + '円 / 接戦TOP' + m.wSet.length + '枠をダブル）</div>' +
               '<div class="ticket-line">' + multiHtml + '</div>' +
             '</div>' +
+            subMultiHtml +
             extraHtml +
           '</div>'
         );
@@ -893,11 +941,8 @@
 
       function renderPlansSection(analyzed) {
         var headingEl = document.getElementById("plans-heading");
-        if (selectedBudget === 1000) {
-          headingEl.textContent = "💰 予算1,000円プラン（全10通り）｜期待値・想定リターン金額";
-        } else {
-          headingEl.textContent = "💰 予算500円プラン（全5通り）｜期待値・想定リターン金額";
-        }
+        headingEl.textContent =
+          "💰 予算" + selectedBudget.toLocaleString() + "円プラン（重複なし全" + (selectedBudget / 100) + "通り）｜期待値・想定リターン金額";
 
         var configs = [];
         if (analyzed.length >= 3) {
@@ -925,7 +970,7 @@
             id: "mini_a",
             shortName: "② mini toto A組",
             title: "② mini toto A組（1〜5枠マルチ買いプラン）",
-            subInfo: "1〜5枠の接戦上位をダブル化し、さらに次点接戦枠を重複なしシングルで追加カバー",
+            subInfo: "1〜5枠の接戦上位をWマルチ化し、次点接戦枠も重複なしで網羅カバー",
             items: maItems,
             solidCount: 2,
             gameType: "mini_a",
@@ -938,7 +983,7 @@
             id: "mini_b",
             shortName: "③ mini toto B組",
             title: "③ mini toto B組（6〜10枠マルチ買いプラン）",
-            subInfo: "6〜10枠の接戦上位をダブル化し、さらに次点接戦枠を重複なしシングルで追加カバー",
+            subInfo: "6〜10枠の接戦上位をWマルチ化し、次点接戦枠も重複なしで網羅カバー",
             items: mbItems,
             solidCount: 2,
             gameType: "mini_b",
@@ -951,7 +996,7 @@
             id: "toto_main",
             shortName: "④ toto 本戦",
             title: "④ toto 本戦（全" + analyzed.length + "枠マルチ買いプラン）",
-            subInfo: "1等高額配当を狙いつつ、接戦上位枠のマルチ＋次点接戦シングルで2等・3等も網羅",
+            subInfo: "1等高額配当を狙いつつ、接戦上位マルチ＋次点カバーで2等・3等も網羅",
             items: tmItems,
             solidCount: 3,
             gameType: "toto_main",
@@ -962,12 +1007,13 @@
         var guideBox = document.getElementById("strategy-summary-box");
         guideBox.innerHTML = buildStrategyGuideHtml(configs);
 
-        var qBtn = document.getElementById("quick-switch-500");
-        if (qBtn) {
+        document.querySelectorAll(".quick-budget-btn").forEach(function(qBtn) {
           qBtn.addEventListener("click", function() {
-            document.getElementById("btn-budget-500").click();
+            var target = qBtn.getAttribute("data-target-budget");
+            var targetBtn = document.getElementById("btn-budget-" + target);
+            if (targetBtn) targetBtn.click();
           });
-        }
+        });
 
         var byEv = configs.slice().sort(function(a, b) { return b.metrics.evRatioPct - a.metrics.evRatioPct; });
         var bestEvId = byEv.length > 0 ? byEv[0].id : "";
@@ -980,7 +1026,7 @@
           var role = "";
           if (cfg.id === bestEvId) role = "best_ev";
           else if (cfg.id === bestProbId) role = "best_prob";
-          else if (cfg.metrics.evRatioPct < 70 || (cfg.gameType === "goal3" && cfg.metrics.hitProb1stPct < 5.0)) role = "skip";
+          else if (cfg.metrics.evRatioPct < 70 || (cfg.gameType === "goal3" && cfg.metrics.hitProb1stPct < 6.0)) role = "skip";
           return buildPlanCard(cfg, selectedBudget, role);
         }).join("");
 
@@ -988,7 +1034,7 @@
           plansHtml || '<div class="empty-msg">提案を生成できる試合数がありません</div>';
       }
 
-      function renderRound(roundKey, statusMsg) {
+      function renderRound(roundKey) {
         if (!appData || !appData.rounds || !appData.rounds[roundKey]) return;
         currentRoundKey = roundKey;
         var rObj = appData.rounds[roundKey];
@@ -996,25 +1042,15 @@
         var actuals = rObj.actual_results || {};
 
         document.getElementById("round-title-badge").textContent = rObj.title || roundKey;
-        var pillHtml = statusMsg ? '<span class="reload-status-pill">' + statusMsg + '</span>' : '';
         document.getElementById("last-updated-text").innerHTML =
-          "最終取得: " + (appData.last_updated || "-") + "（会場別傾き・遠征距離・集合知・動的Dixon-Coles補正済）" + pillHtml;
+          "最終取得: " + (appData.last_updated || "-") + '<span class="reload-status-pill">✓ 最新データ直結済</span>';
 
         var analyzed = matches.map(function(m) {
-          var hLam = parseFloat(m.h_xg || 1.3);
-          var aLam = parseFloat(m.a_xg || 1.3);
-          var c1x2 = calc1x2DynamicDC(hLam, aLam, m.v);
+          var hLam = parseFloat(m.h_xg || 1.3), aLam = parseFloat(m.a_xg || 1.3);
           return {
-            f: m.f,
-            h: m.h,
-            a: m.a,
-            v: m.v || [34, 32, 34],
-            hLam: hLam,
-            aLam: aLam,
-            analysis: m.analysis || "",
-            c1x2: c1x2,
-            gH: calcGoalTop2(hLam),
-            gA: calcGoalTop2(aLam)
+            f: m.f, h: m.h, a: m.a, v: m.v || [34, 32, 34], hLam: hLam, aLam: aLam,
+            analysis: m.analysis || "", c1x2: calc1x2DynamicDC(hLam, aLam, m.v),
+            gH: calcGoalTop2(hLam), gA: calcGoalTop2(aLam)
           };
         });
 
@@ -1023,25 +1059,15 @@
 
         document.getElementById("lbl-toto-main").textContent =
           "toto 本戦（全" + analyzed.length + "枠｜鉄板上位3枠強調・もう1口は接戦3枠変更）";
-        document.getElementById("val-toto-main").innerHTML =
-          formatTwoLines(all1x2, 3, 3);
-
-        document.getElementById("val-mini-a").innerHTML =
-          formatTwoLines(all1x2.slice(0, 5), 2, 2);
-
-        document.getElementById("val-mini-b").innerHTML =
-          analyzed.length >= 10
-            ? formatTwoLines(all1x2.slice(5, 10), 2, 2)
-            : "-";
+        document.getElementById("val-toto-main").innerHTML = formatTwoLines(all1x2, 3, 3);
+        document.getElementById("val-mini-a").innerHTML = formatTwoLines(all1x2.slice(0, 5), 2, 2);
+        document.getElementById("val-mini-b").innerHTML = analyzed.length >= 10 ? formatTwoLines(all1x2.slice(5, 10), 2, 2) : "-";
 
         var g3Items = [];
-        analyzed.slice(0, 3).forEach(function(x) {
-          g3Items.push(x.gH);
-          g3Items.push(x.gA);
-        });
+        analyzed.slice(0, 3).forEach(function(x) { g3Items.push(x.gH); g3Items.push(x.gA); });
         document.getElementById("val-goal3").innerHTML = formatTwoLines(g3Items, 2, 2);
 
-        var mHtml = analyzed.map(function(x, idx) {
+        document.getElementById("matches-list").innerHTML = analyzed.map(function(x, idx) {
           var isSolid = mainSolidSet.indexOf(idx) !== -1;
           var g3Tag = x.f <= 3 ? '<span class="goal3-tag">GOAL3</span>' : '';
           var solidTag = isSolid ? '<span class="solid-tag">🔥 鉄板本命</span>' : '';
@@ -1057,11 +1083,11 @@
               '<div class="match-analysis">📊 ' + x.analysis + '</div>' +
             '</div>'
           );
-        }).join("");
-        document.getElementById("matches-list").innerHTML = mHtml || '<div class="empty-msg">試合データがありません</div>';
+        }).join("") || '<div class="empty-msg">試合データがありません</div>';
 
         renderPlansSection(analyzed);
 
+        /* タブ3: 結果照合 */
         var actKeys = Object.keys(actuals);
         if (actKeys.length === 0) {
           document.getElementById("results-list").innerHTML =
@@ -1088,7 +1114,8 @@
             '<div class="summary-box"><div class="summary-title">的中サマリー：本命的中 ' + hitTop1 + '試合 ／ 対抗カバー的中 ' + hitTop2 + '試合</div></div>' + rRows;
         }
 
-        var coverIdx = selectBestCoverIndices(all1x2, 3);
+        /* タブ4: 振り返り */
+        var coverIdx = selectBestCoverIndices(all1x2, 4);
         var solidGames = analyzed.slice().sort(function(a, b) {
           return (b.c1x2.p1 * 1.5 + b.c1x2.diff) - (a.c1x2.p1 * 1.5 + a.c1x2.diff);
         }).slice(0, 3);
@@ -1100,95 +1127,49 @@
             }).join("") +
           '</div>' +
           '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:8px;">⚠️ カバー優先度TOP3（もう1口・Wマルチ推奨枠）</div>' +
-            coverIdx.map(function(idx) {
+            '<div class="plan-title" style="margin-bottom:8px;">⚠️ 波乱・接戦優先カバーTOP4（Wマルチ推奨枠）</div>' +
+            coverIdx.map(function(idx, rank) {
               var g = analyzed[idx];
-              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: ' + g.c1x2.top1 + ' ' + g.c1x2.p1 + '% → 対抗: ' + g.c1x2.top2 + ' ' + g.c1x2.p2 + '%）</div>';
+              return '<div class="plan-sub">・接戦' + (rank + 1) + '位：第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: [' + g.c1x2.top1 + '] ' + g.c1x2.p1 + '% → 対抗: [' + g.c1x2.top2 + '] ' + g.c1x2.p2 + '%）</div>';
             }).join("") +
           '</div>';
         document.getElementById("review-list").innerHTML = revHtml;
       }
 
-      function fetchData(isManualClick) {
-        var btn = document.getElementById("reload-btn");
-        var prevUpdated = appData ? appData.last_updated : "";
-        if (isManualClick) {
-          btn.disabled = true;
-          btn.classList.remove("done");
-          btn.textContent = "⏳ 最新データ取得中...";
-        }
+      function applyData(data) {
+        appData = data;
+        var sel = document.getElementById("round-select");
+        sel.innerHTML = "";
+        var keys = Object.keys(data.rounds || {});
+        keys.forEach(function(k) {
+          var opt = document.createElement("option");
+          opt.value = k; opt.textContent = k;
+          if (k === data.current_round) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        var activeKey = (data.current_round && data.rounds[data.current_round]) ? data.current_round : keys[0];
+        if (activeKey) renderRound(activeKey);
+      }
 
-        var ts = Date.now();
-        var sourceLabel = "GitHub直通";
-        fetch(GITHUB_RAW_DATA_URL + "?t=" + ts, { cache: "no-store" })
-          .then(function(res) {
-            if (!res.ok) throw new Error("GitHub raw HTTP " + res.status);
-            return res.json();
-          })
-          .catch(function() {
-            sourceLabel = "ローカル同期";
-            return fetch("data.json?t=" + ts, { cache: "no-store" }).then(function(r) {
-              return r.json();
-            });
-          })
-          .then(function(data) {
-            appData = data;
-            var sel = document.getElementById("round-select");
-            sel.innerHTML = "";
-            var keys = Object.keys(data.rounds || {});
-            keys.forEach(function(k) {
-              var opt = document.createElement("option");
-              opt.value = k;
-              opt.textContent = k;
-              if (k === data.current_round) opt.selected = true;
-              sel.appendChild(opt);
-            });
-            var activeKey = data.current_round || keys[0];
-            var statusMsg = "";
-            if (isManualClick) {
-              var nowStr = new Date().toTimeString().slice(0, 5);
-              if (prevUpdated && prevUpdated !== data.last_updated) {
-                statusMsg = "✨ 新しいデータに更新完了 [" + sourceLabel + " / " + nowStr + "]";
-                btn.textContent = "✅ 更新完了！";
-              } else {
-                statusMsg = "✓ 最新データ取得済 [" + sourceLabel + " / " + nowStr + "]";
-                btn.textContent = "✅ 最新確認済";
-              }
-              btn.classList.add("done");
-              setTimeout(function() {
-                btn.disabled = false;
-                btn.classList.remove("done");
-                btn.textContent = "⚡ 最新データを再読込";
-              }, 2500);
-            }
-            if (activeKey) renderRound(activeKey, statusMsg);
-          })
-          .catch(function() {
-            document.getElementById("round-title-badge").textContent = "data.json 読み込みエラー";
-            if (isManualClick) {
-              btn.disabled = false;
-              btn.textContent = "⚡ 最新データを再読込";
-            }
-          });
+      function loadAllData() {
+        if (window.__EMBEDDED_TOTO_DATA__ && window.__EMBEDDED_TOTO_DATA__.rounds) {
+          applyData(window.__EMBEDDED_TOTO_DATA__);
+          return;
+        }
+        fetch("data.json?t=" + Date.now(), { cache: "no-store" })
+          .then(function(r) { return r.json(); })
+          .then(function(d) { applyData(d); });
       }
 
       document.getElementById("round-select").addEventListener("change", function(e) {
-        renderRound(e.target.value, "");
-      });
-      document.getElementById("reload-btn").addEventListener("click", function() {
-        fetchData(true);
+        renderRound(e.target.value);
       });
       document.getElementById("toggle-solid-btn").addEventListener("click", function() {
         highlightSolid = !highlightSolid;
         var btn = document.getElementById("toggle-solid-btn");
-        if (highlightSolid) {
-          btn.textContent = "🔥 鉄板強調: ON";
-          btn.classList.remove("off");
-        } else {
-          btn.textContent = "🔥 鉄板強調: OFF";
-          btn.classList.add("off");
-        }
-        if (currentRoundKey) renderRound(currentRoundKey, "");
+        btn.textContent = highlightSolid ? "🔥 鉄板強調: ON" : "🔥 鉄板強調: OFF";
+        btn.classList.toggle("off", !highlightSolid);
+        if (currentRoundKey) renderRound(currentRoundKey);
       });
       document.querySelectorAll(".tab-btn").forEach(function(btn) {
         btn.addEventListener("click", function() {
@@ -1203,7 +1184,7 @@
           document.querySelectorAll(".budget-btn").forEach(function(b) { b.classList.remove("active"); });
           btn.classList.add("active");
           selectedBudget = parseInt(btn.getAttribute("data-budget"), 10) || 500;
-          if (currentRoundKey) renderRound(currentRoundKey, "");
+          if (currentRoundKey) renderRound(currentRoundKey);
         });
       });
 
