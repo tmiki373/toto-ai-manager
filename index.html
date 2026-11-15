@@ -74,7 +74,7 @@
     }
     .tab-btn.active { background: #f97316; color: #fff; border-color: #f97316; }
 
-    /* 予算切り替えバー（4段階対応） */
+    /* 予算切り替えバー */
     .budget-bar {
       display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
@@ -201,6 +201,14 @@
       background: #dc2626; color: #fff; border: 1px solid #fca5a5;
       font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px; font-weight: bold;
     }
+    .day2-tag {
+      background: #422006; color: #fde047; border: 1px solid #ca8a04;
+      font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px; font-weight: bold;
+    }
+    .day1-tag {
+      background: #064e3b; color: #6ee7b7; border: 1px solid #059669;
+      font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px;
+    }
     .match-rec { font-size: 14px; font-weight: bold; color: #fbbf24; }
     .match-metrics { font-size: 12px; color: #38bdf8; margin-bottom: 8px; }
     .match-analysis {
@@ -303,8 +311,8 @@
           <button id="toggle-solid-btn" class="toggle-solid-btn">🔥 鉄板強調: ON</button>
         </div>
         <div class="legend-bar">
-          <span><span class="super-solid">1</span> ＝ 本命の中でも特に信頼度が高い鉄板枠</span>
-          <span><span class="w-pair">0</span> ＝ もう1口で対抗へ変更する接戦枠</span>
+          <span><span class="super-solid">1</span> ＝ 信頼度が高い鉄板枠（初日中心）</span>
+          <span><span class="w-pair">0</span> ＝ もう1口で対抗へ変更（接戦＋2日目スタメン未発表リスク優先カバー）</span>
         </div>
         <div class="pick-group">
           <div id="lbl-toto-main" class="pick-label">toto 本戦（全13枠）</div>
@@ -312,11 +320,11 @@
         </div>
         <div class="pick-grid-2">
           <div class="pick-group">
-            <div class="pick-label">mini toto A組（1〜5枠・鉄板上位2枠強調）</div>
+            <div id="lbl-mini-a" class="pick-label">mini toto A組（1〜5枠・鉄板上位2枠強調）</div>
             <div id="val-mini-a" class="pick-values">-</div>
           </div>
           <div class="pick-group">
-            <div class="pick-label">mini toto B組（6〜10枠・鉄板上位2枠強調）</div>
+            <div id="lbl-mini-b" class="pick-label">mini toto B組（6〜10枠・鉄板上位2枠強調）</div>
             <div id="val-mini-b" class="pick-values">-</div>
           </div>
         </div>
@@ -326,7 +334,7 @@
         </div>
       </div>
 
-      <div class="section-heading">⚡ 多要素アンサンブル分析・試合別予測データ</div>
+      <div class="section-heading">⚡ 多要素アンサンブル分析・試合別予測データ（2日目スタメン未発表リスク考慮済）</div>
       <div id="matches-list"></div>
     </div>
 
@@ -359,12 +367,12 @@
   </div>
 
   <!-- EMBEDDED_DATA_START -->
-  <script id="embedded-toto-data">window.__EMBEDDED_TOTO_DATA__ = {"current_round": "第1672回 (開催: 11月14日(土)・11月15日(日) / 公式スケジュール準拠)", "last_updated": "2026-11-15 11:22 JST", "model_params": {"home_adv": 1.12}, "club_stats": {"FC東京": {"div": "J1", "l_avg": 1.475, "atk": 2.459, "def_v": 0.667, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗", "rk": 1}, "柏": {"div": "J1", "l_avg": 1.475, "atk": 2.26, "def_v": 1.315, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗", "rk": 2}, "広島": {"div": "J1", "l_avg": 1.475, "atk": 2.347, "def_v": 0.784, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗", "rk": 3}, "町田": {"div": "J1", "l_avg": 1.475, "atk": 2.101, "def_v": 0.828, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗", "rk": 4}, "神戸": {"div": "J1", "l_avg": 1.475, "atk": 1.655, "def_v": 1.064, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗", "rk": 5}, "鹿島": {"div": "J1", "l_avg": 1.475, "atk": 1.979, "def_v": 1.644, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗", "rk": 6}, "横浜FM": {"div": "J1", "l_avg": 1.475, "atk": 1.519, "def_v": 1.134, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗", "rk": 7}, "川崎F": {"div": "J1", "l_avg": 1.475, "atk": 1.937, "def_v": 1.63, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗", "rk": 8}, "浦和": {"div": "J1", "l_avg": 1.475, "atk": 1.64, "def_v": 1.916, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗", "rk": 9}, "岡山": {"div": "J1", "l_avg": 1.475, "atk": 1.187, "def_v": 1.581, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗", "rk": 10}, "C大阪": {"div": "J1", "l_avg": 1.475, "atk": 1.19, "def_v": 1.751, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗", "rk": 11}, "京都": {"div": "J1", "l_avg": 1.475, "atk": 1.386, "def_v": 1.603, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗", "rk": 12}, "名古屋": {"div": "J1", "l_avg": 1.475, "atk": 1.131, "def_v": 1.64, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗", "rk": 13}, "東京V": {"div": "J1", "l_avg": 1.475, "atk": 0.985, "def_v": 1.546, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗", "rk": 14}, "清水": {"div": "J1", "l_avg": 1.475, "atk": 0.826, "def_v": 1.687, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗", "rk": 15}, "長崎": {"div": "J1", "l_avg": 1.475, "atk": 1.24, "def_v": 1.585, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗", "rk": 16}, "千葉": {"div": "J1", "l_avg": 1.475, "atk": 1.253, "def_v": 1.608, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗", "rk": 17}, "G大阪": {"div": "J1", "l_avg": 1.475, "atk": 1.239, "def_v": 1.626, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗", "rk": 18}, "水戸": {"div": "J1", "l_avg": 1.475, "atk": 0.964, "def_v": 1.812, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗", "rk": 19}, "福岡": {"div": "J1", "l_avg": 1.475, "atk": 1.085, "def_v": 1.74, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗", "rk": 20}, "大宮": {"div": "J2", "l_avg": 1.285, "atk": 1.953, "def_v": 1.039, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗", "rk": 1}, "宮崎": {"div": "J2", "l_avg": 1.285, "atk": 1.811, "def_v": 0.988, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 2位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗", "rk": 2}, "新潟": {"div": "J2", "l_avg": 1.285, "atk": 1.485, "def_v": 1.426, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 3位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗", "rk": 3}, "富山": {"div": "J2", "l_avg": 1.285, "atk": 1.886, "def_v": 0.911, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 4位・優勝/昇格圏・直近5戦12/15pt] 勝点31/9勝4分3敗", "rk": 4}, "横浜FC": {"div": "J2", "l_avg": 1.285, "atk": 1.922, "def_v": 1.056, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 5位・優勝/昇格圏・直近5戦10/15pt] 勝点31/9勝4分4敗", "rk": 5}, "仙台": {"div": "J2", "l_avg": 1.285, "atk": 1.775, "def_v": 0.94, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 6位・優勝/昇格圏・直近5戦6/15pt] 勝点30/9勝3分4敗", "rk": 6}, "札幌": {"div": "J2", "l_avg": 1.285, "atk": 1.429, "def_v": 1.146, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 7位・直近5戦15/15pt] 勝点26/8勝2分6敗", "rk": 7}, "湘南": {"div": "J2", "l_avg": 1.285, "atk": 1.118, "def_v": 0.951, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 8位・直近5戦7/15pt] 勝点26/6勝8分3敗", "rk": 8}, "いわき": {"div": "J2", "l_avg": 1.285, "atk": 1.581, "def_v": 1.336, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 9位・直近5戦8/15pt] 勝点23/7勝2分7敗", "rk": 9}, "磐田": {"div": "J2", "l_avg": 1.285, "atk": 1.231, "def_v": 1.086, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 10位・直近5戦9/15pt] 勝点23/6勝5分5敗", "rk": 10}, "大分": {"div": "J2", "l_avg": 1.285, "atk": 1.186, "def_v": 1.211, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 11位・直近5戦4/15pt] 勝点22/5勝7分5敗", "rk": 11}, "秋田": {"div": "J2", "l_avg": 1.285, "atk": 1.162, "def_v": 1.152, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 12位・直近5戦7/15pt] 勝点20/5勝5分6敗", "rk": 12}, "鳥栖": {"div": "J2", "l_avg": 1.285, "atk": 1.052, "def_v": 1.213, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 13位・直近5戦6/15pt] 勝点20/6勝2分8敗", "rk": 13}, "藤枝": {"div": "J2", "l_avg": 1.285, "atk": 1.086, "def_v": 1.265, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 14位・直近5戦4/15pt] 勝点19/4勝7分6敗", "rk": 14}, "山形": {"div": "J2", "l_avg": 1.285, "atk": 0.957, "def_v": 1.111, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 15位・直近5戦6/15pt] 勝点19/6勝1分10敗", "rk": 15}, "徳島": {"div": "J2", "l_avg": 1.285, "atk": 0.835, "def_v": 1.137, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 16位・直近5戦3/15pt] 勝点17/5勝2分9敗", "rk": 16}, "栃木C": {"div": "J2", "l_avg": 1.285, "atk": 1.549, "def_v": 1.738, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 17位・残留争い・直近5戦3/15pt] 勝点15/4勝3分10敗", "rk": 17}, "八戸": {"div": "J2", "l_avg": 1.285, "atk": 0.807, "def_v": 1.556, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 18位・残留争い・直近5戦3/15pt] 勝点14/4勝2分10敗", "rk": 18}, "今治": {"div": "J2", "l_avg": 1.285, "atk": 1.048, "def_v": 1.874, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 19位・残留争い・直近5戦1/15pt] 勝点12/3勝3分10敗", "rk": 19}, "甲府": {"div": "J2", "l_avg": 1.285, "atk": 0.813, "def_v": 1.924, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J2 20位・残留争い・直近5戦2/15pt] 勝点12/3勝3分11敗", "rk": 20}, "岐阜": {"div": "J3", "l_avg": 1.39, "atk": 1.797, "def_v": 0.9, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 1位・優勝/昇格圏・直近5戦10/15pt] 勝点32/10勝2分5敗", "rk": 1}, "奈良クラブ奈良": {"div": "J3", "l_avg": 1.39, "atk": 2.093, "def_v": 1.223, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 2位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分4敗", "rk": 2}, "鹿児島": {"div": "J3", "l_avg": 1.39, "atk": 1.836, "def_v": 1.156, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 3位・優勝/昇格圏・直近5戦5/15pt] 勝点31/9勝4分3敗", "rk": 3}, "SC相模原相模原": {"div": "J3", "l_avg": 1.39, "atk": 1.636, "def_v": 0.946, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 4位・優勝/昇格圏・直近5戦10/15pt] 勝点31/9勝4分4敗", "rk": 4}, "山口": {"div": "J3", "l_avg": 1.39, "atk": 1.481, "def_v": 0.863, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 5位・優勝/昇格圏・直近5戦7/15pt] 勝点30/9勝3分4敗", "rk": 5}, "FC大阪FC大阪": {"div": "J3", "l_avg": 1.39, "atk": 1.792, "def_v": 0.979, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 6位・優勝/昇格圏・直近5戦12/15pt] 勝点29/8勝5分3敗", "rk": 6}, "愛媛": {"div": "J3", "l_avg": 1.39, "atk": 1.848, "def_v": 1.511, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 7位・直近5戦6/15pt] 勝点29/9勝2分5敗", "rk": 7}, "熊本": {"div": "J3", "l_avg": 1.39, "atk": 1.197, "def_v": 0.864, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 8位・直近5戦7/15pt] 勝点24/6勝6分4敗", "rk": 8}, "金沢": {"div": "J3", "l_avg": 1.39, "atk": 1.717, "def_v": 1.298, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 9位・直近5戦9/15pt] 勝点23/7勝2分7敗", "rk": 9}, "長野": {"div": "J3", "l_avg": 1.39, "atk": 1.382, "def_v": 1.325, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 10位・直近5戦6/15pt] 勝点23/7勝2分7敗", "rk": 10}, "琉球": {"div": "J3", "l_avg": 1.39, "atk": 1.503, "def_v": 1.453, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 11位・直近5戦9/15pt] 勝点23/7勝2分7敗", "rk": 11}, "北九州": {"div": "J3", "l_avg": 1.39, "atk": 1.474, "def_v": 1.528, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 12位・直近5戦9/15pt] 勝点22/6勝4分7敗", "rk": 12}, "福島ユナイテッドFC福島": {"div": "J3", "l_avg": 1.39, "atk": 1.818, "def_v": 1.797, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 13位・直近5戦10/15pt] 勝点21/6勝3分8敗", "rk": 13}, "栃木SC": {"div": "J3", "l_avg": 1.39, "atk": 1.053, "def_v": 1.052, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 14位・直近5戦11/15pt] 勝点21/5勝6分5敗", "rk": 14}, "松本": {"div": "J3", "l_avg": 1.39, "atk": 0.967, "def_v": 1.145, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 15位・直近5戦4/15pt] 勝点18/4勝6分7敗", "rk": 15}, "レイラック滋賀FC滋賀": {"div": "J3", "l_avg": 1.39, "atk": 1.195, "def_v": 1.725, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 16位・直近5戦3/15pt] 勝点17/5勝2分9敗", "rk": 16}, "鳥取": {"div": "J3", "l_avg": 1.39, "atk": 1.021, "def_v": 1.789, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 17位・残留争い・直近5戦1/15pt] 勝点15/4勝3分9敗", "rk": 17}, "讃岐": {"div": "J3", "l_avg": 1.39, "atk": 1.173, "def_v": 1.566, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 18位・残留争い・直近5戦9/15pt] 勝点14/4勝2分10敗", "rk": 18}, "群馬": {"div": "J3", "l_avg": 1.39, "atk": 1.031, "def_v": 1.925, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 19位・残留争い・直近5戦3/15pt] 勝点13/4勝1分12敗", "rk": 19}, "高知": {"div": "J3", "l_avg": 1.39, "atk": 0.775, "def_v": 2.087, "h_tilt": 1.0, "a_tilt": 1.0, "trend": "[J3 20位・残留争い・直近5戦4/15pt] 勝点9/2勝3分11敗", "rk": 20}}, "rounds": {"第1672回 (開催: 11月14日(土)・11月15日(日) / 公式スケジュール準拠)": {"title": "第1672回 | 開催日: 11月14日(土)・11月15日(日) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "町田", "a": "神戸", "v": [57.2, 24.1, 18.7], "h_xg": 1.7, "h_xga": 0.85, "a_xg": 0.85, "a_xga": 1.7, "analysis": "[11月15日(日) | 天候:晴/曇] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:神戸 [J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗"}, {"f": 2, "grp": "A", "h": "C大阪", "a": "浦和", "v": [37.5, 22.6, 39.9], "h_xg": 1.73, "h_xga": 1.79, "a_xg": 1.79, "a_xga": 1.73, "analysis": "[11月15日(日) | 天候:晴/曇] H:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗 / A:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗"}, {"f": 3, "grp": "A", "h": "鹿島", "a": "横浜FM", "v": [41.2, 23.4, 35.4], "h_xg": 1.7, "h_xga": 1.56, "a_xg": 1.56, "a_xga": 1.7, "analysis": "[11月15日(日) | 天候:晴/曇] H:鹿島 [J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 4, "grp": "A", "h": "柏", "a": "川崎F", "v": [60.7, 18.3, 21.0], "h_xg": 2.8, "h_xga": 1.59, "a_xg": 1.59, "a_xga": 2.8, "analysis": "[11月15日(日) | 天候:晴/曇] H:柏 [J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗 / A:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗"}, {"f": 5, "grp": "A", "h": "新潟", "a": "宮崎", "v": [29.0, 24.0, 47.0], "h_xg": 1.28, "h_xga": 1.7, "a_xg": 1.7, "a_xga": 1.28, "analysis": "[11月14日(土) | 天候:晴/曇 / 遠征949km] H:新潟 [J2 3位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗 / A:宮崎 [J2 2位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗"}, {"f": 6, "grp": "B", "h": "大分", "a": "栃木C", "v": [50.1, 23.4, 26.5], "h_xg": 1.8, "h_xga": 1.24, "a_xg": 1.24, "a_xga": 1.8, "analysis": "[11月14日(土) | 天候:晴/曇 / 遠征810km] H:大分 [J2 11位・直近5戦4/15pt] 勝点22/5勝7分5敗 / A:栃木C [J2 17位・残留争い・直近5戦3/15pt] 勝点15/4勝3分10敗"}, {"f": 7, "grp": "B", "h": "札幌", "a": "鳥栖", "v": [54.1, 26.2, 19.7], "h_xg": 1.51, "h_xga": 0.79, "a_xg": 0.79, "a_xga": 1.51, "analysis": "[11月15日(日) | 天候:晴/曇 / 遠征1431km] H:札幌 [J2 7位・直近5戦15/15pt] 勝点26/8勝2分6敗 / A:鳥栖 [J2 13位・直近5戦6/15pt] 勝点20/6勝2分8敗"}, {"f": 8, "grp": "B", "h": "仙台", "a": "秋田", "v": [60.8, 23.1, 16.1], "h_xg": 1.78, "h_xga": 0.78, "a_xg": 0.78, "a_xga": 1.78, "analysis": "[11月15日(日) | 天候:晴/曇] H:仙台 [J2 6位・優勝/昇格圏・直近5戦6/15pt] 勝点30/9勝3分4敗 / A:秋田 [J2 12位・直近5戦7/15pt] 勝点20/5勝5分6敗"}, {"f": 9, "grp": "B", "h": "今治", "a": "磐田", "v": [22.8, 24.7, 52.5], "h_xg": 0.99, "h_xga": 1.65, "a_xg": 1.65, "a_xga": 0.99, "analysis": "[11月15日(日) | 天候:晴/曇] H:今治 [J2 19位・残留争い・直近5戦1/15pt] 勝点12/3勝3分10敗 / A:磐田 [J2 10位・直近5戦9/15pt] 勝点23/6勝5分5敗"}, {"f": 10, "grp": "B", "h": "富山", "a": "徳島", "v": [69.1, 20.9, 10.0], "h_xg": 1.87, "h_xga": 0.54, "a_xg": 0.54, "a_xga": 1.87, "analysis": "[11月15日(日) | 天候:晴/曇] H:富山 [J2 4位・優勝/昇格圏・直近5戦12/15pt] 勝点31/9勝4分3敗 / A:徳島 [J2 16位・直近5戦3/15pt] 勝点17/5勝2分9敗"}, {"f": 11, "grp": "C", "h": "八戸", "a": "いわき", "v": [79.0, 12.2, 8.7], "h_xg": 0.94, "h_xga": 1.76, "a_xg": 1.76, "a_xga": 0.94, "analysis": "[11月15日(日) | 天候:晴/曇] H:八戸 [J2 18位・残留争い・直近5戦3/15pt] 勝点14/4勝2分10敗 / A:いわき [J2 9位・直近5戦8/15pt] 勝点23/7勝2分7敗"}, {"f": 12, "grp": "C", "h": "藤枝", "a": "甲府", "v": [62.7, 22.5, 14.8], "h_xg": 1.82, "h_xga": 0.74, "a_xg": 0.74, "a_xga": 1.82, "analysis": "[11月14日(土) | 天候:晴/曇] H:藤枝 [J2 14位・直近5戦4/15pt] 勝点19/4勝7分6敗 / A:甲府 [J2 20位・残留争い・直近5戦2/15pt] 勝点12/3勝3分11敗"}, {"f": 13, "grp": "C", "h": "大宮", "a": "山形", "v": [65.0, 21.5, 13.5], "h_xg": 1.89, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 1.89, "analysis": "[11月14日(土) | 天候:晴/曇] H:大宮 [J2 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗 / A:山形 [J2 15位・直近5戦6/15pt] 勝点19/6勝1分10敗"}], "actual_results": {}}, "第1673回 (開催: 11月21日(土) / 公式スケジュール準拠)": {"title": "第1673回 | 開催日: 11月21日(土) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "町田", "a": "長崎", "v": [78.6, 14.5, 6.9], "h_xg": 2.53, "h_xga": 0.59, "a_xg": 0.59, "a_xga": 2.53, "analysis": "[11月21日(土) | 天候:晴/曇 / 遠征935km] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗"}, {"f": 2, "grp": "A", "h": "広島", "a": "横浜FM", "v": [67.5, 20.2, 12.3], "h_xg": 2.02, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 2.02, "analysis": "[11月21日(土) | 天候:晴/曇 / 遠征663km] H:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 3, "grp": "A", "h": "京都", "a": "浦和", "v": [46.3, 21.9, 31.8], "h_xg": 2.02, "h_xga": 1.64, "a_xg": 1.64, "a_xga": 2.02, "analysis": "[11月21日(土) | 天候:晴/曇] H:京都 [J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗 / A:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗"}, {"f": 4, "grp": "A", "h": "川崎F", "a": "福岡", "v": [69.5, 17.2, 13.3], "h_xg": 2.56, "h_xga": 1.01, "a_xg": 1.01, "a_xga": 2.56, "analysis": "[11月21日(土) | 天候:晴/曇 / 遠征869km] H:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗 / A:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗"}, {"f": 5, "grp": "A", "h": "G大阪", "a": "岡山", "v": [43.7, 25.7, 30.6], "h_xg": 1.49, "h_xga": 1.2, "a_xg": 1.2, "a_xga": 1.49, "analysis": "[11月21日(土) | 天候:晴/曇] H:G大阪 [J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗 / A:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗"}, {"f": 6, "grp": "B", "h": "東京V", "a": "名古屋", "v": [39.3, 28.2, 32.5], "h_xg": 1.23, "h_xga": 1.09, "a_xg": 1.09, "a_xga": 1.23, "analysis": "[11月21日(土) | 天候:晴/曇] H:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗 / A:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗"}, {"f": 7, "grp": "B", "h": "C大阪", "a": "FC東京", "v": [6.3, 13.4, 80.3], "h_xg": 0.6, "h_xga": 2.69, "a_xg": 2.69, "a_xga": 0.6, "analysis": "[11月21日(土) | 天候:晴/曇] H:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗 / A:FC東京 [J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗"}, {"f": 8, "grp": "B", "h": "秋田", "a": "山形", "v": [43.5, 31.0, 25.5], "h_xg": 1.13, "h_xga": 0.79, "a_xg": 0.79, "a_xga": 1.13, "analysis": "[11月21日(土) | 天候:晴/曇] H:秋田 [J2 12位・直近5戦7/15pt] 勝点20/5勝5分6敗 / A:山形 [J2 15位・直近5戦6/15pt] 勝点19/6勝1分10敗"}, {"f": 9, "grp": "B", "h": "宮崎", "a": "いわき", "v": [61.4, 20.7, 17.9], "h_xg": 2.11, "h_xga": 1.03, "a_xg": 1.03, "a_xga": 2.11, "analysis": "[11月21日(土) | 天候:晴/曇 / 遠征1021km] H:宮崎 [J2 2位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗 / A:いわき [J2 9位・直近5戦8/15pt] 勝点23/7勝2分7敗"}, {"f": 10, "grp": "B", "h": "甲府", "a": "八戸", "v": [36.3, 29.5, 34.2], "h_xg": 1.1, "h_xga": 1.06, "a_xg": 1.06, "a_xga": 1.1, "analysis": "[11月21日(土) | 天候:晴/曇 / 遠征601km] H:甲府 [J2 20位・残留争い・直近5戦2/15pt] 勝点12/3勝3分11敗 / A:八戸 [J2 18位・残留争い・直近5戦3/15pt] 勝点14/4勝2分10敗"}, {"f": 11, "grp": "C", "h": "富山", "a": "大分", "v": [25.2, 24.2, 50.5], "h_xg": 1.99, "h_xga": 0.73, "a_xg": 0.73, "a_xga": 1.99, "analysis": "[11月21日(土) | 天候:晴/曇 / 遠征633km] H:富山 [J2 4位・優勝/昇格圏・直近5戦12/15pt] 勝点31/9勝4分3敗 / A:大分 [J2 11位・直近5戦4/15pt] 勝点22/5勝7分5敗"}, {"f": 12, "grp": "C", "h": "鳥栖", "a": "仙台", "v": [22.8, 27.2, 50.0], "h_xg": 0.86, "h_xga": 1.42, "a_xg": 1.42, "a_xga": 0.86, "analysis": "[11月21日(土) | 天候:晴/曇 / 遠征1082km] H:鳥栖 [J2 13位・直近5戦6/15pt] 勝点20/6勝2分8敗 / A:仙台 [J2 6位・優勝/昇格圏・直近5戦6/15pt] 勝点30/9勝3分4敗"}, {"f": 13, "grp": "C", "h": "磐田", "a": "大宮", "v": [27.8, 25.7, 46.5], "h_xg": 1.11, "h_xga": 1.52, "a_xg": 1.52, "a_xga": 1.11, "analysis": "[11月21日(土) | 天候:晴/曇] H:磐田 [J2 10位・直近5戦9/15pt] 勝点23/6勝5分5敗 / A:大宮 [J2 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗"}], "actual_results": {}}, "第1674回 (開催: 11月25日(水) / 公式スケジュール準拠)": {"title": "第1674回 | 開催日: 11月25日(水) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "千葉", "a": "名古屋", "v": [47.0, 25.4, 27.6], "h_xg": 1.56, "h_xga": 1.13, "a_xg": 1.13, "a_xga": 1.56, "analysis": "[11月25日(水) | 天候:晴/曇] H:千葉 [J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗 / A:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗"}, {"f": 2, "grp": "A", "h": "岡山", "a": "清水", "v": [53.9, 26.0, 20.1], "h_xg": 1.52, "h_xga": 0.81, "a_xg": 0.81, "a_xga": 1.52, "analysis": "[11月25日(水) | 天候:晴/曇] H:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗 / A:清水 [J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗"}, {"f": 3, "grp": "A", "h": "長崎", "a": "川崎F", "v": [33.7, 23.2, 43.1], "h_xg": 1.53, "h_xga": 1.76, "a_xg": 1.76, "a_xga": 1.53, "analysis": "[11月25日(水) | 天候:晴/曇 / 遠征953km] H:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗 / A:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗"}, {"f": 4, "grp": "A", "h": "水戸", "a": "東京V", "v": [36.1, 28.8, 35.1], "h_xg": 1.13, "h_xga": 1.11, "a_xg": 1.11, "a_xga": 1.13, "analysis": "[11月25日(水) | 天候:晴/曇] H:水戸 [J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗 / A:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗"}, {"f": 5, "grp": "A", "h": "福岡", "a": "横浜FM", "v": [23.2, 26.0, 50.8], "h_xg": 0.93, "h_xga": 1.52, "a_xg": 1.52, "a_xga": 0.93, "analysis": "[11月25日(水) | 天候:晴/曇 / 遠征864km] H:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 6, "grp": "B", "h": "FC東京", "a": "広島", "v": [49.3, 26.6, 24.1], "h_xg": 1.46, "h_xga": 0.93, "a_xg": 0.93, "a_xga": 1.46, "analysis": "[11月25日(水) | 天候:晴/曇 / 遠征658km] H:FC東京 [J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗 / A:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗"}, {"f": 7, "grp": "B", "h": "浦和", "a": "C大阪", "v": [53.9, 21.1, 25.0], "h_xg": 2.18, "h_xga": 1.42, "a_xg": 1.42, "a_xga": 2.18, "analysis": "[11月25日(水) | 天候:晴/曇] H:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗 / A:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗"}, {"f": 8, "grp": "B", "h": "札幌", "a": "藤枝", "v": [55.1, 25.4, 19.5], "h_xg": 1.58, "h_xga": 0.82, "a_xg": 0.82, "a_xga": 1.58, "analysis": "[11月25日(水) | 天候:晴/曇 / 遠征946km] H:札幌 [J2 7位・直近5戦15/15pt] 勝点26/8勝2分6敗 / A:藤枝 [J2 14位・直近5戦4/15pt] 勝点19/4勝7分6敗"}, {"f": 9, "grp": "B", "h": "山形", "a": "磐田", "v": [32.2, 31.9, 35.9], "h_xg": 0.91, "h_xga": 0.98, "a_xg": 0.98, "a_xga": 0.91, "analysis": "[11月25日(水) | 天候:晴/曇] H:山形 [J2 15位・直近5戦6/15pt] 勝点19/6勝1分10敗 / A:磐田 [J2 10位・直近5戦9/15pt] 勝点23/6勝5分5敗"}, {"f": 10, "grp": "B", "h": "鳥栖", "a": "大分", "v": [37.2, 29.6, 33.2], "h_xg": 1.11, "h_xga": 1.03, "a_xg": 1.03, "a_xga": 1.11, "analysis": "[11月25日(水) | 天候:晴/曇] H:鳥栖 [J2 13位・直近5戦6/15pt] 勝点20/6勝2分8敗 / A:大分 [J2 11位・直近5戦4/15pt] 勝点22/5勝7分5敗"}, {"f": 11, "grp": "C", "h": "いわき", "a": "富山", "v": [26.9, 23.4, 49.7], "h_xg": 1.26, "h_xga": 1.8, "a_xg": 1.8, "a_xga": 1.26, "analysis": "[11月25日(水) | 天候:晴/曇] H:いわき [J2 9位・直近5戦8/15pt] 勝点23/7勝2分7敗 / A:富山 [J2 4位・優勝/昇格圏・直近5戦12/15pt] 勝点31/9勝4分3敗"}, {"f": 12, "grp": "C", "h": "横浜FC", "a": "仙台", "v": [42.6, 24.8, 32.6], "h_xg": 1.57, "h_xga": 1.34, "a_xg": 1.34, "a_xga": 1.57, "analysis": "[11月25日(水) | 天候:晴/曇] H:横浜FC [J2 5位・優勝/昇格圏・直近5戦10/15pt] 勝点31/9勝4分4敗 / A:仙台 [J2 6位・優勝/昇格圏・直近5戦6/15pt] 勝点30/9勝3分4敗"}, {"f": 13, "grp": "C", "h": "大宮", "a": "徳島", "v": [68.3, 20.6, 11.1], "h_xg": 1.94, "h_xga": 0.62, "a_xg": 0.62, "a_xga": 1.94, "analysis": "[11月25日(水) | 天候:晴/曇] H:大宮 [J2 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗 / A:徳島 [J2 16位・直近5戦3/15pt] 勝点17/5勝2分9敗"}], "actual_results": {}}, "第1675回 (開催: 11月28日(土)・11月29日(日) / 公式スケジュール準拠)": {"title": "第1675回 | 開催日: 11月28日(土)・11月29日(日) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "京都", "a": "C大阪", "v": [52.1, 23.1, 24.8], "h_xg": 1.84, "h_xga": 1.19, "a_xg": 1.19, "a_xga": 1.84, "analysis": "[11月28日(土) | 天候:晴/曇] H:京都 [J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗 / A:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗"}, {"f": 2, "grp": "A", "h": "柏", "a": "広島", "v": [28.2, 25.2, 46.6], "h_xg": 1.16, "h_xga": 1.57, "a_xg": 1.57, "a_xga": 1.16, "analysis": "[11月28日(土) | 天候:雨(4.8mm) / 遠征702km] H:柏 [J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗 / A:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗"}, {"f": 3, "grp": "A", "h": "横浜FM", "a": "FC東京", "v": [16.3, 23.5, 60.2], "h_xg": 0.77, "h_xga": 1.74, "a_xg": 1.74, "a_xga": 0.77, "analysis": "[11月29日(日) | 天候:晴/曇] H:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗 / A:FC東京 [J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗"}, {"f": 4, "grp": "A", "h": "水戸", "a": "長崎", "v": [33.2, 27.4, 39.4], "h_xg": 1.16, "h_xga": 1.29, "a_xg": 1.29, "a_xga": 1.16, "analysis": "[11月29日(日) | 天候:晴/曇 / 遠征1044km] H:水戸 [J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗 / A:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗"}, {"f": 5, "grp": "A", "h": "名古屋", "a": "福岡", "v": [47.1, 26.2, 26.7], "h_xg": 1.49, "h_xga": 1.05, "a_xg": 1.05, "a_xga": 1.49, "analysis": "[11月29日(日) | 天候:晴/曇 / 遠征638km] H:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗 / A:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗"}, {"f": 6, "grp": "B", "h": "清水", "a": "浦和", "v": [26.6, 24.0, 49.4], "h_xg": 1.2, "h_xga": 1.73, "a_xg": 1.73, "a_xga": 1.2, "analysis": "[11月28日(土) | 天候:晴/曇] H:清水 [J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗 / A:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗"}, {"f": 7, "grp": "B", "h": "鹿島", "a": "岡山", "v": [61.0, 21.1, 17.9], "h_xg": 2.04, "h_xga": 0.99, "a_xg": 0.99, "a_xga": 2.04, "analysis": "[11月28日(土) | 天候:雨(4.8mm) / 遠征626km] H:鹿島 [J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗 / A:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗"}, {"f": 8, "grp": "B", "h": "神戸", "a": "千葉", "v": [64.5, 20.8, 14.7], "h_xg": 2.02, "h_xga": 0.83, "a_xg": 0.83, "a_xga": 2.02, "analysis": "[11月28日(土) | 天候:晴/曇] H:神戸 [J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗 / A:千葉 [J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗"}, {"f": 9, "grp": "B", "h": "町田", "a": "東京V", "v": [79.6, 14.4, 6.0], "h_xg": 2.47, "h_xga": 0.51, "a_xg": 0.51, "a_xga": 2.47, "analysis": "[11月29日(日) | 天候:晴/曇] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗"}, {"f": 10, "grp": "B", "h": "川崎F", "a": "G大阪", "v": [61.2, 19.4, 19.4], "h_xg": 2.39, "h_xga": 1.26, "a_xg": 1.26, "a_xga": 2.39, "analysis": "[11月29日(日) | 天候:晴/曇] H:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗 / A:G大阪 [J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗"}, {"f": 11, "grp": "C", "h": "八戸", "a": "藤枝", "v": [27.4, 33.1, 39.5], "h_xg": 0.77, "h_xga": 0.99, "a_xg": 0.99, "a_xga": 0.77, "analysis": "[11月29日(日) | 天候:雨(4.5mm) / 遠征690km] H:八戸 [J2 18位・残留争い・直近5戦3/15pt] 勝点14/4勝2分10敗 / A:藤枝 [J2 14位・直近5戦4/15pt] 勝点19/4勝7分6敗"}, {"f": 12, "grp": "C", "h": "宮崎", "a": "鳥栖", "v": [64.6, 21.5, 13.9], "h_xg": 1.91, "h_xga": 0.74, "a_xg": 0.74, "a_xga": 1.91, "analysis": "[11月29日(日) | 天候:晴/曇] H:宮崎 [J2 2位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗 / A:鳥栖 [J2 13位・直近5戦6/15pt] 勝点20/6勝2分8敗"}, {"f": 13, "grp": "C", "h": "仙台", "a": "山形", "v": [63.2, 23.3, 13.5], "h_xg": 1.72, "h_xga": 0.64, "a_xg": 0.64, "a_xga": 1.72, "analysis": "[11月29日(日) | 天候:晴/曇] H:仙台 [J2 6位・優勝/昇格圏・直近5戦6/15pt] 勝点30/9勝3分4敗 / A:山形 [J2 15位・直近5戦6/15pt] 勝点19/6勝1分10敗"}], "actual_results": {}}, "第1676回 (開催: 12月5日(土)・12月6日(日) / 公式スケジュール準拠)": {"title": "第1676回 | 開催日: 12月5日(土)・12月6日(日) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "千葉", "a": "鹿島", "v": [30.8, 22.1, 47.1], "h_xg": 1.56, "h_xga": 1.98, "a_xg": 1.98, "a_xga": 1.56, "analysis": "[12月5日(土) | 天候:晴/曇] H:千葉 [J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗 / A:鹿島 [J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗"}, {"f": 2, "grp": "A", "h": "浦和", "a": "名古屋", "v": [52.7, 21.8, 25.5], "h_xg": 2.04, "h_xga": 1.35, "a_xg": 1.35, "a_xga": 2.04, "analysis": "[12月5日(土) | 天候:晴/曇] H:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗 / A:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗"}, {"f": 3, "grp": "A", "h": "東京V", "a": "京都", "v": [33.3, 26.8, 39.9], "h_xg": 1.2, "h_xga": 1.34, "a_xg": 1.34, "a_xga": 1.2, "analysis": "[12月5日(土) | 天候:晴/曇] H:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗 / A:京都 [J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗"}, {"f": 4, "grp": "A", "h": "C大阪", "a": "水戸", "v": [50.8, 24.8, 24.4], "h_xg": 1.64, "h_xga": 1.05, "a_xg": 1.05, "a_xga": 1.64, "analysis": "[12月5日(土) | 天候:晴/曇] H:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗 / A:水戸 [J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗"}, {"f": 5, "grp": "A", "h": "長崎", "a": "清水", "v": [57.2, 25.2, 17.6], "h_xg": 1.59, "h_xga": 0.75, "a_xg": 0.75, "a_xga": 1.59, "analysis": "[12月5日(土) | 天候:晴/曇 / 遠征832km] H:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗 / A:清水 [J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗"}, {"f": 6, "grp": "B", "h": "広島", "a": "神戸", "v": [62.6, 21.9, 15.5], "h_xg": 1.9, "h_xga": 0.81, "a_xg": 0.81, "a_xga": 1.9, "analysis": "[12月6日(日) | 天候:晴/曇] H:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗 / A:神戸 [J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗"}, {"f": 7, "grp": "B", "h": "G大阪", "a": "横浜FM", "v": [26.4, 25.7, 47.9], "h_xg": 1.07, "h_xga": 1.54, "a_xg": 1.54, "a_xga": 1.07, "analysis": "[12月6日(日) | 天候:晴/曇] H:G大阪 [J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 8, "grp": "B", "h": "柏", "a": "福岡", "v": [79.1, 13.1, 7.8], "h_xg": 2.99, "h_xga": 0.82, "a_xg": 0.82, "a_xga": 2.99, "analysis": "[12月6日(日) | 天候:晴/曇 / 遠征904km] H:柏 [J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗 / A:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗"}, {"f": 9, "grp": "B", "h": "町田", "a": "岡山", "v": [78.7, 14.5, 6.8], "h_xg": 2.52, "h_xga": 0.58, "a_xg": 0.58, "a_xga": 2.52, "analysis": "[12月6日(日) | 天候:晴/曇 / 遠征512km] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗"}, {"f": 10, "grp": "B", "h": "札幌", "a": "新潟", "v": [51.5, 23.6, 24.9], "h_xg": 1.78, "h_xga": 1.16, "a_xg": 1.16, "a_xga": 1.78, "analysis": "[12月5日(土) | 天候:晴/曇 / 遠征604km] H:札幌 [J2 7位・直近5戦15/15pt] 勝点26/8勝2分6敗 / A:新潟 [J2 3位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗"}, {"f": 11, "grp": "C", "h": "藤枝", "a": "秋田", "v": [37.3, 30.0, 32.7], "h_xg": 1.09, "h_xga": 1.0, "a_xg": 1.0, "a_xga": 1.09, "analysis": "[12月5日(土) | 天候:晴/曇 / 遠征564km] H:藤枝 [J2 14位・直近5戦4/15pt] 勝点19/4勝7分6敗 / A:秋田 [J2 12位・直近5戦7/15pt] 勝点20/5勝5分6敗"}, {"f": 12, "grp": "C", "h": "徳島", "a": "磐田", "v": [27.9, 32.8, 39.3], "h_xg": 0.79, "h_xga": 1.0, "a_xg": 1.0, "a_xga": 0.79, "analysis": "[12月5日(土) | 天候:晴/曇] H:徳島 [J2 16位・直近5戦3/15pt] 勝点17/5勝2分9敗 / A:磐田 [J2 10位・直近5戦9/15pt] 勝点23/6勝5分5敗"}, {"f": 13, "grp": "C", "h": "仙台", "a": "湘南", "v": [54.2, 26.6, 19.2], "h_xg": 1.47, "h_xga": 0.75, "a_xg": 0.75, "a_xga": 1.47, "analysis": "[12月6日(日) | 天候:晴/曇] H:仙台 [J2 6位・優勝/昇格圏・直近5戦6/15pt] 勝点30/9勝3分4敗 / A:湘南 [J2 8位・直近5戦7/15pt] 勝点26/6勝8分3敗"}], "actual_results": {}}}};</script>
+  <script id="embedded-toto-data">window.__EMBEDDED_TOTO_DATA__ = null;</script>
   <!-- EMBEDDED_DATA_END -->
 
   <script>
     (function() {
-      var EXPECTED_HASH = "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60";
+      var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
       var appData = window.__EMBEDDED_TOTO_DATA__ || null;
       var currentRoundKey = "";
       var selectedBudget = 500;
@@ -395,7 +403,7 @@
       }
 
       function initAuth() {
-        if (EXPECTED_HASH === "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60" || EXPECTED_HASH === "") {
+        if (EXPECTED_HASH === "__INJECTED_PIN_HASH__" || EXPECTED_HASH === "") {
           unlockApp();
           return;
         }
@@ -421,6 +429,29 @@
         return Math.round(num).toLocaleString("ja-JP") + "円";
       }
 
+      /* 試合文字列から開催日(例: 11月15日)を抽出し、開催初日か2日目以降かを判定 */
+      function extractDateTag(analysisStr) {
+        var m = (analysisStr || "").match(/(\d{1,2}月\d{1,2}日)/);
+        return m ? m[1] : "";
+      }
+
+      function detectSecondDayFlags(matches) {
+        var dates = [];
+        matches.forEach(function(m) {
+          var d = extractDateTag(m.analysis);
+          if (d && dates.indexOf(d) === -1) dates.push(d);
+        });
+        /* 複数日開催の場合、2つ目以降の日付（例：日曜開催）を2日目リスク対象とする */
+        var firstDate = dates.length > 0 ? dates[0] : "";
+        return matches.map(function(m) {
+          var d = extractDateTag(m.analysis);
+          if (dates.length >= 2 && d && d !== firstDate) {
+            return true;
+          }
+          return false;
+        });
+      }
+
       function poissonProbs(lam) {
         var p0 = Math.exp(-lam);
         var p1 = lam * p0;
@@ -429,7 +460,7 @@
         return [p0, p1, p2, p3];
       }
 
-      function calc1x2DynamicDC(hLam, aLam, mktV) {
+      function calc1x2DynamicDC(hLam, aLam, mktV, isDay2) {
         var totLam = hLam + aLam;
         var rho = Math.max(-0.16, Math.min(-0.06, -0.12 + (totLam - 2.4) * 0.03));
         var hp = poissonProbs(hLam), ap = poissonProbs(aLam);
@@ -449,6 +480,17 @@
         }
         var tot = p1 + p0 + p2 || 1;
         var aiProbMap = { "1": p1 / tot, "0": p0 / tot, "2": p2 / tot };
+
+        /* 2日目（スタメン未発表）は急な欠場・ターンオーバーによる引き分け・波乱余地をわずかに平滑化 */
+        if (isDay2) {
+          aiProbMap["1"] = aiProbMap["1"] * 0.94 + 0.02;
+          aiProbMap["0"] = aiProbMap["0"] * 0.94 + 0.025;
+          aiProbMap["2"] = aiProbMap["2"] * 0.94 + 0.015;
+          var s2 = aiProbMap["1"] + aiProbMap["0"] + aiProbMap["2"];
+          aiProbMap["1"] /= s2;
+          aiProbMap["0"] /= s2;
+          aiProbMap["2"] /= s2;
+        }
 
         var mktProbMap;
         if (mktV && mktV.length >= 3 && (mktV[0] + mktV[1] + mktV[2]) > 0) {
@@ -480,6 +522,7 @@
           p2: arr[1].prob,
           p3: arr[2].prob,
           diff: arr[0].prob - arr[1].prob,
+          isDay2: !!isDay2,
           aiMap: aiProbMap,
           mktMap: mktProbMap,
           raw: {
@@ -490,7 +533,7 @@
         };
       }
 
-      function calcGoalTop2(lam) {
+      function calcGoalTop2(lam, isDay2) {
         var ps = poissonProbs(lam);
         var aiMap = { "0": ps[0], "1": ps[1], "2": ps[2], "3": ps[3] };
         var mktBase = { "0": 0.24, "1": 0.36, "2": 0.25, "3": 0.15 };
@@ -516,26 +559,31 @@
           p2: arr[1].prob,
           p3: arr[2].prob,
           diff: arr[0].prob - arr[1].prob,
+          isDay2: !!isDay2,
           aiMap: aiMap,
           mktMap: mktMap
         };
       }
 
+      /* 2日目（スタメン未発表）の試合は波乱リスクがあるため +8pt 加算してダブル優先度を上げる */
       function selectBestCoverIndices(items, count) {
         return items
           .map(function(it, idx) {
-            return { idx: idx, coverScore: it.p2 * 2 - it.diff };
+            var day2Bonus = it.isDay2 ? 8 : 0;
+            return { idx: idx, coverScore: (it.p2 * 2 - it.diff) + day2Bonus };
           })
           .sort(function(a, b) { return b.coverScore - a.coverScore; })
           .slice(0, count)
           .map(function(x) { return x.idx; });
       }
 
+      /* 鉄板本命は初日（スタメン判明済み）を優先して選出 */
       function selectSuperSolidIndices(items, count) {
         if (!highlightSolid || !items || items.length === 0) return [];
         return items
           .map(function(it, idx) {
-            return { idx: idx, solidScore: it.p1 * 1.5 + it.diff };
+            var day1Bonus = it.isDay2 ? -6 : 4;
+            return { idx: idx, solidScore: (it.p1 * 1.5 + it.diff) + day1Bonus };
           })
           .sort(function(a, b) { return b.solidScore - a.solidScore; })
           .slice(0, count)
@@ -560,7 +608,7 @@
 
         var line2 = items.map(function(it, idx) {
           if (flipSet.indexOf(idx) !== -1) {
-            return '<span class="w-pair" title="対抗へ変更">' + it.top2 + '</span>';
+            return '<span class="w-pair" title="対抗へ変更（接戦・2日目リスクケア）">' + it.top2 + '</span>';
           }
           return renderPickToken(it.top1, idx, solidSet);
         }).join(" － ");
@@ -594,7 +642,6 @@
             singleMods.push({ idx: coverOrder[4], code: items[coverOrder[4]].top2, tier: "対抗" });
           }
         } else if (budget === 1500) {
-          /* 8口(メインW3) + 4口(サブW2: 第4接戦枠を対抗固定) + 3口(押さえシングル) = 15口(1,500円) */
           if (coverOrder.length >= 4) {
             subMulti = {
               fixedIdx: coverOrder[3],
@@ -615,7 +662,6 @@
             t3Order++;
           }
         } else if (budget === 2000) {
-          /* 16口(メインW4) + 4口(サブW2: 第5接戦枠を対抗固定) = 20口(2,000円) */
           if (coverOrder.length >= 5) {
             subMulti = {
               fixedIdx: coverOrder[4],
@@ -626,7 +672,6 @@
         }
 
         var tickets = [];
-        /* メインマルチ展開 */
         var mainTotal = Math.pow(2, wSet.length);
         for (var mask = 0; mask < mainTotal; mask++) {
           tickets.push(items.map(function(it, idx) {
@@ -636,7 +681,6 @@
           }));
         }
 
-        /* サブマルチ展開（1500円・2000円用） */
         if (subMulti) {
           var subTotal = Math.pow(2, subMulti.wSet.length);
           for (var sm = 0; sm < subTotal; sm++) {
@@ -649,7 +693,6 @@
           }
         }
 
-        /* 押さえシングル展開 */
         singleMods.forEach(function(mod) {
           tickets.push(items.map(function(it, idx) {
             return idx === mod.idx ? mod.code : it.top1;
@@ -719,7 +762,7 @@
         };
       }
 
-      function buildStrategyGuideHtml(planConfigs) {
+      function buildStrategyGuideHtml(planConfigs, analyzed) {
         if (!planConfigs || planConfigs.length === 0) return "";
 
         var byEv = planConfigs.slice().sort(function(a, b) {
@@ -739,6 +782,16 @@
             (p.metrics.evRatioPct < 70 || (p.gameType === "goal3" && p.metrics.hitProb1stPct < 6.0));
         });
 
+        /* A組とB組の初日(スタメン判明)試合数を比較 */
+        var aDay1 = analyzed.slice(0, 5).filter(function(x) { return !x.isDay2; }).length;
+        var bDay1 = analyzed.slice(5, 10).filter(function(x) { return !x.isDay2; }).length;
+        var lineupComment = "";
+        if (analyzed.length >= 10 && aDay1 !== bDay1) {
+          var betterMini = aDay1 > bDay1 ? "mini toto A組（初日" + aDay1 + "試合）" : "mini toto B組（初日" + bDay1 + "試合）";
+          var worseMini = aDay1 > bDay1 ? "B組（2日目" + (5 - bDay1) + "試合）" : "A組（2日目" + (5 - aDay1) + "試合）";
+          lineupComment = "<li><strong>スタメン判明度の比較</strong>：今節は <strong>" + betterMini + "</strong> の方が初日開催が多く、メンバー判明度が高いため予測精度が安定しています（" + worseMini + "はスタメン未発表リスクに注意）。</li>";
+        }
+
         var bestEvProbTxt = bestEv.gameType === "toto_main"
           ? "1〜3等当選率 " + bestEv.metrics.hitProbAnyPct.toFixed(1) + "%"
           : "1等当選率 " + bestEv.metrics.hitProb1stPct.toFixed(1) + "%";
@@ -750,12 +803,16 @@
           (bestEv.id !== bestSteady.id
             ? "または<strong>「" + bestSteady.shortName + "（1等当選率 " + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%・期待値 " + bestSteady.metrics.evRatioPct + "%）」</strong>が最も狙い目です。"
             : "が当選確率・期待値ともに頭抜けた筆頭候補です。") +
-          (skipNames ? " 一方で、" + skipNames + "は期待値・当選確率ともに見劣りするため、今回は見送り（ケン）が賢明です。" : "");
+          " 2日目（スタメン未発表）の試合は自動でWマルチ優先カバーに組み込んでいます。" +
+          (skipNames ? " 一方で、" + skipNames + "は見送り推奨です。" : "");
 
         var comments = [];
         if (bestEv.gameType === "toto_main") {
+          var evAdvice = bestEv.metrics.evRatioPct >= 150
+            ? "目安の150%を大きく超えており、500円前後のつまみ買い好機です。"
+            : "150%未満のため、手堅く楽しむならmini toto中心がおすすめです。";
           comments.push(
-            "<li><strong>" + bestEv.shortName + "が圧倒的な期待値（" + bestEv.metrics.evRatioPct + "%）</strong>：1〜3等合算の当選率が <strong>" + bestEv.metrics.hitProbAnyPct.toFixed(2) + "%</strong>（約" + Math.max(2, Math.round(100 / Math.max(1, bestEv.metrics.hitProbAnyPct))) + "回に1回）あり、理論期待リターンが <strong>約" + formatYen(bestEv.metrics.expectedReturnYen) + "</strong> と突出しています。</li>"
+            "<li><strong>" + bestEv.shortName + "（期待値 " + bestEv.metrics.evRatioPct + "%）</strong>：1〜3等当選率 <strong>" + bestEv.metrics.hitProbAnyPct.toFixed(2) + "%</strong>・期待リターン <strong>約" + formatYen(bestEv.metrics.expectedReturnYen) + "</strong>。" + evAdvice + "</li>"
           );
         } else {
           comments.push(
@@ -764,11 +821,12 @@
         }
 
         if (bestSteady) {
-          var isProfitable = bestSteady.metrics.minEstPay > bestSteady.metrics.cost;
           comments.push(
-            "<li><strong>" + bestSteady.shortName + "は「" + (isProfitable ? "順当でもプラス収支" : "手堅く的中を狙える") + "」高確率枠（" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%）</strong>：全的中率が <strong>" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%</strong>（約" + Math.max(2, Math.round(100 / Math.max(1, bestSteady.metrics.hitProb1stPct))) + "回に1回）あり、想定配当も <strong>約" + formatYen(bestSteady.metrics.minEstPay) + "〜" + formatYen(bestSteady.metrics.maxEstPay) + "</strong> 見込めます。</li>"
+            "<li><strong>" + bestSteady.shortName + "は高確率枠（1等当選率 " + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%）</strong>：約" + Math.max(2, Math.round(100 / Math.max(1, bestSteady.metrics.hitProb1stPct))) + "回に1回のペースで全的中が見込め、想定配当は <strong>約" + formatYen(bestSteady.metrics.minEstPay) + "〜" + formatYen(bestSteady.metrics.maxEstPay) + "</strong> です。</li>"
           );
         }
+
+        if (lineupComment) comments.push(lineupComment);
 
         skipList.forEach(function(sk) {
           var pTxt = sk.gameType === "toto_main" ? sk.metrics.hitProbAnyPct.toFixed(1) : sk.metrics.hitProb1stPct.toFixed(1);
@@ -802,7 +860,7 @@
             '<div class="strategy-conclusion">' + conclusionHtml + '</div>' +
             '<div class="strategy-grid">' +
               '<div class="strategy-col">' +
-                '<div class="strategy-col-title">📊 今節の狙い目コメント（4くじ種比較）</div>' +
+                '<div class="strategy-col-title">📊 今節の狙い目コメント（4くじ種・スタメン判明度比較）</div>' +
                 '<ul class="strategy-list">' + comments.join("") + '</ul>' +
               '</div>' +
               '<div class="strategy-col">' +
@@ -819,7 +877,6 @@
         var items = cfg.items;
         var solidSet = selectSuperSolidIndices(items, cfg.solidCount);
 
-        /* メインWマルチ表示 */
         var mainMultiCost = Math.pow(2, m.wSet.length) * 100;
         var multiHtml = items.map(function(it, idx) {
           if (m.wSet.indexOf(idx) !== -1) {
@@ -828,7 +885,6 @@
           return renderPickToken(it.top1, idx, solidSet);
         }).join(' － ');
 
-        /* サブWマルチ表示（1500円・2000円プラン用） */
         var subMultiHtml = "";
         var subMultiCost = 0;
         if (m.subMulti) {
@@ -849,7 +905,6 @@
             '</div>';
         }
 
-        /* 押さえシングル表示 */
         var extraCost = m.singleMods.length * 100;
         var extraHtml = m.singleMods.map(function(mod, orderIdx) {
           var line = items.map(function(it, idx) {
@@ -857,9 +912,10 @@
             return renderPickToken(it.top1, idx, solidSet);
           }).join(' － ');
           var labelNum = m.singleMods.length > 1 ? '押さえシングル' + (orderIdx + 1) : '押さえシングル';
+          var d2Note = items[mod.idx].isDay2 ? '・2日目未発表ケア' : '';
           return (
             '<div class="ticket-box">' +
-              '<div class="ticket-label sub">◆ ' + labelNum + '（100円 / 第' + (mod.idx + 1) + '枠を' + mod.tier + '[' + mod.code + ']へ変更）</div>' +
+              '<div class="ticket-label sub">◆ ' + labelNum + '（100円 / 第' + (mod.idx + 1) + '枠を' + mod.tier + '[' + mod.code + ']へ変更' + d2Note + '）</div>' +
               '<div class="ticket-line">' + line + '</div>' +
             '</div>'
           );
@@ -879,7 +935,7 @@
           ? "（2等目安: 約15万〜40万円 / 3等目安: 約1.5万〜4万円）"
           : "（順当決着時〜穴目絡み決着時の1等想定配当）";
 
-        var evBadge = m.evRatioPct >= 100 ? "🔥 期待値プラス圏" : "📊 標準還元レンジ";
+        var evBadge = m.evRatioPct >= 150 ? "🔥 つまみ買い好機（150%超）" : (m.evRatioPct >= 100 ? "✅ 期待値プラス圏" : "📊 標準還元レンジ");
         var evMainText = "約 " + formatYen(m.expectedReturnYen) + "（期待値 " + m.evRatioPct + "%）";
 
         var breakdownParts = ["メインWマルチ" + mainMultiCost + "円"];
@@ -930,7 +986,7 @@
               '</div>' +
             '</div>' +
             '<div class="ticket-box">' +
-              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + mainMultiCost + '円 / 接戦TOP' + m.wSet.length + '枠をダブル）</div>' +
+              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + mainMultiCost + '円 / 接戦・2日目リスクTOP' + m.wSet.length + '枠をダブル）</div>' +
               '<div class="ticket-line">' + multiHtml + '</div>' +
             '</div>' +
             subMultiHtml +
@@ -966,11 +1022,12 @@
         }
         if (analyzed.length >= 5) {
           var maItems = analyzed.slice(0, 5).map(function(x) { return x.c1x2; });
+          var aDay2Cnt = maItems.filter(function(x) { return x.isDay2; }).length;
           configs.push({
             id: "mini_a",
             shortName: "② mini toto A組",
             title: "② mini toto A組（1〜5枠マルチ買いプラン）",
-            subInfo: "1〜5枠の接戦上位をWマルチ化し、次点接戦枠も重複なしで網羅カバー",
+            subInfo: "初日スタメン判明 " + (5 - aDay2Cnt) + "試合 ／ 2日目スタメン未発表 " + aDay2Cnt + "試合（2日目枠を優先ダブルカバー）",
             items: maItems,
             solidCount: 2,
             gameType: "mini_a",
@@ -979,11 +1036,12 @@
         }
         if (analyzed.length >= 10) {
           var mbItems = analyzed.slice(5, 10).map(function(x) { return x.c1x2; });
+          var bDay2Cnt = mbItems.filter(function(x) { return x.isDay2; }).length;
           configs.push({
             id: "mini_b",
             shortName: "③ mini toto B組",
             title: "③ mini toto B組（6〜10枠マルチ買いプラン）",
-            subInfo: "6〜10枠の接戦上位をWマルチ化し、次点接戦枠も重複なしで網羅カバー",
+            subInfo: "初日スタメン判明 " + (5 - bDay2Cnt) + "試合 ／ 2日目スタメン未発表 " + bDay2Cnt + "試合（2日目枠を優先ダブルカバー）",
             items: mbItems,
             solidCount: 2,
             gameType: "mini_b",
@@ -992,11 +1050,12 @@
         }
         if (analyzed.length >= 10) {
           var tmItems = analyzed.map(function(x) { return x.c1x2; });
+          var allDay2Cnt = tmItems.filter(function(x) { return x.isDay2; }).length;
           configs.push({
             id: "toto_main",
             shortName: "④ toto 本戦",
             title: "④ toto 本戦（全" + analyzed.length + "枠マルチ買いプラン）",
-            subInfo: "1等高額配当を狙いつつ、接戦上位マルチ＋次点カバーで2等・3等も網羅",
+            subInfo: "初日 " + (analyzed.length - allDay2Cnt) + "試合 ／ 2日目(スタメン未発表) " + allDay2Cnt + "試合・接戦＆2日目リスク枠を優先ダブル化",
             items: tmItems,
             solidCount: 3,
             gameType: "toto_main",
@@ -1005,7 +1064,7 @@
         }
 
         var guideBox = document.getElementById("strategy-summary-box");
-        guideBox.innerHTML = buildStrategyGuideHtml(configs);
+        guideBox.innerHTML = buildStrategyGuideHtml(configs, analyzed);
 
         document.querySelectorAll(".quick-budget-btn").forEach(function(qBtn) {
           qBtn.addEventListener("click", function() {
@@ -1045,22 +1104,37 @@
         document.getElementById("last-updated-text").innerHTML =
           "最終取得: " + (appData.last_updated || "-") + '<span class="reload-status-pill">✓ 最新データ直結済</span>';
 
-        var analyzed = matches.map(function(m) {
+        var day2Flags = detectSecondDayFlags(matches);
+
+        var analyzed = matches.map(function(m, idx) {
           var hLam = parseFloat(m.h_xg || 1.3), aLam = parseFloat(m.a_xg || 1.3);
+          var isDay2 = day2Flags[idx];
           return {
             f: m.f, h: m.h, a: m.a, v: m.v || [34, 32, 34], hLam: hLam, aLam: aLam,
-            analysis: m.analysis || "", c1x2: calc1x2DynamicDC(hLam, aLam, m.v),
-            gH: calcGoalTop2(hLam), gA: calcGoalTop2(aLam)
+            isDay2: isDay2,
+            analysis: m.analysis || "", c1x2: calc1x2DynamicDC(hLam, aLam, m.v, isDay2),
+            gH: calcGoalTop2(hLam, isDay2), gA: calcGoalTop2(aLam, isDay2)
           };
         });
 
         var all1x2 = analyzed.map(function(x) { return x.c1x2; });
         var mainSolidSet = selectSuperSolidIndices(all1x2, 3);
 
+        var aDay1 = analyzed.slice(0, 5).filter(function(x) { return !x.isDay2; }).length;
+        var bDay1 = analyzed.slice(5, 10).filter(function(x) { return !x.isDay2; }).length;
+
         document.getElementById("lbl-toto-main").textContent =
-          "toto 本戦（全" + analyzed.length + "枠｜鉄板上位3枠強調・もう1口は接戦3枠変更）";
+          "toto 本戦（全" + analyzed.length + "枠｜鉄板上位3枠強調・もう1口は接戦＆2日目リスク3枠変更）";
         document.getElementById("val-toto-main").innerHTML = formatTwoLines(all1x2, 3, 3);
+
+        document.getElementById("lbl-mini-a").textContent =
+          "mini toto A組（1〜5枠｜初日" + aDay1 + "試合・2日目" + (5 - aDay1) + "試合）";
         document.getElementById("val-mini-a").innerHTML = formatTwoLines(all1x2.slice(0, 5), 2, 2);
+
+        document.getElementById("lbl-mini-b").textContent =
+          analyzed.length >= 10
+            ? "mini toto B組（6〜10枠｜初日" + bDay1 + "試合・2日目" + (5 - bDay1) + "試合）"
+            : "mini toto B組（6〜10枠）";
         document.getElementById("val-mini-b").innerHTML = analyzed.length >= 10 ? formatTwoLines(all1x2.slice(5, 10), 2, 2) : "-";
 
         var g3Items = [];
@@ -1071,12 +1145,15 @@
           var isSolid = mainSolidSet.indexOf(idx) !== -1;
           var g3Tag = x.f <= 3 ? '<span class="goal3-tag">GOAL3</span>' : '';
           var solidTag = isSolid ? '<span class="solid-tag">🔥 鉄板本命</span>' : '';
+          var dayTag = x.isDay2
+            ? '<span class="day2-tag">⚠️ 2日目(スタメン未発表)</span>'
+            : '<span class="day1-tag">✓ 開催初日</span>';
           var pStr = "[1]" + x.c1x2.raw["1"] + "% [0]" + x.c1x2.raw["0"] + "% [2]" + x.c1x2.raw["2"] + "%";
           var vStr = Math.round(x.v[0]) + "% / " + Math.round(x.v[1]) + "% / " + Math.round(x.v[2]) + "%";
           return (
             '<div class="match-card' + (isSolid ? ' solid-card' : '') + '">' +
               '<div class="match-top">' +
-                '<div class="match-teams">第' + x.f + '枠 ' + solidTag + g3Tag + '：' + x.h + ' vs ' + x.a + '</div>' +
+                '<div class="match-teams">第' + x.f + '枠 ' + solidTag + dayTag + g3Tag + '：' + x.h + ' vs ' + x.a + '</div>' +
                 '<div class="match-rec">本命：' + x.c1x2.top1 + '（' + x.c1x2.p1 + '%） ／ 対抗：' + x.c1x2.top2 + '（' + x.c1x2.p2 + '%）</div>' +
               '</div>' +
               '<div class="match-metrics">予測λ: ' + x.hLam.toFixed(2) + ' - ' + x.aLam.toFixed(2) + ' ｜ AI勝率: ' + pStr + ' ｜ 投票率: ' + vStr + '</div>' +
@@ -1117,20 +1194,24 @@
         /* タブ4: 振り返り */
         var coverIdx = selectBestCoverIndices(all1x2, 4);
         var solidGames = analyzed.slice().sort(function(a, b) {
-          return (b.c1x2.p1 * 1.5 + b.c1x2.diff) - (a.c1x2.p1 * 1.5 + a.c1x2.diff);
+          var bDay1 = b.isDay2 ? -6 : 4;
+          var aDay1 = a.isDay2 ? -6 : 4;
+          return (b.c1x2.p1 * 1.5 + b.c1x2.diff + bDay1) - (a.c1x2.p1 * 1.5 + a.c1x2.diff + aDay1);
         }).slice(0, 3);
         var revHtml =
           '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:8px;">🔥 鉄板本命TOP3（最も信頼度が高い軸カード）</div>' +
+            '<div class="plan-title" style="margin-bottom:8px;">🔥 鉄板本命TOP3（初日スタメン確定×高信頼度カード）</div>' +
             solidGames.map(function(g) {
-              return '<div class="plan-sub">・第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: [' + g.c1x2.top1 + '] 勝率 ' + g.c1x2.p1 + '% / 対抗差 +' + g.c1x2.diff + '%）</div>';
+              var dTxt = g.isDay2 ? "2日目・未発表" : "初日開催";
+              return '<div class="plan-sub">・第' + g.f + '枠 [' + dTxt + '] ' + g.h + ' vs ' + g.a + '（本命: [' + g.c1x2.top1 + '] 勝率 ' + g.c1x2.p1 + '% / 対抗差 +' + g.c1x2.diff + '%）</div>';
             }).join("") +
           '</div>' +
           '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:8px;">⚠️ 波乱・接戦優先カバーTOP4（Wマルチ推奨枠）</div>' +
+            '<div class="plan-title" style="margin-bottom:8px;">⚠️ 波乱・2日目スタメン未発表リスク優先カバーTOP4（Wマルチ推奨枠）</div>' +
             coverIdx.map(function(idx, rank) {
               var g = analyzed[idx];
-              return '<div class="plan-sub">・接戦' + (rank + 1) + '位：第' + g.f + '枠 ' + g.h + ' vs ' + g.a + '（本命: [' + g.c1x2.top1 + '] ' + g.c1x2.p1 + '% → 対抗: [' + g.c1x2.top2 + '] ' + g.c1x2.p2 + '%）</div>';
+              var dTxt = g.isDay2 ? "⚠️2日目・スタメン未発表" : "初日接戦";
+              return '<div class="plan-sub">・優先' + (rank + 1) + '位：第' + g.f + '枠 [' + dTxt + '] ' + g.h + ' vs ' + g.a + '（本命: [' + g.c1x2.top1 + '] ' + g.c1x2.p1 + '% → 対抗: [' + g.c1x2.top2 + '] ' + g.c1x2.p2 + '%）</div>';
             }).join("") +
           '</div>';
         document.getElementById("review-list").innerHTML = revHtml;
