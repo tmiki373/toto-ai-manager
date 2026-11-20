@@ -6,15 +6,15 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>toto AI Manager - アンサンブル推論＆期待値・戦略ガイド</title>
+  <title>toto AI Manager - 公式マークシート早見表＆結果照合</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: #0b1120; color: #f1f5f9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
-      line-height: 1.5; padding: 16px;
+      line-height: 1.45; padding: 12px;
     }
-    .container { max-width: 1100px; margin: 0 auto; }
+    .container { max-width: 980px; margin: 0 auto; }
 
     /* PINロック画面 */
     #pin-overlay {
@@ -23,7 +23,7 @@
     }
     .pin-box {
       background: #111827; border: 1px solid #334155; border-radius: 14px;
-      padding: 28px; width: 90%; max-width: 360px; text-align: center;
+      padding: 28px; width: 90%; max-width: 350px; text-align: center;
     }
     .pin-box h2 { font-size: 18px; margin-bottom: 8px; color: #f8fafc; }
     .pin-box p { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
@@ -39,383 +39,234 @@
 
     /* ヘッダー */
     .header-card {
-      background: #111827; border: 1px solid #1f2937; border-radius: 14px;
-      padding: 16px 20px; margin-bottom: 16px;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+      background: #111827; border: 1px solid #1f2937; border-radius: 12px;
+      padding: 12px 16px; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
     }
     .round-badge {
       display: inline-block; background: #f97316; color: #fff; font-weight: bold;
-      font-size: 13px; padding: 5px 14px; border-radius: 999px; margin-bottom: 6px;
+      font-size: 12.5px; padding: 4px 12px; border-radius: 999px; margin-bottom: 4px;
     }
-    .last-updated { font-size: 12px; color: #94a3b8; }
-    .reload-status-pill {
-      display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 4px;
-      font-size: 11px; font-weight: bold; background: #065f46; color: #6ee7b7;
-    }
-    .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .last-updated { font-size: 11px; color: #94a3b8; }
+    .header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     select.round-select {
       background: #1e293b; color: #f8fafc; border: 1px solid #334155;
-      padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
+      padding: 7px 10px; border-radius: 8px; font-size: 12.5px; font-weight: bold;
     }
     .reload-btn {
-      background: #2563eb; color: #fff; border: none; padding: 10px 18px;
-      border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;
-      transition: 0.15s;
+      background: #2563eb; color: #fff; border: none; padding: 7px 13px;
+      border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer;
     }
-    .reload-btn:hover { background: #1d4ed8; }
-    .reload-btn:active { background: #059669; transform: scale(0.97); }
 
-    /* タブナビゲーション */
-    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+    /* 3タブナビゲーション */
+    .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
     .tab-btn {
       background: #111827; color: #cbd5e1; border: 1px solid #1f2937;
-      padding: 12px 8px; border-radius: 10px; font-size: 14px; font-weight: bold;
+      padding: 11px 6px; border-radius: 10px; font-size: 13.5px; font-weight: bold;
       cursor: pointer; text-align: center; transition: 0.15s;
     }
     .tab-btn.active { background: #f97316; color: #fff; border-color: #f97316; }
 
-    /* 予算切り替えバー */
-    .budget-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
+    /* 最上部：当日購入コントロールバー */
+    .top-control-bar {
+      background: #111827; border: 1px solid #334155; border-radius: 12px;
+      padding: 10px 14px; margin-bottom: 14px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
     }
     .budget-switch {
-      display: inline-flex; flex-wrap: wrap; background: #111827; border: 1px solid #334155;
-      border-radius: 10px; padding: 4px; gap: 4px;
+      display: inline-flex; flex-wrap: wrap; background: #0b1120; border: 1px solid #334155;
+      border-radius: 8px; padding: 3px; gap: 3px;
     }
     .budget-btn {
       background: transparent; color: #94a3b8; border: none;
-      padding: 8px 14px; border-radius: 7px; font-size: 13px; font-weight: bold;
+      padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;
       cursor: pointer; transition: 0.15s;
     }
-    .budget-btn:hover { color: #f8fafc; }
     .budget-btn.active { background: #10b981; color: #052e16; }
-
-    /* AI総合戦略・狙い目ガイドボックス */
-    .strategy-box {
-      background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
-      border: 2px solid #38bdf8; border-radius: 14px; padding: 18px 20px; margin-bottom: 18px;
+    .official-link-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #059669; color: #fff; text-decoration: none;
+      padding: 7px 13px; border-radius: 8px; font-size: 12px; font-weight: bold;
     }
-    .strategy-header {
+    .official-link-btn:hover { background: #047857; }
+
+    /* マークシート見出し */
+    .sheet-section-header {
       display: flex; justify-content: space-between; align-items: center;
       flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
     }
-    .strategy-title { font-size: 16px; font-weight: bold; color: #38bdf8; }
-    .strategy-sub-pill {
-      font-size: 11px; font-weight: bold; background: #1e293b; color: #93c5fd;
-      border: 1px solid #3b82f6; padding: 3px 10px; border-radius: 999px;
-    }
-    .strategy-conclusion {
-      background: rgba(56, 189, 248, 0.12); border-left: 4px solid #38bdf8;
-      padding: 10px 14px; border-radius: 6px; font-size: 13.5px; color: #f8fafc;
-      margin-bottom: 14px; line-height: 1.65;
-    }
-    .strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 760px) { .strategy-grid { grid-template-columns: 1fr; } }
-    .strategy-col { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 14px; }
-    .strategy-col-title {
-      font-size: 13px; font-weight: bold; color: #fbbf24; margin-bottom: 8px;
-      border-bottom: 1px solid #334155; padding-bottom: 5px;
-    }
-    .strategy-list { list-style: none; font-size: 12.5px; color: #e2e8f0; }
-    .strategy-list li { margin-bottom: 8px; padding-left: 14px; position: relative; line-height: 1.55; }
-    .strategy-list li:last-child { margin-bottom: 0; }
-    .strategy-list li::before { content: "•"; color: #38bdf8; font-weight: bold; position: absolute; left: 0; }
-    .quick-budget-btn {
-      background: #059669; color: #fff; border: none; border-radius: 6px;
-      padding: 3px 9px; font-size: 11px; font-weight: bold; cursor: pointer;
-      margin-left: 6px; vertical-align: middle;
-    }
-    .quick-budget-btn:hover { background: #047857; }
+    .sheet-section-title { font-size: 15.5px; font-weight: 900; color: #4ade80; }
+    .sheet-legend { display: flex; gap: 6px; align-items: center; font-size: 11px; color: #cbd5e1; }
 
-    /* 最適買い目サマリー枠 */
-    .summary-box {
-      background: #0f172a; border: 2px solid #10b981; border-radius: 14px;
-      padding: 18px 20px; margin-bottom: 20px;
+    /* マークシート2列グリッド */
+    .marksheet-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
     }
-    .summary-header {
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 10px; margin-bottom: 10px;
-    }
-    .summary-title { color: #4ade80; font-size: 16px; font-weight: bold; }
-    .toggle-solid-btn {
-      background: #991b1b; color: #fecaca; border: 1px solid #ef4444;
-      padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: bold; cursor: pointer;
-    }
-    .toggle-solid-btn.off { background: #1e293b; color: #94a3b8; border-color: #475569; }
-    .legend-bar {
-      font-size: 12px; color: #cbd5e1; margin-bottom: 14px;
-      display: flex; align-items: center; flex-wrap: wrap; gap: 14px;
-    }
-    .pick-group { margin-bottom: 14px; }
-    .pick-group:last-child { margin-bottom: 0; }
-    .pick-label { font-size: 12px; color: #94a3b8; margin-bottom: 6px; font-weight: bold; }
-    .pick-values {
-      background: #111827; border-left: 4px solid #f97316; border-radius: 6px;
-      padding: 10px 14px; font-size: 15px; font-weight: bold; color: #f8fafc;
-      letter-spacing: 1px; line-height: 2.0;
-    }
-    .line-tag-main {
-      display: inline-block; background: #065f46; color: #6ee7b7;
-      font-size: 11px; padding: 1px 8px; border-radius: 4px; margin-right: 8px; vertical-align: middle;
-    }
-    .line-tag-sub {
-      display: inline-block; background: #78350f; color: #fde68a;
-      font-size: 11px; padding: 1px 8px; border-radius: 4px; margin-right: 8px; vertical-align: middle;
-    }
-    .pick-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-    @media (max-width: 700px) { .pick-grid-2 { grid-template-columns: 1fr; } .tabs { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 760px) { .marksheet-grid { grid-template-columns: 1fr; } }
 
-    /* ハイライト装飾 */
-    .super-solid {
-      display: inline-block; background: linear-gradient(135deg, #dc2626, #ea580c);
-      color: #ffffff; font-weight: 900; padding: 1px 7px; border-radius: 5px;
-      box-shadow: 0 0 8px rgba(239, 68, 68, 0.55); border: 1px solid #fca5a5;
-    }
-    .w-pair {
-      display: inline-block; color: #fbbf24; background: rgba(251, 191, 36, 0.18);
-      padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(251, 191, 36, 0.45);
-    }
-    .fix-sub {
-      display: inline-block; color: #38bdf8; background: rgba(56, 189, 248, 0.18);
-      padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.5);
-    }
-
-    /* 結果照合用の的中/外れトークン */
-    .res-hit-token {
-      display: inline-block; background: #065f46; color: #6ee7b7;
-      border: 1px solid #10b981; font-weight: 900; padding: 1px 7px; border-radius: 5px;
-    }
-    .res-miss-token {
-      display: inline-block; background: #450a0a; color: #fca5a5;
-      border: 1px solid #ef4444; padding: 1px 7px; border-radius: 5px; opacity: 0.85;
-    }
-    .res-wait-token {
-      display: inline-block; background: #1e293b; color: #94a3b8;
-      border: 1px solid #475569; padding: 1px 7px; border-radius: 5px;
-    }
-
-    .section-heading { font-size: 15px; font-weight: bold; color: #f8fafc; margin-bottom: 10px; margin-top: 6px; }
-
-    /* 試合カード */
-    .match-card {
-      background: #111827; border: 1px solid #1f2937; border-left: 4px solid #eab308;
-      border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
-    }
-    .match-card.solid-card {
-      border-left: 4px solid #ef4444;
-      background: linear-gradient(90deg, rgba(127, 29, 29, 0.22) 0%, #111827 35%);
-    }
-    .match-top {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 6px; flex-wrap: wrap; gap: 8px;
-    }
-    .match-teams { font-size: 15px; font-weight: bold; color: #f8fafc; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
-    .goal3-tag {
-      background: #1e293b; color: #38bdf8; border: 1px solid #0284c7;
-      font-size: 11px; padding: 2px 6px; border-radius: 4px;
-    }
-    .solid-tag {
-      background: #dc2626; color: #fff; border: 1px solid #fca5a5;
-      font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: bold;
-    }
-    .day2-tag {
-      background: #422006; color: #fde047; border: 1px solid #ca8a04;
-      font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: bold;
-    }
-    .day1-tag {
-      background: #1e293b; color: #cbd5e1; border: 1px solid #475569;
-      font-size: 11px; padding: 2px 7px; border-radius: 4px;
-    }
-    .lineup-ok-tag {
-      background: #064e3b; color: #6ee7b7; border: 1px solid #10b981;
-      font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: bold;
-    }
-    .live-tag {
-      background: #7f1d1d; color: #fecaca; border: 1px solid #ef4444;
-      font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: bold;
-    }
-    .fin-tag {
-      background: #1f2937; color: #9ca3af; border: 1px solid #374151;
-      font-size: 11px; padding: 2px 7px; border-radius: 4px;
-    }
-    .match-rec { font-size: 14px; font-weight: bold; color: #fbbf24; }
-    .match-metrics { font-size: 12px; color: #38bdf8; margin-bottom: 8px; }
-    .match-analysis {
-      background: #1c1917; border: 1px solid #44403c; color: #fcd34d;
-      font-size: 12px; padding: 7px 10px; border-radius: 6px;
-    }
-
-    /* 予算別提案プランカード */
-    .plan-card {
+    .ms-card {
       background: #111827; border: 1px solid #334155; border-radius: 12px;
-      padding: 16px; margin-bottom: 16px;
+      padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between;
     }
-    .plan-card.recommended-card { border: 2px solid #10b981; }
-    .plan-card.skip-card { opacity: 0.82; border-color: #1f2937; }
-    .plan-card.bonus-card { border: 1px dashed #475569; opacity: 0.92; }
-    .plan-header {
+    .ms-card.rec {
+      border: 2px solid #10b981;
+      background: linear-gradient(180deg, rgba(6, 78, 59, 0.25) 0%, #111827 30%);
+    }
+    .ms-card.skip { opacity: 0.85; border-color: #374151; }
+    .ms-top {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 6px; flex-wrap: wrap; gap: 8px;
+      gap: 6px; margin-bottom: 6px; flex-wrap: wrap;
     }
-    .plan-title-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-    .plan-title { font-size: 15px; font-weight: bold; color: #38bdf8; }
-    .rec-pill { font-size: 11px; font-weight: bold; padding: 2px 9px; border-radius: 999px; }
-    .rec-pill.best-ev { background: #b45309; color: #fef3c7; border: 1px solid #f59e0b; }
-    .rec-pill.best-prob { background: #047857; color: #d1fae5; border: 1px solid #10b981; }
-    .rec-pill.skip { background: #374151; color: #9ca3af; }
-    .rec-pill.bonus-ref { background: #1e293b; color: #cbd5e1; border: 1px solid #64748b; }
-    .plan-badge {
-      background: #065f46; color: #6ee7b7; font-size: 12px; font-weight: bold;
-      padding: 3px 10px; border-radius: 999px;
+    .ms-title { font-size: 14.5px; font-weight: 900; color: #f8fafc; }
+    .ms-cost {
+      background: #0f172a; color: #fbbf24; border: 1px solid #f59e0b;
+      font-size: 12px; font-weight: bold; padding: 2px 9px; border-radius: 999px;
     }
-    .plan-badge.b1000 { background: #1e3a8a; color: #93c5fd; }
-    .plan-badge.b1500 { background: #581c87; color: #e9d5ff; }
-    .plan-badge.b2000 { background: #7c2d12; color: #fed7aa; }
-    .plan-sub { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+    .ms-status-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 6px; margin-bottom: 8px; font-size: 11.5px;
+    }
+    .ms-pill { padding: 2px 8px; border-radius: 5px; font-weight: bold; font-size: 11px; }
+    .ms-pill.rec { background: #059669; color: #fff; }
+    .ms-pill.ok { background: #1e3a8a; color: #93c5fd; }
+    .ms-pill.skip { background: #78350f; color: #fde68a; }
+    .ms-pill.ref { background: #1f2937; color: #9ca3af; }
 
+    .sheet-sub-label {
+      font-size: 11px; font-weight: bold; color: #38bdf8;
+      margin: 8px 0 4px; display: flex; justify-content: space-between;
+    }
+    .sheet-sub-label:first-of-type { margin-top: 2px; }
+
+    /* 公式投票画面そのままのマークシートテーブル */
+    .ms-table {
+      width: 100%; border-collapse: collapse; font-size: 12px;
+      background: #0b1120; border-radius: 8px; overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .ms-table th {
+      background: #1e293b; color: #94a3b8; font-size: 11px; font-weight: bold;
+      padding: 4px 3px; text-align: center; border-bottom: 1px solid #334155;
+    }
+    .ms-table th.col-match { text-align: left; padding-left: 8px; }
+    .ms-table td {
+      padding: 4px 3px; border-bottom: 1px solid #1e293b; text-align: center;
+    }
+    .ms-table tr:last-child td { border-bottom: none; }
+    .ms-table td.col-frame { font-weight: bold; color: #94a3b8; width: 30px; font-size: 11px; }
+    .ms-table td.col-match {
+      text-align: left; padding-left: 6px; color: #e2e8f0; font-weight: bold;
+      font-size: 11.5px; white-space: nowrap;
+    }
+
+    /* 公式toto風の塗りつぶし楕円 */
+    .oval {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 21px; border-radius: 999px;
+      font-size: 11.5px; font-weight: 900; border: 1px solid #334155;
+      color: #475569; background: #0f172a;
+    }
+    .oval.on-s {
+      background: #dc2626; border-color: #fca5a5; color: #ffffff;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.55);
+    }
+    .oval.on-a { background: #0284c7; border-color: #7dd3fc; color: #ffffff; }
+    .oval.on-b { background: #d97706; border-color: #fde68a; color: #ffffff; }
+
+    .ms-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 8px; padding-top: 7px; border-top: 1px dashed #334155;
+      font-size: 11.5px; color: #94a3b8;
+    }
     .register-plan-btn {
-      background: #2563eb; color: #fff; border: 1px solid #60a5fa;
-      padding: 4px 10px; border-radius: 6px; font-size: 11.5px; font-weight: bold;
-      cursor: pointer; transition: 0.15s;
+      background: #2563eb; color: #fff; border: none;
+      padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
     }
     .register-plan-btn:hover { background: #1d4ed8; }
 
-    /* 期待値3連パネル */
-    .ev-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
-    @media (max-width: 700px) { .ev-grid { grid-template-columns: 1fr; } }
-    .ev-box { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px; }
-    .ev-box.highlight {
-      border-color: #10b981;
-      background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, #0f172a 100%);
+    /* 区切り見出し（ここから下は細かい情報） */
+    .detail-divider {
+      margin: 24px 0 12px; padding: 10px 14px;
+      background: #111827; border-left: 4px solid #38bdf8; border-radius: 6px;
+      font-size: 14.5px; font-weight: bold; color: #38bdf8;
     }
-    .ev-label { font-size: 11px; color: #94a3b8; font-weight: bold; margin-bottom: 3px; }
-    .ev-value { font-size: 15px; font-weight: 900; color: #f8fafc; }
-    .ev-value.gold { color: #fbbf24; }
-    .ev-value.green { color: #4ade80; }
-    .ev-note { font-size: 11px; color: #cbd5e1; margin-top: 2px; }
 
-    /* 等級別内訳・プラン別結果テーブル共通 */
-    .tier-breakdown-box {
-      background: #0f172a; border: 1px solid #334155; border-radius: 10px;
+    /* 詳細カード・折りたたみ */
+    .plan-card {
+      background: #111827; border: 1px solid #334155; border-radius: 12px;
+      padding: 14px 16px; margin-bottom: 12px;
+    }
+    .plan-title { font-size: 14.5px; font-weight: bold; color: #f8fafc; }
+    .simple-metrics {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+      background: #0f172a; border: 1px solid #1e293b; border-radius: 8px;
+      padding: 8px 12px; margin: 8px 0; font-size: 12px; color: #cbd5e1;
+    }
+    .simple-metrics strong { color: #f8fafc; }
+    .simple-metrics .gold { color: #fbbf24; font-weight: bold; }
+    .simple-metrics .green { color: #4ade80; font-weight: bold; }
+
+    .ticket-box { background: #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; }
+    .ticket-label { font-size: 11px; color: #fbbf24; font-weight: bold; margin-bottom: 3px; }
+    .ticket-line { font-size: 13.5px; font-weight: bold; color: #f8fafc; letter-spacing: 1px; }
+    .super-solid { display: inline-block; background: #dc2626; color: #fff; font-weight: 900; padding: 0 6px; border-radius: 4px; }
+    .w-pair { display: inline-block; color: #fbbf24; background: rgba(251, 191, 36, 0.18); padding: 0 5px; border-radius: 4px; border: 1px solid rgba(251, 191, 36, 0.4); }
+
+    .f-rank-tag { display: inline-block; font-size: 10.5px; font-weight: bold; padding: 1px 6px; border-radius: 4px; }
+    .f-rank-tag.s { background: #dc2626; color: #fff; }
+    .f-rank-tag.a { background: #0284c7; color: #fff; }
+    .f-rank-tag.b { background: #ca8a04; color: #fff; }
+
+    details.clean-details {
+      background: #111827; border: 1px solid #334155; border-radius: 12px;
       padding: 12px 14px; margin-bottom: 12px;
     }
-    .tier-breakdown-header {
+    details.clean-details summary {
+      font-size: 13.5px; font-weight: bold; color: #e2e8f0; cursor: pointer;
+      list-style: none; display: flex; justify-content: space-between; align-items: center;
+    }
+    details.clean-details summary::-webkit-details-marker { display: none; }
+    details.clean-details summary::after { content: "▼ 開く"; font-size: 11.5px; color: #38bdf8; }
+    details.clean-details[open] summary::after { content: "▲ 閉じる"; }
+    .details-body { margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e293b; }
+
+    .compact-match-row {
       display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
-      font-size: 12.5px; font-weight: bold; color: #38bdf8;
+      flex-wrap: wrap; gap: 6px; padding: 8px 6px;
+      border-bottom: 1px solid #1e293b; font-size: 12.5px;
     }
-    .tier-only-note { font-size: 11px; font-weight: normal; color: #94a3b8; }
-    .tier-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-    .tier-table th {
-      text-align: left; color: #94a3b8; font-size: 11px; font-weight: bold;
-      padding: 6px 8px; border-bottom: 1px solid #1e293b;
-    }
-    .tier-table td { padding: 7px 8px; border-bottom: 1px solid #1e293b; color: #f1f5f9; }
-    .tier-table tr:last-child td { border-bottom: none; }
-    .tier-badge {
-      display: inline-block; font-size: 11px; font-weight: bold;
-      padding: 2px 8px; border-radius: 5px; margin-right: 6px;
-    }
+    .compact-match-row:last-child { border-bottom: none; }
+
+    /* 結果照合・マイ購入登録 */
+    .res-hit-token { display: inline-block; background: #065f46; color: #6ee7b7; border: 1px solid #10b981; font-weight: 900; padding: 1px 7px; border-radius: 5px; }
+    .res-miss-token { display: inline-block; background: #450a0a; color: #fca5a5; border: 1px solid #ef4444; padding: 1px 7px; border-radius: 5px; opacity: 0.85; }
+    .res-wait-token { display: inline-block; background: #1e293b; color: #94a3b8; border: 1px solid #475569; padding: 1px 7px; border-radius: 5px; }
+    .tier-badge { display: inline-block; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 5px; }
     .tier-badge.t1 { background: #b45309; color: #fef3c7; border: 1px solid #f59e0b; }
     .tier-badge.t2 { background: #1e3a8a; color: #dbeafe; border: 1px solid #60a5fa; }
     .tier-badge.t3 { background: #065f46; color: #d1fae5; border: 1px solid #34d399; }
     .tier-badge.miss { background: #1f2937; color: #9ca3af; border: 1px solid #374151; }
-    .tier-badge.upset { background: #7f1d1d; color: #fecaca; border: 1px solid #ef4444; }
-    .tier-cond { font-size: 11.5px; color: #cbd5e1; }
-    .tier-prob { font-weight: bold; color: #f8fafc; }
-    .tier-freq { font-size: 11px; color: #94a3b8; margin-left: 4px; }
-    .tier-pay { font-weight: bold; color: #fbbf24; }
-    .tier-ev { font-size: 11.5px; color: #4ade80; font-weight: bold; }
-    @media (max-width: 680px) {
-      .tier-table thead { display: none; }
-      .tier-table, .tier-table tbody, .tier-table tr, .tier-table td { display: block; width: 100%; }
-      .tier-table tr { padding: 6px 0; border-bottom: 1px solid #1e293b; }
-      .tier-table td { padding: 3px 4px; border-bottom: none; }
-    }
 
-    .ticket-box { background: #1e293b; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
-    .ticket-box:last-child { margin-bottom: 0; }
-    .ticket-label { font-size: 11px; color: #fbbf24; font-weight: bold; margin-bottom: 4px; }
-    .ticket-label.sub-multi { color: #38bdf8; }
-    .ticket-label.sub { color: #cbd5e1; }
-    .ticket-line { font-size: 15px; font-weight: bold; color: #f8fafc; letter-spacing: 1px; line-height: 1.9; }
+    .my-bet-panel { background: #111827; border: 2px solid #f59e0b; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
+    .my-bet-title { font-size: 14.5px; font-weight: bold; color: #fbbf24; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .my-bet-form { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+    .my-bet-select, .my-bet-input, .my-bet-memo { background: #0f172a; color: #f8fafc; border: 1px solid #475569; padding: 7px 10px; border-radius: 6px; font-size: 12.5px; font-weight: bold; }
+    .my-bet-input { flex: 1; min-width: 190px; }
+    .my-bet-memo { width: 130px; font-weight: normal; }
+    .my-bet-add-btn { background: #f97316; color: #fff; border: none; padding: 7px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .preset-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+    .preset-btn { background: #1e3a8a; color: #dbeafe; border: 1px solid #3b82f6; padding: 4px 9px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .clear-bets-btn { background: #7f1d1d; color: #fecaca; border: 1px solid #ef4444; padding: 3px 8px; border-radius: 5px; font-size: 11px; cursor: pointer; }
+    .my-ticket-item { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 9px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .my-ticket-item.win-item { border: 2px solid #10b981; }
+    .del-ticket-btn { background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 2px 7px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-    /* マイ購入登録＆照合フォーム */
-    .my-bet-panel {
-      background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
-      border: 2px solid #f59e0b; border-radius: 14px;
-      padding: 16px 18px; margin-bottom: 18px;
-    }
-    .my-bet-title {
-      font-size: 15.5px; font-weight: bold; color: #fbbf24; margin-bottom: 6px;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
-    }
-    .my-bet-desc { font-size: 12px; color: #cbd5e1; margin-bottom: 12px; }
-    .my-bet-form {
-      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-      background: #1e293b; padding: 10px 12px; border-radius: 10px; margin-bottom: 12px;
-    }
-    .my-bet-select {
-      background: #0f172a; color: #f8fafc; border: 1px solid #475569;
-      padding: 8px 10px; border-radius: 7px; font-size: 12.5px; font-weight: bold;
-    }
-    .my-bet-input {
-      flex: 1; min-width: 210px; background: #0f172a; color: #f8fafc;
-      border: 1px solid #475569; padding: 8px 12px; border-radius: 7px;
-      font-size: 13.5px; font-weight: bold; letter-spacing: 1px;
-    }
-    .my-bet-memo {
-      width: 150px; background: #0f172a; color: #f8fafc;
-      border: 1px solid #475569; padding: 8px 10px; border-radius: 7px; font-size: 12px;
-    }
-    .my-bet-add-btn {
-      background: #f97316; color: #fff; border: none; padding: 8px 14px;
-      border-radius: 7px; font-size: 12.5px; font-weight: bold; cursor: pointer;
-    }
-    .my-bet-add-btn:hover { background: #ea580c; }
-    .preset-bar {
-      display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px;
-    }
-    .preset-btn {
-      background: #1e3a8a; color: #dbeafe; border: 1px solid #3b82f6;
-      padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: bold; cursor: pointer;
-    }
-    .preset-btn:hover { background: #1d4ed8; }
-    .clear-bets-btn {
-      background: #7f1d1d; color: #fecaca; border: 1px solid #ef4444;
-      padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
-    }
-    .my-ticket-item {
-      background: #111827; border: 1px solid #334155; border-radius: 10px;
-      padding: 10px 14px; margin-bottom: 8px;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
-    }
-    .my-ticket-item.win-item {
-      border: 2px solid #10b981;
-      background: linear-gradient(90deg, rgba(6, 95, 70, 0.28) 0%, #111827 50%);
-    }
-    .del-ticket-btn {
-      background: transparent; color: #94a3b8; border: 1px solid #475569;
-      padding: 3px 8px; border-radius: 5px; font-size: 11px; cursor: pointer; margin-left: 8px;
-    }
-    .del-ticket-btn:hover { color: #f87171; border-color: #ef4444; }
-
-    /* 振り返りタブ専用カード行 */
-    .review-item-row {
-      background: #1e293b; border: 1px solid #334155; border-radius: 8px;
-      padding: 10px 14px; margin-bottom: 8px;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
-    }
-    .review-item-row:last-child { margin-bottom: 0; }
-    .review-item-title { font-size: 13.5px; font-weight: bold; color: #f8fafc; }
-    .review-item-sub { font-size: 12px; color: #cbd5e1; margin-top: 3px; }
+    .tier-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .tier-table th { text-align: left; color: #94a3b8; padding: 6px; border-bottom: 1px solid #1e293b; }
+    .tier-table td { padding: 7px 6px; border-bottom: 1px solid #1e293b; }
 
     .hidden { display: none !important; }
-    .empty-msg {
-      background: #111827; border: 1px solid #1f2937; border-radius: 10px;
-      padding: 20px; text-align: center; color: #94a3b8; font-size: 14px;
-    }
+    .empty-msg { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 18px; text-align: center; color: #94a3b8; font-size: 13.5px; }
   </style>
 </head>
 <body>
@@ -440,95 +291,71 @@
       </div>
       <div class="header-controls">
         <select id="round-select" class="round-select"></select>
-        <button id="reload-btn" class="reload-btn" onclick="window.reloadLatestData()">⚡ 最新データを再読込</button>
+        <button id="reload-btn" class="reload-btn" onclick="window.reloadLatestData()">⚡ 再読込</button>
       </div>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" data-tab="tab1">⚡ ①直前予想</button>
-      <button class="tab-btn" data-tab="tab2">💰 ②500〜2000円提案</button>
-      <button class="tab-btn" data-tab="tab3">🏁 ③結果照合</button>
-      <button class="tab-btn" data-tab="tab4">📈 ④振り返り</button>
+      <button class="tab-btn active" data-tab="tab1">📝 ① 提案・マークシート</button>
+      <button class="tab-btn" data-tab="tab2">🏁 ② 結果・答え合わせ</button>
+      <button class="tab-btn" data-tab="tab3">📈 ③ 振り返り</button>
     </div>
 
-    <!-- タブ1: 直前予想 -->
+    <!-- タブ1: 提案・マークシート（最上部に即購入用シート、下部に細かい情報） -->
     <div id="tab1" class="tab-content">
-      <div class="summary-box">
-        <div class="summary-header">
-          <div class="summary-title">🏆 アンサンブル推論・最適買い目（【本命】と【もう1口】の2パターン）</div>
-          <button id="toggle-solid-btn" class="toggle-solid-btn">🔥 鉄板強調: ON</button>
-        </div>
-        <div class="legend-bar">
-          <span><span class="super-solid">1</span> ＝ 信頼度が高い鉄板枠（スタメン判明・主力先発優先）</span>
-          <span><span class="w-pair">0</span> ＝ もう1口で対抗へ変更（接戦＋スタメン未発表リスク優先カバー）</span>
-        </div>
-        <div class="pick-grid-2">
-          <div class="pick-group">
-            <div id="lbl-mini-a" class="pick-label">mini toto A組（1〜5枠｜1等のみ）</div>
-            <div id="val-mini-a" class="pick-values">-</div>
-          </div>
-          <div class="pick-group">
-            <div id="lbl-mini-b" class="pick-label">mini toto B組（6〜10枠｜1等のみ）</div>
-            <div id="val-mini-b" class="pick-values">-</div>
-          </div>
-        </div>
-        <div class="pick-group">
-          <div class="pick-label">toto GOAL3（第1〜3枠の計6枠｜1等:全6枠的中 / 2等:5枠的中・1枠外れ）</div>
-          <div id="val-goal3" class="pick-values">-</div>
-        </div>
-        <div class="pick-group">
-          <div id="lbl-toto-main" class="pick-label">［参考］toto 本戦（全13枠｜1等:全的中 / 2等:1枠外れ / 3等:2枠外れ）</div>
-          <div id="val-toto-main" class="pick-values">-</div>
-        </div>
-      </div>
-
-      <div class="section-heading">⚡ 多要素アンサンブル分析・試合別予測データ（スタメン発表＆試合状況リアルタイム反映）</div>
-      <div id="matches-list"></div>
-    </div>
-
-    <!-- タブ2: 500円 / 1,000円 / 1,500円 / 2,000円 提案 -->
-    <div id="tab2" class="tab-content hidden">
-      <div class="budget-bar">
-        <div id="plans-heading" class="section-heading" style="margin-bottom:0;">💰 予算500円プラン｜mini toto・GOAL3 おすすめ比較</div>
+      <!-- 1. 最上部：予算モード切替＆公式サイトリンク -->
+      <div class="top-control-bar">
         <div class="budget-switch">
-          <button id="btn-budget-500" class="budget-btn active" data-budget="500">💵 500円</button>
-          <button id="btn-budget-1000" class="budget-btn" data-budget="1000">💴 1,000円</button>
-          <button id="btn-budget-1500" class="budget-btn" data-budget="1500">💎 1,500円</button>
-          <button id="btn-budget-2000" class="budget-btn" data-budget="2000">👑 2,000円</button>
+          <button id="btn-budget-smart" class="budget-btn active" data-budget="smart">⚡ AI強弱マルチ</button>
+          <button id="btn-budget-500" class="budget-btn" data-budget="500">500円</button>
+          <button id="btn-budget-1000" class="budget-btn" data-budget="1000">1,000円</button>
+          <button id="btn-budget-1500" class="budget-btn" data-budget="1500">1,500円</button>
+          <button id="btn-budget-2000" class="budget-btn" data-budget="2000">2,000円</button>
+        </div>
+        <a href="https://www.toto-dream.com/" target="_blank" rel="noopener noreferrer" class="official-link-btn">🌐 toto公式サイトを開く ↗</a>
+      </div>
+
+      <!-- 2. 公式マークシート早見表（mini toto A/B・GOAL3・toto本戦の4種を即マーク可能に） -->
+      <div class="sheet-section-header">
+        <div class="sheet-section-title">📝 公式マークシート早見表（色付きマスをそのままタップして購入）</div>
+        <div class="sheet-legend">
+          <span class="oval on-s" style="width:auto; padding:0 6px; font-size:10px;">赤＝1点固定</span>
+          <span class="oval on-a" style="width:auto; padding:0 6px; font-size:10px;">青＝2点W</span>
+          <span class="oval on-b" style="width:auto; padding:0 6px; font-size:10px;">黄＝3点全押</span>
         </div>
       </div>
-      <div id="strategy-summary-box"></div>
-      <div id="plans-list"></div>
+      <div id="marksheet-summary-grid" class="marksheet-grid"></div>
+
+      <!-- 3. ここから下は細かい情報 -->
+      <div class="detail-divider">📊 ここから下は細かい情報（当選確率・想定配当・期待値・全試合データ）</div>
+      <div id="plans-detail-list"></div>
+      <div id="matches-detail-area"></div>
     </div>
 
-    <!-- タブ3: 結果照合 -->
-    <div id="tab3" class="tab-content hidden">
+    <!-- タブ2: 結果・答え合わせ -->
+    <div id="tab2" class="tab-content hidden">
       <div class="my-bet-panel">
         <div class="my-bet-title">
-          <span>📝 自分が購入した買い目の登録＆自動結果照合</span>
-          <button type="button" id="clear-my-bets-btn" class="clear-bets-btn">🗑️ この回の登録を全削除</button>
-        </div>
-        <div class="my-bet-desc">
-          実際に購入した買い目を入力（または下のワンタップボタンでAI提案プランから登録）しておくと、確定結果と自動照合して当選等級を判定します。<br />
-          ※マルチ買いは <code>1/0 - 2 - 1 - 1/2 - 2</code> のように <code>/</code> で区切って入力できます（シングルは <code>1-2-1-1-2</code>）。
+          <span>📝 購入した買い目の登録＆自動答え合わせ</span>
+          <button type="button" id="clear-my-bets-btn" class="clear-bets-btn">🗑️ 全削除</button>
         </div>
         <div class="my-bet-form">
           <select id="my-bet-type" class="my-bet-select">
-            <option value="mini_a">mini toto A組（5枠: 1/0/2）</option>
-            <option value="mini_b">mini toto B組（5枠: 1/0/2）</option>
-            <option value="goal3">toto GOAL3（6枠: 0/1/2/3）</option>
-            <option value="toto_main">toto 本戦（13枠: 1/0/2）</option>
+            <option value="mini_a">mini toto A組（5枠）</option>
+            <option value="mini_b">mini toto B組（5枠）</option>
+            <option value="goal3">toto GOAL3（6枠）</option>
+            <option value="toto_main">toto 本戦（13枠）</option>
           </select>
-          <input type="text" id="my-bet-picks" class="my-bet-input" placeholder="例: 1/0 - 2 - 1 - 1/2 - 2" />
-          <input type="text" id="my-bet-label" class="my-bet-memo" placeholder="メモ（任意: メインW等）" />
-          <button type="button" id="my-bet-add-btn" class="my-bet-add-btn">＋ 購入リストに追加</button>
+          <input type="text" id="my-bet-picks" class="my-bet-input" placeholder="例: 1 - 1/0 - 2 - 1/0/2 - 1" />
+          <input type="text" id="my-bet-label" class="my-bet-memo" placeholder="メモ（任意）" />
+          <button type="button" id="my-bet-add-btn" class="my-bet-add-btn">＋ 追加</button>
         </div>
         <div class="preset-bar">
-          <span style="font-size:11.5px; color:#94a3b8; font-weight:bold;">⚡ AI提案プランからワンタップ登録（現在選択中の予算）：</span>
-          <button type="button" class="preset-btn" data-preset="mini_a">＋ mini A組プランを登録</button>
-          <button type="button" class="preset-btn" data-preset="mini_b">＋ mini B組プランを登録</button>
-          <button type="button" class="preset-btn" data-preset="goal3">＋ GOAL3プランを登録</button>
-          <button type="button" class="preset-btn" data-preset="toto_main">＋ toto本戦プランを登録</button>
+          <span style="font-size:11px; color:#94a3b8; font-weight:bold;">⚡ 現在のマークシートをワンタップ登録：</span>
+          <button type="button" class="preset-btn" data-preset="mini_a">＋ mini A組</button>
+          <button type="button" class="preset-btn" data-preset="mini_b">＋ mini B組</button>
+          <button type="button" class="preset-btn" data-preset="goal3">＋ GOAL3</button>
+          <button type="button" class="preset-btn" data-preset="toto_main">＋ toto本戦</button>
         </div>
         <div id="my-bets-result-list"></div>
       </div>
@@ -536,27 +363,24 @@
       <div id="results-list"></div>
     </div>
 
-    <!-- タブ4: 振り返り -->
-    <div id="tab4" class="tab-content hidden">
-      <div class="section-heading">📈 今節のAI予測精度検証・波乱分析・次節への振り返りサマリー</div>
+    <!-- タブ3: 振り返り -->
+    <div id="tab3" class="tab-content hidden">
       <div id="review-list"></div>
     </div>
   </div>
 
   <!-- EMBEDDED_DATA_START -->
-  <script id="embedded-toto-data">window.__EMBEDDED_TOTO_DATA__ = {"current_round": "第1673回 (開催: 11月21日(土) / 公式スケジュール準拠)", "last_updated": "2026-11-19 12:58 JST", "model_params": {"home_adv": 1.12}, "club_stats": {"FC東京": {"div": "J1", "l_avg": 1.475, "atk": 2.459, "def_v": 0.667, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.091, "trend": "[J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗", "rk": 1}, "柏": {"div": "J1", "l_avg": 1.475, "atk": 2.26, "def_v": 1.315, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗", "rk": 2}, "広島": {"div": "J1", "l_avg": 1.475, "atk": 2.347, "def_v": 0.784, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗", "rk": 3}, "町田": {"div": "J1", "l_avg": 1.475, "atk": 2.101, "def_v": 0.828, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗", "rk": 4}, "神戸": {"div": "J1", "l_avg": 1.475, "atk": 1.655, "def_v": 1.064, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗", "rk": 5}, "鹿島": {"div": "J1", "l_avg": 1.475, "atk": 1.979, "def_v": 1.644, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗", "rk": 6}, "横浜FM": {"div": "J1", "l_avg": 1.475, "atk": 1.519, "def_v": 1.134, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗", "rk": 7}, "川崎F": {"div": "J1", "l_avg": 1.475, "atk": 1.937, "def_v": 1.63, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗", "rk": 8}, "浦和": {"div": "J1", "l_avg": 1.475, "atk": 1.64, "def_v": 1.916, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗", "rk": 9}, "岡山": {"div": "J1", "l_avg": 1.475, "atk": 1.187, "def_v": 1.581, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗", "rk": 10}, "C大阪": {"div": "J1", "l_avg": 1.475, "atk": 1.19, "def_v": 1.751, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.973, "trend": "[J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗", "rk": 11}, "京都": {"div": "J1", "l_avg": 1.475, "atk": 1.386, "def_v": 1.603, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗", "rk": 12}, "名古屋": {"div": "J1", "l_avg": 1.475, "atk": 1.131, "def_v": 1.64, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.973, "trend": "[J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗", "rk": 13}, "東京V": {"div": "J1", "l_avg": 1.475, "atk": 0.985, "def_v": 1.546, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗", "rk": 14}, "清水": {"div": "J1", "l_avg": 1.475, "atk": 0.826, "def_v": 1.687, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.915, "trend": "[J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗", "rk": 15}, "長崎": {"div": "J1", "l_avg": 1.475, "atk": 1.24, "def_v": 1.585, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗", "rk": 16}, "千葉": {"div": "J1", "l_avg": 1.475, "atk": 1.253, "def_v": 1.608, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗", "rk": 17}, "G大阪": {"div": "J1", "l_avg": 1.475, "atk": 1.239, "def_v": 1.626, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.988, "trend": "[J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗", "rk": 18}, "水戸": {"div": "J1", "l_avg": 1.475, "atk": 0.964, "def_v": 1.812, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.9, "trend": "[J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗", "rk": 19}, "福岡": {"div": "J1", "l_avg": 1.475, "atk": 1.085, "def_v": 1.74, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.915, "trend": "[J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗", "rk": 20}, "仙台": {"div": "J2", "l_avg": 1.3, "atk": 1.898, "def_v": 0.899, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.988, "trend": "[J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗", "rk": 1}, "大宮": {"div": "J2", "l_avg": 1.3, "atk": 1.957, "def_v": 1.042, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.091, "trend": "[J2 2位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗", "rk": 2}, "宮崎": {"div": "J2", "l_avg": 1.3, "atk": 1.815, "def_v": 0.991, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.12, "trend": "[J2 3位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗", "rk": 3}, "新潟": {"div": "J2", "l_avg": 1.3, "atk": 1.488, "def_v": 1.429, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J2 4位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗", "rk": 4}, "横浜FC": {"div": "J2", "l_avg": 1.3, "atk": 1.925, "def_v": 1.059, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J2 5位・優勝/昇格圏・直近5戦10/15pt] 勝点31/9勝4分4敗", "rk": 5}, "富山": {"div": "J2", "l_avg": 1.3, "atk": 1.865, "def_v": 1.02, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J2 6位・優勝/昇格圏・直近5戦9/15pt] 勝点31/9勝4分4敗", "rk": 6}, "磐田": {"div": "J2", "l_avg": 1.3, "atk": 1.289, "def_v": 1.026, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.061, "trend": "[J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗", "rk": 7}, "湘南": {"div": "J2", "l_avg": 1.3, "atk": 1.121, "def_v": 0.954, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J2 8位・直近5戦7/15pt] 勝点26/6勝8分3敗", "rk": 8}, "札幌": {"div": "J2", "l_avg": 1.3, "atk": 1.39, "def_v": 1.205, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.076, "trend": "[J2 9位・直近5戦12/15pt] 勝点26/8勝2分7敗", "rk": 9}, "いわき": {"div": "J2", "l_avg": 1.3, "atk": 1.601, "def_v": 1.369, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J2 10位・直近5戦8/15pt] 勝点24/7勝3分7敗", "rk": 10}, "鳥栖": {"div": "J2", "l_avg": 1.3, "atk": 1.122, "def_v": 1.185, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗", "rk": 11}, "大分": {"div": "J2", "l_avg": 1.3, "atk": 1.189, "def_v": 1.214, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J2 12位・直近5戦4/15pt] 勝点22/5勝7分5敗", "rk": 12}, "秋田": {"div": "J2", "l_avg": 1.3, "atk": 1.106, "def_v": 1.296, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J2 13位・直近5戦7/15pt] 勝点20/5勝5分7敗", "rk": 13}, "徳島": {"div": "J2", "l_avg": 1.3, "atk": 0.959, "def_v": 1.162, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.988, "trend": "[J2 14位・直近5戦6/15pt] 勝点20/6勝2分9敗", "rk": 14}, "藤枝": {"div": "J2", "l_avg": 1.3, "atk": 1.089, "def_v": 1.268, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗", "rk": 15}, "山形": {"div": "J2", "l_avg": 1.3, "atk": 0.959, "def_v": 1.114, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.988, "trend": "[J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗", "rk": 16}, "栃木C": {"div": "J2", "l_avg": 1.3, "atk": 1.552, "def_v": 1.741, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.944, "trend": "[J2 17位・残留争い・直近5戦3/15pt] 勝点15/4勝3分10敗", "rk": 17}, "八戸": {"div": "J2", "l_avg": 1.3, "atk": 0.864, "def_v": 1.591, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.915, "trend": "[J2 18位・残留争い・直近5戦1/15pt] 勝点15/4勝3分10敗", "rk": 18}, "今治": {"div": "J2", "l_avg": 1.3, "atk": 1.002, "def_v": 1.88, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.915, "trend": "[J2 19位・残留争い・直近5戦1/15pt] 勝点12/3勝3分11敗", "rk": 19}, "甲府": {"div": "J2", "l_avg": 1.3, "atk": 0.816, "def_v": 1.928, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.929, "trend": "[J2 20位・残留争い・直近5戦2/15pt] 勝点12/3勝3分11敗", "rk": 20}, "岐阜": {"div": "J3", "l_avg": 1.376, "atk": 1.793, "def_v": 0.897, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J3 1位・優勝/昇格圏・直近5戦10/15pt] 勝点32/10勝2分5敗", "rk": 1}, "奈良クラブ奈良": {"div": "J3", "l_avg": 1.376, "atk": 1.98, "def_v": 1.21, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J3 2位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗", "rk": 2}, "SC相模原相模原": {"div": "J3", "l_avg": 1.376, "atk": 1.633, "def_v": 0.944, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J3 3位・優勝/昇格圏・直近5戦10/15pt] 勝点31/9勝4分4敗", "rk": 3}, "山口": {"div": "J3", "l_avg": 1.376, "atk": 1.464, "def_v": 0.866, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J3 4位・優勝/昇格圏・直近5戦8/15pt] 勝点31/9勝4分4敗", "rk": 4}, "鹿児島": {"div": "J3", "l_avg": 1.376, "atk": 1.708, "def_v": 1.258, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.929, "trend": "[J3 5位・優勝/昇格圏・直近5戦2/15pt] 勝点31/9勝4分4敗", "rk": 5}, "FC大阪FC大阪": {"div": "J3", "l_avg": 1.376, "atk": 1.735, "def_v": 0.987, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J3 6位・優勝/昇格圏・直近5戦10/15pt] 勝点30/8勝6分3敗", "rk": 6}, "愛媛": {"div": "J3", "l_avg": 1.376, "atk": 1.723, "def_v": 1.509, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.944, "trend": "[J3 7位・直近5戦3/15pt] 勝点29/9勝2分6敗", "rk": 7}, "金沢": {"div": "J3", "l_avg": 1.376, "atk": 1.803, "def_v": 1.305, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.076, "trend": "[J3 8位・直近5戦12/15pt] 勝点26/8勝2分7敗", "rk": 8}, "長野": {"div": "J3", "l_avg": 1.376, "atk": 1.385, "def_v": 1.238, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J3 9位・直近5戦9/15pt] 勝点26/8勝2分7敗", "rk": 9}, "琉球": {"div": "J3", "l_avg": 1.376, "atk": 1.479, "def_v": 1.378, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J3 10位・直近5戦9/15pt] 勝点26/8勝2分7敗", "rk": 10}, "熊本": {"div": "J3", "l_avg": 1.376, "atk": 1.213, "def_v": 0.984, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 11位・直近5戦4/15pt] 勝点24/6勝6分5敗", "rk": 11}, "栃木SC": {"div": "J3", "l_avg": 1.376, "atk": 1.056, "def_v": 1.001, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.061, "trend": "[J3 12位・直近5戦11/15pt] 勝点24/6勝6分5敗", "rk": 12}, "北九州": {"div": "J3", "l_avg": 1.376, "atk": 1.471, "def_v": 1.525, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J3 13位・直近5戦9/15pt] 勝点22/6勝4分7敗", "rk": 13}, "福島ユナイテッドFC福島": {"div": "J3", "l_avg": 1.376, "atk": 1.815, "def_v": 1.794, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J3 14位・直近5戦10/15pt] 勝点21/6勝3分8敗", "rk": 14}, "松本": {"div": "J3", "l_avg": 1.376, "atk": 0.964, "def_v": 1.142, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 15位・直近5戦4/15pt] 勝点18/4勝6分7敗", "rk": 15}, "レイラック滋賀FC滋賀": {"div": "J3", "l_avg": 1.376, "atk": 1.19, "def_v": 1.676, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 16位・直近5戦4/15pt] 勝点18/5勝3分9敗", "rk": 16}, "鳥取": {"div": "J3", "l_avg": 1.376, "atk": 1.139, "def_v": 1.662, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 17位・残留争い・直近5戦4/15pt] 勝点18/5勝3分9敗", "rk": 17}, "讃岐": {"div": "J3", "l_avg": 1.376, "atk": 1.156, "def_v": 1.547, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J3 18位・残留争い・直近5戦7/15pt] 勝点15/4勝3分10敗", "rk": 18}, "群馬": {"div": "J3", "l_avg": 1.376, "atk": 1.028, "def_v": 1.922, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.944, "trend": "[J3 19位・残留争い・直近5戦3/15pt] 勝点13/4勝1分12敗", "rk": 19}, "高知": {"div": "J3", "l_avg": 1.376, "atk": 0.742, "def_v": 2.027, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 20位・残留争い・直近5戦4/15pt] 勝点9/2勝3分12敗", "rk": 20}}, "rounds": {"第1672回 (開催: 11月14日(土)・11月15日(日) / 公式スケジュール準拠)": {"title": "第1672回 | 開催日: 11月14日(土)・11月15日(日) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "町田", "a": "神戸", "v": [79.0, 12.2, 8.7], "h_xg": 1.47, "h_xga": 0.74, "a_xg": 0.74, "a_xga": 1.47, "analysis": "[11月15日(日) 14:00 | 天候:雨(7.6mm) | ✓スタメン発表済(14:00KO | H:基本布陣先発(+1%) / A:基本布陣先発(+1%))] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:神戸 [J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗"}, {"f": 2, "grp": "A", "h": "C大阪", "a": "浦和", "v": [35.7, 24.3, 40.0], "h_xg": 1.47, "h_xga": 1.57, "a_xg": 1.57, "a_xga": 1.47, "analysis": "[11月15日(日) 15:00 | 天候:雨(30.5mm) | ✓スタメン発表済(15:00KO | H:先発一部入替(-1%) / A:主力先発揃い(+2%))] H:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗 / A:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗"}, {"f": 3, "grp": "A", "h": "鹿島", "a": "横浜FM", "v": [40.2, 25.4, 34.4], "h_xg": 1.47, "h_xga": 1.34, "a_xg": 1.34, "a_xga": 1.47, "analysis": "[11月15日(日) 15:00 | 天候:雨(15.4mm) | ✓スタメン発表済(15:00KO | H:標準先発(±0%) / A:標準先発(±0%))] H:鹿島 [J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 4, "grp": "A", "h": "柏", "a": "川崎F", "v": [59.6, 19.4, 21.0], "h_xg": 2.45, "h_xga": 1.38, "a_xg": 1.38, "a_xga": 2.45, "analysis": "[11月15日(日) 17:00 | 天候:雨(10.4mm) | ✓スタメン発表済(17:00KO | H:主力先発揃い(+2%) / A:基本布陣先発(+1%))] H:柏 [J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗 / A:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗"}, {"f": 5, "grp": "A", "h": "新潟", "a": "宮崎", "v": [27.9, 23.6, 48.5], "h_xg": 1.28, "h_xga": 1.77, "a_xg": 1.77, "a_xga": 1.28, "analysis": "[11月14日(土) 14:00 | 天候:晴/曇 / 遠征949km | ✓スタメン発表済(14:00KO | H:基本布陣先発(+1%) / A:主力先発揃い(+5%))] H:新潟 [J2 4位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗 / A:宮崎 [J2 3位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗"}, {"f": 6, "grp": "B", "h": "大分", "a": "栃木C", "v": [47.9, 26.0, 26.1], "h_xg": 1.5, "h_xga": 1.03, "a_xg": 1.03, "a_xga": 1.5, "analysis": "[11月14日(土) 14:00 | 天候:雨(6.5mm) / 遠征810km | ✓スタメン発表済(14:00KO | H:先発一部入替(-2%) / A:先発一部入替(-2%))] H:大分 [J2 12位・直近5戦4/15pt] 勝点22/5勝7分5敗 / A:栃木C [J2 17位・残留争い・直近5戦3/15pt] 勝点15/4勝3分10敗"}, {"f": 7, "grp": "B", "h": "札幌", "a": "鳥栖", "v": [48.1, 29.4, 22.5], "h_xg": 1.26, "h_xga": 0.76, "a_xg": 0.76, "a_xga": 1.26, "analysis": "[11月15日(日) 13:00 | 天候:雨(7.3mm) / 遠征1431km | ✓スタメン発表済(13:00KO | H:主力先発揃い(+3%) / A:基本布陣先発(+1%))] H:札幌 [J2 9位・直近5戦12/15pt] 勝点26/8勝2分7敗 / A:鳥栖 [J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗"}, {"f": 8, "grp": "B", "h": "仙台", "a": "秋田", "v": [66.2, 21.9, 11.9], "h_xg": 1.82, "h_xga": 0.61, "a_xg": 0.61, "a_xga": 1.82, "analysis": "[11月15日(日) 13:05 | 天候:雨(14.3mm) | ✓スタメン発表済(13:05KO | H:標準先発(±0%) / A:標準先発(±0%))] H:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗 / A:秋田 [J2 13位・直近5戦7/15pt] 勝点20/5勝5分7敗"}, {"f": 9, "grp": "B", "h": "今治", "a": "磐田", "v": [18.5, 26.3, 55.2], "h_xg": 0.74, "h_xga": 1.5, "a_xg": 1.5, "a_xga": 0.74, "analysis": "[11月15日(日) 14:00 | 天候:雨(20.1mm) | ✓スタメン発表済(14:00KO | H:先発一部入替(-3%) / A:主力先発揃い(+2%))] H:今治 [J2 19位・残留争い・直近5戦1/15pt] 勝点12/3勝3分11敗 / A:磐田 [J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗"}, {"f": 10, "grp": "B", "h": "富山", "a": "徳島", "v": [62.0, 24.4, 13.6], "h_xg": 1.62, "h_xga": 0.6, "a_xg": 0.6, "a_xga": 1.62, "analysis": "[11月15日(日) 14:00 | 天候:雨(19.2mm) | ✓スタメン発表済(14:00KO | H:基本布陣先発(+1%) / A:標準先発(±0%))] H:富山 [J2 6位・優勝/昇格圏・直近5戦9/15pt] 勝点31/9勝4分4敗 / A:徳島 [J2 14位・直近5戦6/15pt] 勝点20/6勝2分9敗"}, {"f": 11, "grp": "C", "h": "八戸", "a": "いわき", "v": [79.0, 12.2, 8.7], "h_xg": 0.85, "h_xga": 1.57, "a_xg": 1.57, "a_xga": 0.85, "analysis": "[11月15日(日) 13:00 | 天候:雨(11.6mm) | ✓スタメン発表済(13:00KO | H:先発一部入替(-3%) / A:基本布陣先発(+1%))] H:八戸 [J2 18位・残留争い・直近5戦1/15pt] 勝点15/4勝3分10敗 / A:いわき [J2 10位・直近5戦8/15pt] 勝点24/7勝3分7敗"}, {"f": 12, "grp": "C", "h": "藤枝", "a": "甲府", "v": [62.4, 23.0, 14.6], "h_xg": 1.77, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 1.77, "analysis": "[11月14日(土) 14:00 | 天候:晴/曇 | ✓スタメン発表済(14:00KO | H:先発一部入替(-2%) / A:先発一部入替(-3%))] H:藤枝 [J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗 / A:甲府 [J2 20位・残留争い・直近5戦2/15pt] 勝点12/3勝3分11敗"}, {"f": 13, "grp": "C", "h": "大宮", "a": "山形", "v": [66.2, 20.9, 12.9], "h_xg": 1.95, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 1.95, "analysis": "[11月14日(土) 14:00 | 天候:晴/曇 | ✓スタメン発表済(14:00KO | H:主力先発揃い(+4%) / A:標準先発(±0%))] H:大宮 [J2 2位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗 / A:山形 [J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗"}], "actual_results": {"1": {"hs": 1, "as": 1, "res": "0"}, "2": {"hs": 1, "as": 1, "res": "0"}, "3": {"hs": 3, "as": 2, "res": "1"}, "4": {"hs": 5, "as": 4, "res": "1"}, "5": {"hs": 1, "as": 3, "res": "2"}, "6": {"hs": 1, "as": 6, "res": "2"}, "7": {"hs": 1, "as": 2, "res": "2"}, "8": {"hs": 4, "as": 0, "res": "1"}, "9": {"hs": 0, "as": 2, "res": "2"}, "10": {"hs": 2, "as": 3, "res": "2"}, "11": {"hs": 2, "as": 2, "res": "0"}, "12": {"hs": 1, "as": 0, "res": "1"}, "13": {"hs": 2, "as": 1, "res": "1"}}}, "第1673回 (開催: 11月21日(土) / 公式スケジュール準拠)": {"title": "第1673回 | 開催日: 11月21日(土) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "町田", "a": "長崎", "v": [78.6, 14.5, 6.9], "h_xg": 2.53, "h_xga": 0.59, "a_xg": 0.59, "a_xga": 2.53, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征935km | ⏳スタメン未発表(14:00KO)] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗"}, {"f": 2, "grp": "A", "h": "広島", "a": "横浜FM", "v": [67.5, 20.2, 12.3], "h_xg": 2.02, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 2.02, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征663km | ⏳スタメン未発表(14:00KO)] H:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 3, "grp": "A", "h": "京都", "a": "浦和", "v": [46.3, 21.9, 31.8], "h_xg": 2.02, "h_xga": 1.64, "a_xg": 1.64, "a_xga": 2.02, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:京都 [J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗 / A:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗"}, {"f": 4, "grp": "A", "h": "川崎F", "a": "福岡", "v": [69.5, 17.2, 13.3], "h_xg": 2.56, "h_xga": 1.01, "a_xg": 1.01, "a_xga": 2.56, "analysis": "[11月21日(土) 15:00 | 天候:晴/曇 / 遠征869km | ⏳スタメン未発表(15:00KO)] H:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗 / A:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗"}, {"f": 5, "grp": "A", "h": "G大阪", "a": "岡山", "v": [43.7, 25.7, 30.6], "h_xg": 1.49, "h_xga": 1.2, "a_xg": 1.2, "a_xga": 1.49, "analysis": "[11月21日(土) 16:00 | 天候:晴/曇 | ⏳スタメン未発表(16:00KO)] H:G大阪 [J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗 / A:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗"}, {"f": 6, "grp": "B", "h": "東京V", "a": "名古屋", "v": [39.3, 28.2, 32.5], "h_xg": 1.23, "h_xga": 1.09, "a_xg": 1.09, "a_xga": 1.23, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗 / A:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗"}, {"f": 7, "grp": "B", "h": "C大阪", "a": "FC東京", "v": [6.3, 13.4, 80.3], "h_xg": 0.6, "h_xga": 2.69, "a_xg": 2.69, "a_xga": 0.6, "analysis": "[11月21日(土) 15:00 | 天候:晴/曇 | ⏳スタメン未発表(15:00KO)] H:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗 / A:FC東京 [J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗"}, {"f": 8, "grp": "B", "h": "秋田", "a": "山形", "v": [39.1, 31.3, 29.6], "h_xg": 1.06, "h_xga": 0.88, "a_xg": 0.88, "a_xga": 1.06, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:秋田 [J2 13位・直近5戦7/15pt] 勝点20/5勝5分7敗 / A:山形 [J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗"}, {"f": 9, "grp": "B", "h": "宮崎", "a": "いわき", "v": [61.9, 20.5, 17.6], "h_xg": 2.14, "h_xga": 1.03, "a_xg": 1.03, "a_xga": 2.14, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征1021km | ⏳スタメン未発表(14:00KO)] H:宮崎 [J2 3位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗 / A:いわき [J2 10位・直近5戦8/15pt] 勝点24/7勝3分7敗"}, {"f": 10, "grp": "B", "h": "甲府", "a": "八戸", "v": [35.6, 28.8, 35.6], "h_xg": 1.12, "h_xga": 1.12, "a_xg": 1.12, "a_xga": 1.12, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征601km | ⏳スタメン未発表(14:00KO)] H:甲府 [J2 20位・残留争い・直近5戦2/15pt] 勝点12/3勝3分11敗 / A:八戸 [J2 18位・残留争い・直近5戦1/15pt] 勝点15/4勝3分10敗"}, {"f": 11, "grp": "C", "h": "富山", "a": "大分", "v": [24.7, 21.6, 53.7], "h_xg": 1.95, "h_xga": 0.82, "a_xg": 0.82, "a_xga": 1.95, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征633km | ⏳スタメン未発表(14:00KO)] H:富山 [J2 6位・優勝/昇格圏・直近5戦9/15pt] 勝点31/9勝4分4敗 / A:大分 [J2 12位・直近5戦4/15pt] 勝点22/5勝7分5敗"}, {"f": 12, "grp": "C", "h": "鳥栖", "a": "仙台", "v": [22.5, 26.7, 50.8], "h_xg": 0.87, "h_xga": 1.46, "a_xg": 1.46, "a_xga": 0.87, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征1082km | ⏳スタメン未発表(14:00KO)] H:鳥栖 [J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗 / A:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗"}, {"f": 13, "grp": "C", "h": "磐田", "a": "大宮", "v": [30.8, 26.4, 42.8], "h_xg": 1.16, "h_xga": 1.42, "a_xg": 1.42, "a_xga": 1.16, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:磐田 [J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗 / A:大宮 [J2 2位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗"}], "actual_results": {}}, "第1674回 (開催: 11月25日(水) / 公式スケジュール準拠)": {"title": "第1674回 | 開催日: 11月25日(水) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "千葉", "a": "名古屋", "v": [47.0, 25.4, 27.6], "h_xg": 1.56, "h_xga": 1.13, "a_xg": 1.13, "a_xga": 1.56, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:千葉 [J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗 / A:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗"}, {"f": 2, "grp": "A", "h": "岡山", "a": "清水", "v": [53.9, 26.0, 20.1], "h_xg": 1.52, "h_xga": 0.81, "a_xg": 0.81, "a_xga": 1.52, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗 / A:清水 [J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗"}, {"f": 3, "grp": "A", "h": "長崎", "a": "川崎F", "v": [33.7, 23.2, 43.1], "h_xg": 1.53, "h_xga": 1.76, "a_xg": 1.76, "a_xga": 1.53, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 / 遠征953km | ⏳スタメン未発表(19:00KO)] H:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗 / A:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗"}, {"f": 4, "grp": "A", "h": "水戸", "a": "東京V", "v": [36.1, 28.8, 35.1], "h_xg": 1.13, "h_xga": 1.11, "a_xg": 1.11, "a_xga": 1.13, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:水戸 [J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗 / A:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗"}, {"f": 5, "grp": "A", "h": "福岡", "a": "横浜FM", "v": [23.2, 26.0, 50.8], "h_xg": 0.93, "h_xga": 1.52, "a_xg": 1.52, "a_xga": 0.93, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 / 遠征864km | ⏳スタメン未発表(19:00KO)] H:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 6, "grp": "B", "h": "FC東京", "a": "広島", "v": [49.3, 26.6, 24.1], "h_xg": 1.46, "h_xga": 0.93, "a_xg": 0.93, "a_xga": 1.46, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 / 遠征658km | ⏳スタメン未発表(19:00KO)] H:FC東京 [J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗 / A:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗"}, {"f": 7, "grp": "B", "h": "浦和", "a": "C大阪", "v": [53.9, 21.1, 25.0], "h_xg": 2.18, "h_xga": 1.42, "a_xg": 1.42, "a_xga": 2.18, "analysis": "[11月25日(水) 19:30 | 天候:晴/曇 | ⏳スタメン未発表(19:30KO)] H:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗 / A:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗"}, {"f": 8, "grp": "B", "h": "札幌", "a": "藤枝", "v": [52.8, 26.1, 21.1], "h_xg": 1.52, "h_xga": 0.85, "a_xg": 0.85, "a_xga": 1.52, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 / 遠征946km | ⏳スタメン未発表(19:00KO)] H:札幌 [J2 9位・直近5戦12/15pt] 勝点26/8勝2分7敗 / A:藤枝 [J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗"}, {"f": 9, "grp": "B", "h": "山形", "a": "磐田", "v": [29.4, 32.0, 38.6], "h_xg": 0.85, "h_xga": 1.02, "a_xg": 1.02, "a_xga": 0.85, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:山形 [J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗 / A:磐田 [J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗"}, {"f": 10, "grp": "B", "h": "鳥栖", "a": "大分", "v": [39.6, 29.3, 31.1], "h_xg": 1.17, "h_xga": 1.0, "a_xg": 1.0, "a_xga": 1.17, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:鳥栖 [J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗 / A:大分 [J2 12位・直近5戦4/15pt] 勝点22/5勝7分5敗"}, {"f": 11, "grp": "C", "h": "いわき", "a": "富山", "v": [30.2, 23.2, 46.6], "h_xg": 1.41, "h_xga": 1.81, "a_xg": 1.81, "a_xga": 1.41, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:いわき [J2 10位・直近5戦8/15pt] 勝点24/7勝3分7敗 / A:富山 [J2 6位・優勝/昇格圏・直近5戦9/15pt] 勝点31/9勝4分4敗"}, {"f": 12, "grp": "C", "h": "横浜FC", "a": "仙台", "v": [39.1, 24.9, 36.0], "h_xg": 1.49, "h_xga": 1.42, "a_xg": 1.42, "a_xga": 1.49, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:横浜FC [J2 5位・優勝/昇格圏・直近5戦10/15pt] 勝点31/9勝4分4敗 / A:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗"}, {"f": 13, "grp": "C", "h": "大宮", "a": "徳島", "v": [66.4, 20.8, 12.8], "h_xg": 1.96, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 1.96, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:大宮 [J2 2位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗 / A:徳島 [J2 14位・直近5戦6/15pt] 勝点20/6勝2分9敗"}], "actual_results": {}}, "第1675回 (開催: 11月28日(土)・11月29日(日) / 公式スケジュール準拠)": {"title": "第1675回 | 開催日: 11月28日(土)・11月29日(日) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "京都", "a": "C大阪", "v": [52.1, 23.1, 24.8], "h_xg": 1.84, "h_xga": 1.19, "a_xg": 1.19, "a_xga": 1.84, "analysis": "[11月28日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:京都 [J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗 / A:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗"}, {"f": 2, "grp": "A", "h": "柏", "a": "広島", "v": [28.5, 23.2, 48.3], "h_xg": 1.35, "h_xga": 1.83, "a_xg": 1.83, "a_xga": 1.35, "analysis": "[11月28日(土) 16:00 | 天候:晴/曇 / 遠征702km | ⏳スタメン未発表(16:00KO)] H:柏 [J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗 / A:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗"}, {"f": 3, "grp": "A", "h": "横浜FM", "a": "FC東京", "v": [16.3, 23.5, 60.2], "h_xg": 0.77, "h_xga": 1.74, "a_xg": 1.74, "a_xga": 0.77, "analysis": "[11月29日(日) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗 / A:FC東京 [J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗"}, {"f": 4, "grp": "A", "h": "水戸", "a": "長崎", "v": [33.2, 27.4, 39.4], "h_xg": 1.16, "h_xga": 1.29, "a_xg": 1.29, "a_xga": 1.16, "analysis": "[11月29日(日) 14:00 | 天候:晴/曇 / 遠征1044km | ⏳スタメン未発表(14:00KO)] H:水戸 [J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗 / A:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗"}, {"f": 5, "grp": "A", "h": "名古屋", "a": "福岡", "v": [47.1, 26.2, 26.7], "h_xg": 1.49, "h_xga": 1.05, "a_xg": 1.05, "a_xga": 1.49, "analysis": "[11月29日(日) 15:00 | 天候:晴/曇 / 遠征638km | ⏳スタメン未発表(15:00KO)] H:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗 / A:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗"}, {"f": 6, "grp": "B", "h": "清水", "a": "浦和", "v": [26.6, 24.0, 49.4], "h_xg": 1.2, "h_xga": 1.73, "a_xg": 1.73, "a_xga": 1.2, "analysis": "[11月28日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:清水 [J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗 / A:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗"}, {"f": 7, "grp": "B", "h": "鹿島", "a": "岡山", "v": [63.2, 19.2, 17.6], "h_xg": 2.38, "h_xga": 1.16, "a_xg": 1.16, "a_xga": 2.38, "analysis": "[11月28日(土) 15:00 | 天候:晴/曇 / 遠征626km | ⏳スタメン未発表(15:00KO)] H:鹿島 [J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗 / A:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗"}, {"f": 8, "grp": "B", "h": "神戸", "a": "千葉", "v": [64.5, 20.8, 14.7], "h_xg": 2.02, "h_xga": 0.83, "a_xg": 0.83, "a_xga": 2.02, "analysis": "[11月28日(土) 15:00 | 天候:晴/曇 | ⏳スタメン未発表(15:00KO)] H:神戸 [J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗 / A:千葉 [J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗"}, {"f": 9, "grp": "B", "h": "町田", "a": "東京V", "v": [76.3, 17.1, 6.6], "h_xg": 2.12, "h_xga": 0.44, "a_xg": 0.44, "a_xga": 2.12, "analysis": "[11月29日(日) 16:00 | 天候:雨(6.6mm) | ⏳スタメン未発表(16:00KO)] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗"}, {"f": 10, "grp": "B", "h": "川崎F", "a": "G大阪", "v": [59.2, 21.3, 19.5], "h_xg": 2.06, "h_xga": 1.08, "a_xg": 1.08, "a_xga": 2.06, "analysis": "[11月29日(日) 15:00 | 天候:雨(7.8mm) | ⏳スタメン未発表(15:00KO)] H:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗 / A:G大阪 [J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗"}, {"f": 11, "grp": "C", "h": "八戸", "a": "藤枝", "v": [28.6, 32.5, 38.9], "h_xg": 0.81, "h_xga": 1.0, "a_xg": 1.0, "a_xga": 0.81, "analysis": "[11月29日(日) 13:00 | 天候:雨(8.6mm) / 遠征690km | ⏳スタメン未発表(13:00KO)] H:八戸 [J2 18位・残留争い・直近5戦1/15pt] 勝点15/4勝3分10敗 / A:藤枝 [J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗"}, {"f": 12, "grp": "C", "h": "宮崎", "a": "鳥栖", "v": [62.1, 22.3, 15.6], "h_xg": 1.85, "h_xga": 0.79, "a_xg": 0.79, "a_xga": 1.85, "analysis": "[11月29日(日) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:宮崎 [J2 3位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗 / A:鳥栖 [J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗"}, {"f": 13, "grp": "C", "h": "仙台", "a": "山形", "v": [63.1, 24.8, 12.1], "h_xg": 1.57, "h_xga": 0.52, "a_xg": 0.52, "a_xga": 1.57, "analysis": "[11月29日(日) 14:00 | 天候:雨(9.8mm) | ⏳スタメン未発表(14:00KO)] H:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗 / A:山形 [J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗"}], "actual_results": {}}, "第1676回 (開催: 12月5日(土)・12月6日(日) / 公式スケジュール準拠)": {"title": "第1676回 | 開催日: 12月5日(土)・12月6日(日) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "千葉", "a": "鹿島", "v": [30.8, 22.1, 47.1], "h_xg": 1.56, "h_xga": 1.98, "a_xg": 1.98, "a_xga": 1.56, "analysis": "[12月5日(土) 13:00 | 天候:晴/曇 | ⏳スタメン未発表(13:00KO)] H:千葉 [J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗 / A:鹿島 [J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗"}, {"f": 2, "grp": "A", "h": "浦和", "a": "名古屋", "v": [52.7, 21.8, 25.5], "h_xg": 2.04, "h_xga": 1.35, "a_xg": 1.35, "a_xga": 2.04, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗 / A:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗"}, {"f": 3, "grp": "A", "h": "東京V", "a": "京都", "v": [33.3, 26.8, 39.9], "h_xg": 1.2, "h_xga": 1.34, "a_xg": 1.34, "a_xga": 1.2, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗 / A:京都 [J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗"}, {"f": 4, "grp": "A", "h": "C大阪", "a": "水戸", "v": [50.8, 24.8, 24.4], "h_xg": 1.64, "h_xga": 1.05, "a_xg": 1.05, "a_xga": 1.64, "analysis": "[12月5日(土) 15:00 | 天候:晴/曇 | ⏳スタメン未発表(15:00KO)] H:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗 / A:水戸 [J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗"}, {"f": 5, "grp": "A", "h": "長崎", "a": "清水", "v": [57.2, 25.2, 17.6], "h_xg": 1.59, "h_xga": 0.75, "a_xg": 0.75, "a_xga": 1.59, "analysis": "[12月5日(土) 15:00 | 天候:晴/曇 / 遠征832km | ⏳スタメン未発表(15:00KO)] H:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗 / A:清水 [J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗"}, {"f": 6, "grp": "B", "h": "広島", "a": "神戸", "v": [62.6, 21.9, 15.5], "h_xg": 1.9, "h_xga": 0.81, "a_xg": 0.81, "a_xga": 1.9, "analysis": "[12月6日(日) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗 / A:神戸 [J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗"}, {"f": 7, "grp": "B", "h": "G大阪", "a": "横浜FM", "v": [26.4, 25.7, 47.9], "h_xg": 1.07, "h_xga": 1.54, "a_xg": 1.54, "a_xga": 1.07, "analysis": "[12月6日(日) 15:00 | 天候:晴/曇 | ⏳スタメン未発表(15:00KO)] H:G大阪 [J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 8, "grp": "B", "h": "柏", "a": "福岡", "v": [79.1, 13.1, 7.8], "h_xg": 2.99, "h_xga": 0.82, "a_xg": 0.82, "a_xga": 2.99, "analysis": "[12月6日(日) 16:00 | 天候:晴/曇 / 遠征904km | ⏳スタメン未発表(16:00KO)] H:柏 [J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗 / A:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗"}, {"f": 9, "grp": "B", "h": "町田", "a": "岡山", "v": [78.7, 14.5, 6.8], "h_xg": 2.52, "h_xga": 0.58, "a_xg": 0.58, "a_xga": 2.52, "analysis": "[12月6日(日) 16:00 | 天候:晴/曇 / 遠征512km | ⏳スタメン未発表(16:00KO)] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗"}, {"f": 10, "grp": "B", "h": "札幌", "a": "新潟", "v": [48.8, 24.0, 27.2], "h_xg": 1.71, "h_xga": 1.21, "a_xg": 1.21, "a_xga": 1.71, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 / 遠征604km | ⏳スタメン未発表(14:00KO)] H:札幌 [J2 9位・直近5戦12/15pt] 勝点26/8勝2分7敗 / A:新潟 [J2 4位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗"}, {"f": 11, "grp": "C", "h": "藤枝", "a": "秋田", "v": [42.5, 29.1, 28.4], "h_xg": 1.22, "h_xga": 0.94, "a_xg": 0.94, "a_xga": 1.22, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 / 遠征564km | ⏳スタメン未発表(14:00KO)] H:藤枝 [J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗 / A:秋田 [J2 13位・直近5戦7/15pt] 勝点20/5勝5分7敗"}, {"f": 12, "grp": "C", "h": "徳島", "a": "磐田", "v": [28.7, 31.5, 39.8], "h_xg": 0.85, "h_xga": 1.06, "a_xg": 1.06, "a_xga": 0.85, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:徳島 [J2 14位・直近5戦6/15pt] 勝点20/6勝2分9敗 / A:磐田 [J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗"}, {"f": 13, "grp": "C", "h": "仙台", "a": "湘南", "v": [57.5, 25.5, 17.0], "h_xg": 1.56, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 1.56, "analysis": "[12月6日(日) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗 / A:湘南 [J2 8位・直近5戦7/15pt] 勝点26/6勝8分3敗"}], "actual_results": {}}}};</script>
+  <script id="embedded-toto-data">window.__EMBEDDED_TOTO_DATA__ = null;</script>
   <!-- EMBEDDED_DATA_END -->
 
   <script>
     (function() {
-      var EXPECTED_HASH = "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60";
+      var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
       var appData = window.__EMBEDDED_TOTO_DATA__ || null;
       var currentRoundKey = "";
-      var selectedBudget = 500;
-      var highlightSolid = true;
+      var selectedMode = "smart";
       var lastAnalyzedCache = [];
 
-      /* 公式確定済み結果の内蔵フォールバック（data.json側が空でも即座に結果照合・振り返りを表示） */
       var FALLBACK_ACTUAL_RESULTS = {
         "1672": {
           "1": { "hs": 1, "as": 1, "res": "0" },
@@ -576,11 +400,6 @@
       };
 
       window.reloadLatestData = function() {
-        var btn = document.getElementById("reload-btn");
-        if (btn) {
-          btn.textContent = "⏳ 強制再読込中...";
-          btn.style.background = "#059669";
-        }
         window.location.replace(window.location.pathname + "?r=" + Date.now());
       };
 
@@ -600,7 +419,7 @@
       }
 
       function initAuth() {
-        if (EXPECTED_HASH === "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60" || EXPECTED_HASH === "") {
+        if (EXPECTED_HASH === "__INJECTED_PIN_HASH__" || EXPECTED_HASH === "") {
           unlockApp();
           return;
         }
@@ -629,23 +448,8 @@
       function formatFreqText(probPct) {
         if (!probPct || probPct <= 0) return "";
         var times = Math.max(1.1, 100 / probPct);
-        if (times >= 10000) {
-          return "（約" + (times / 10000).toFixed(1) + "万回に1回）";
-        }
-        if (times >= 10) {
-          return "（約" + Math.round(times).toLocaleString("ja-JP") + "回に1回）";
-        }
-        return "（約" + times.toFixed(1) + "回に1回）";
-      }
-
-      function formatPayoutRange(minYen, maxYen, isManUnit) {
-        if (isManUnit && minYen >= 100000) {
-          return "約 " + Math.round(minYen / 10000).toLocaleString("ja-JP") + "万 〜 " + Math.round(maxYen / 10000).toLocaleString("ja-JP") + "万円";
-        }
-        if (maxYen >= 100000 && minYen >= 10000) {
-          return "約 " + (minYen / 10000).toFixed(1).replace(/\.0$/, "") + "万 〜 " + Math.round(maxYen / 10000).toLocaleString("ja-JP") + "万円";
-        }
-        return "約 " + formatYen(minYen) + " 〜 " + formatYen(maxYen);
+        if (times >= 10) return "約" + Math.round(times).toLocaleString("ja-JP") + "回に1回";
+        return "約" + times.toFixed(1) + "回に1回";
       }
 
       function getRoundIdNumber(roundKey) {
@@ -678,9 +482,7 @@
         try {
           var raw = localStorage.getItem("toto_my_bets_" + rid);
           return raw ? JSON.parse(raw) : [];
-        } catch (e) {
-          return [];
-        }
+        } catch (e) { return []; }
       }
 
       function saveMyBets(roundKey, list) {
@@ -696,11 +498,8 @@
           var mUp = lastUpdatedStr.match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
           if (mUp) {
             var parsedUp = new Date(
-              parseInt(mUp[1], 10),
-              parseInt(mUp[2], 10) - 1,
-              parseInt(mUp[3], 10),
-              parseInt(mUp[4], 10),
-              parseInt(mUp[5], 10)
+              parseInt(mUp[1], 10), parseInt(mUp[2], 10) - 1, parseInt(mUp[3], 10),
+              parseInt(mUp[4], 10), parseInt(mUp[5], 10)
             );
             if (parsedUp > refDate) refDate = parsedUp;
           }
@@ -711,14 +510,8 @@
           var txt = m.analysis || "";
           var md = txt.match(/(\d{1,2})月(\d{1,2})日/);
           if (!md) return null;
-          var mon = parseInt(md[1], 10);
-          var day = parseInt(md[2], 10);
-          return {
-            tag: mon + "月" + day + "日",
-            mon: mon,
-            day: day,
-            val: mon * 100 + day
-          };
+          var mon = parseInt(md[1], 10), day = parseInt(md[2], 10);
+          return { tag: mon + "月" + day + "日", mon: mon, day: day, val: mon * 100 + day };
         });
 
         var validDates = rawDates.filter(function(d) { return d !== null; });
@@ -727,12 +520,9 @@
 
         var uniqueMap = {};
         validDates.forEach(function(d) {
-          var sortKey = (hasDec && hasJan && d.mon === 1) ? (1300 + d.day) : d.val;
-          uniqueMap[d.tag] = sortKey;
+          uniqueMap[d.tag] = (hasDec && hasJan && d.mon === 1) ? (1300 + d.day) : d.val;
         });
-        var sortedTags = Object.keys(uniqueMap).sort(function(a, b) {
-          return uniqueMap[a] - uniqueMap[b];
-        });
+        var sortedTags = Object.keys(uniqueMap).sort(function(a, b) { return uniqueMap[a] - uniqueMap[b]; });
         var firstDateTag = sortedTags.length > 0 ? sortedTags[0] : "";
         var hasMultipleDays = sortedTags.length >= 2;
 
@@ -753,28 +543,16 @@
           var hasAnnouncedText = (txt.indexOf("スタメン発表済") !== -1) || (hm !== null) || (am !== null);
           var hasUnannouncedText = (txt.indexOf("スタメン未発表") !== -1);
 
-          var matchState = "before";
           var timeBasedAnnounced = false;
-
           if (dInfo) {
             var koH = 14, koM = 0;
             if (koStr) {
               var parts = koStr.split(":");
-              koH = parseInt(parts[0], 10);
-              koM = parseInt(parts[1], 10);
+              koH = parseInt(parts[0], 10); koM = parseInt(parts[1], 10);
             }
             var koDate = new Date(refYear, dInfo.mon - 1, dInfo.day, koH, koM);
             var diffMinutes = (refDate.getTime() - koDate.getTime()) / 60000;
-
-            if (diffMinutes >= 0 && diffMinutes <= 125) {
-              matchState = "live";
-              timeBasedAnnounced = true;
-            } else if (diffMinutes > 125) {
-              matchState = "finished";
-              timeBasedAnnounced = true;
-            } else if (diffMinutes >= -130) {
-              timeBasedAnnounced = true;
-            }
+            if (diffMinutes >= -130) timeBasedAnnounced = true;
           }
 
           var isLineupAnnounced = hasAnnouncedText || (!hasUnannouncedText && timeBasedAnnounced);
@@ -786,7 +564,6 @@
             isSecondCalendarDay: isSecondCalendarDay,
             isLineupAnnounced: isLineupAnnounced,
             isUnannouncedRisk: isUnannouncedRisk,
-            matchState: matchState,
             hPct: hPct,
             aPct: aPct
           };
@@ -801,9 +578,8 @@
         return [p0, p1, p2, p3];
       }
 
-      function calc1x2DynamicDC(hLam, aLam, mktV, ctx) {
-        var effHLam = hLam;
-        var effALam = aLam;
+      function calc1x2DynamicDC(hLam, aLam, mktV, ctx, labelTxt, fNum) {
+        var effHLam = hLam, effALam = aLam;
         if (ctx && ctx.isLineupAnnounced && (ctx.hPct !== 0 || ctx.aPct !== 0)) {
           effHLam = Math.max(0.25, Math.min(3.50, hLam * (1 + (ctx.hPct * 0.008))));
           effALam = Math.max(0.25, Math.min(3.50, aLam * (1 + (ctx.aPct * 0.008))));
@@ -834,9 +610,7 @@
           aiProbMap["0"] = aiProbMap["0"] * 0.94 + 0.025;
           aiProbMap["2"] = aiProbMap["2"] * 0.94 + 0.015;
           var s2 = aiProbMap["1"] + aiProbMap["0"] + aiProbMap["2"];
-          aiProbMap["1"] /= s2;
-          aiProbMap["0"] /= s2;
-          aiProbMap["2"] /= s2;
+          aiProbMap["1"] /= s2; aiProbMap["0"] /= s2; aiProbMap["2"] /= s2;
         }
 
         var mktProbMap;
@@ -848,9 +622,7 @@
             "2": Math.max(0.05, mktV[2] / ms)
           };
         } else {
-          var b1 = Math.pow(aiProbMap["1"], 1.18);
-          var b0 = Math.pow(aiProbMap["0"], 0.92);
-          var b2 = Math.pow(aiProbMap["2"], 1.18);
+          var b1 = Math.pow(aiProbMap["1"], 1.18), b0 = Math.pow(aiProbMap["0"], 0.92), b2 = Math.pow(aiProbMap["2"], 1.18);
           var bs = b1 + b0 + b2;
           mktProbMap = { "1": b1 / bs, "0": b0 / bs, "2": b2 / bs };
         }
@@ -867,29 +639,37 @@
           else if (arr[0].code === "2") favLineupBoost = ctx.aPct - ctx.hPct;
         }
 
+        var prob1 = arr[0].prob, prob2 = arr[1].prob, prob3 = arr[2].prob;
+        var diff = prob1 - prob2;
+        var isUnann = !!(ctx && ctx.isUnannouncedRisk);
+
+        var rank = "B";
+        var canBeSolid = (!isUnann || (prob1 >= 65 && diff >= 35)) && (favLineupBoost >= 0);
+        if (canBeSolid && prob1 >= 55 && diff >= 25) {
+          rank = "S";
+        } else if ((prob1 + prob2) >= 79 && diff >= 7 && !isUnann) {
+          rank = "A";
+        } else if ((prob1 + prob2) >= 83 && diff >= 10) {
+          rank = "A";
+        } else {
+          rank = "B";
+        }
+
         return {
-          top1: arr[0].code,
-          top2: arr[1].code,
-          top3: arr[2].code,
-          p1: arr[0].prob,
-          p2: arr[1].prob,
-          p3: arr[2].prob,
-          diff: arr[0].prob - arr[1].prob,
+          fNum: fNum,
+          label: labelTxt || "",
+          top1: arr[0].code, top2: arr[1].code, top3: arr[2].code,
+          p1: prob1, p2: prob2, p3: prob3, diff: diff,
+          rank: rank,
           isDay2: !!(ctx && ctx.isSecondCalendarDay),
           isLineupAnnounced: !!(ctx && ctx.isLineupAnnounced),
-          isUnannouncedRisk: !!(ctx && ctx.isUnannouncedRisk),
+          isUnannouncedRisk: isUnann,
           favLineupBoost: favLineupBoost,
-          aiMap: aiProbMap,
-          mktMap: mktProbMap,
-          raw: {
-            "1": Math.round(aiProbMap["1"] * 100),
-            "0": Math.round(aiProbMap["0"] * 100),
-            "2": Math.round(aiProbMap["2"] * 100)
-          }
+          aiMap: aiProbMap, mktMap: mktProbMap
         };
       }
 
-      function calcGoalTop2(lam, ctx, isHome) {
+      function calcGoalTop2(lam, ctx, isHome, teamName, fNum) {
         var effLam = lam;
         if (ctx && ctx.isLineupAnnounced) {
           var pct = isHome ? ctx.hPct : ctx.aPct;
@@ -912,20 +692,32 @@
           { code: "3", prob: Math.round(ps[3] * 100) }
         ].sort(function(a, b) { return b.prob - a.prob; });
 
+        var prob1 = arr[0].prob, prob2 = arr[1].prob, prob3 = arr[2].prob;
+        var diff = prob1 - prob2;
+        var isUnann = !!(ctx && ctx.isUnannouncedRisk);
+
+        var rank = "B";
+        if (!isUnann) {
+          if (arr[0].code === "3" && prob1 >= 40 && diff >= 12) rank = "S";
+          else if (prob1 >= 42 && diff >= 15) rank = "S";
+          else if (prob1 >= 39 && diff >= 14) rank = "S";
+        }
+        if (rank !== "S") {
+          if ((prob1 + prob2) >= 67) rank = "A";
+          else rank = "B";
+        }
+
         return {
-          top1: arr[0].code,
-          top2: arr[1].code,
-          top3: arr[2].code,
-          p1: arr[0].prob,
-          p2: arr[1].prob,
-          p3: arr[2].prob,
-          diff: arr[0].prob - arr[1].prob,
+          fNum: fNum,
+          label: teamName || "",
+          top1: arr[0].code, top2: arr[1].code, top3: arr[2].code,
+          p1: prob1, p2: prob2, p3: prob3, diff: diff,
+          rank: rank,
           isDay2: !!(ctx && ctx.isSecondCalendarDay),
           isLineupAnnounced: !!(ctx && ctx.isLineupAnnounced),
-          isUnannouncedRisk: !!(ctx && ctx.isUnannouncedRisk),
+          isUnannouncedRisk: isUnann,
           favLineupBoost: 0,
-          aiMap: aiMap,
-          mktMap: mktMap
+          aiMap: aiMap, mktMap: mktMap
         };
       }
 
@@ -933,55 +725,12 @@
         return items
           .map(function(it, idx) {
             var unannouncedBonus = it.isUnannouncedRisk ? 8 : 0;
-            var lineupConfidence = (it.favLineupBoost || 0) * 1.2;
-            return { idx: idx, coverScore: (it.p2 * 2 - it.diff) + unannouncedBonus - lineupConfidence };
+            var sPenalty = it.rank === "S" ? -50 : 0;
+            return { idx: idx, coverScore: (it.p2 * 2 - it.diff) + unannouncedBonus + sPenalty };
           })
           .sort(function(a, b) { return b.coverScore - a.coverScore; })
           .slice(0, count)
           .map(function(x) { return x.idx; });
-      }
-
-      function selectSuperSolidIndices(items, count, ignoreToggle) {
-        if (!ignoreToggle && !highlightSolid) return [];
-        if (!items || items.length === 0) return [];
-        return items
-          .map(function(it, idx) {
-            var statusBonus = it.isUnannouncedRisk ? -6 : (it.isLineupAnnounced ? 4 : 0);
-            var lineupBoost = (it.favLineupBoost || 0) * 1.5;
-            return { idx: idx, solidScore: (it.p1 * 1.5 + it.diff) + statusBonus + lineupBoost };
-          })
-          .sort(function(a, b) { return b.solidScore - a.solidScore; })
-          .slice(0, count)
-          .map(function(x) { return x.idx; });
-      }
-
-      function renderPickToken(code, idx, solidSet) {
-        if (solidSet.indexOf(idx) !== -1) {
-          return '<span class="super-solid" title="鉄板本命（スタメン確認済・高信頼枠）">' + code + '</span>';
-        }
-        return '<span>' + code + '</span>';
-      }
-
-      function formatTwoLines(items, flipCount, solidCount) {
-        if (!items || items.length === 0) return "-";
-        var flipSet = selectBestCoverIndices(items, flipCount);
-        var solidSet = selectSuperSolidIndices(items, solidCount, false);
-
-        var line1 = items.map(function(it, idx) {
-          return renderPickToken(it.top1, idx, solidSet);
-        }).join(" － ");
-
-        var line2 = items.map(function(it, idx) {
-          if (flipSet.indexOf(idx) !== -1) {
-            return '<span class="w-pair" title="対抗へ変更（接戦・未発表リスク優先カバー）">' + it.top2 + '</span>';
-          }
-          return renderPickToken(it.top1, idx, solidSet);
-        }).join(" － ");
-
-        return (
-          '<div><span class="line-tag-main">本命</span>' + line1 + '</div>' +
-          '<div><span class="line-tag-sub">もう1口</span>' + line2 + '</div>'
-        );
       }
 
       function runMissDP(probList) {
@@ -992,642 +741,350 @@
           var next0 = dp0 * q;
           var next1 = dp1 * q + dp0 * u;
           var next2 = dp2 * q + dp1 * u;
-          dp0 = next0;
-          dp1 = next1;
-          dp2 = next2;
+          dp0 = next0; dp1 = next1; dp2 = next2;
         }
         return [dp0, dp1, dp2];
       }
 
-      function evaluatePlanMetrics(items, budget, gameType) {
-        var coverOrder = selectBestCoverIndices(items, items.length);
-        var wCount = 2;
-        if (budget === 1000 || budget === 1500) wCount = 3;
-        else if (budget === 2000) wCount = 4;
+      function evaluatePlanMetrics(items, modeOrBudget, gameType) {
+        var sCount = items.filter(function(it) { return it.rank === "S"; }).length;
+        var aCount = items.filter(function(it) { return it.rank === "A"; }).length;
 
-        var wSet = coverOrder.slice(0, wCount);
-        var subMulti = null;
-        var singleMods = [];
-
-        if (budget === 500) {
-          if (coverOrder.length >= 3) {
-            singleMods.push({ idx: coverOrder[2], code: items[coverOrder[2]].top2, tier: "対抗" });
+        var isSkipRecommended = false;
+        var skipReason = "";
+        if (gameType === "mini_a" || gameType === "mini_b") {
+          if (sCount === 0 && aCount <= 2) {
+            isSkipRecommended = true;
+            skipReason = "鉄板0枠のため見送り推奨（大混戦）";
+          } else if (sCount === 1 && aCount === 0) {
+            isSkipRecommended = true;
+            skipReason = "鉄板1枠のみで残り混戦のため見送り推奨";
           }
-        } else if (budget === 1000) {
-          if (coverOrder.length >= 4) {
-            singleMods.push({ idx: coverOrder[3], code: items[coverOrder[3]].top2, tier: "対抗" });
-          }
-          if (coverOrder.length >= 5) {
-            singleMods.push({ idx: coverOrder[4], code: items[coverOrder[4]].top2, tier: "対抗" });
-          }
-        } else if (budget === 1500) {
-          if (coverOrder.length >= 4) {
-            subMulti = {
-              fixedIdx: coverOrder[3],
-              fixedCode: items[coverOrder[3]].top2,
-              wSet: coverOrder.slice(0, 2)
-            };
-          }
-          var candIdx = 4;
-          while (singleMods.length < 3 && candIdx < coverOrder.length) {
-            var cIdx = coverOrder[candIdx];
-            singleMods.push({ idx: cIdx, code: items[cIdx].top2, tier: "対抗" });
-            candIdx++;
-          }
-          var t3Order = 0;
-          while (singleMods.length < 3 && t3Order < coverOrder.length) {
-            var bIdx = coverOrder[t3Order];
-            singleMods.push({ idx: bIdx, code: items[bIdx].top3, tier: "第3候補(波乱ケア)" });
-            t3Order++;
-          }
-        } else if (budget === 2000) {
-          if (coverOrder.length >= 5) {
-            subMulti = {
-              fixedIdx: coverOrder[4],
-              fixedCode: items[coverOrder[4]].top2,
-              wSet: coverOrder.slice(0, 2)
-            };
+        } else if (gameType === "goal3") {
+          if (sCount <= 1 && (sCount + aCount) <= 3) {
+            isSkipRecommended = true;
+            skipReason = "得点鉄板枠が少なく高コストのため見送り推奨";
           }
         }
 
         var ticketGroups = [];
-        var mainGroupPicks = items.map(function(it, idx) {
-          return wSet.indexOf(idx) !== -1 ? [it.top1, it.top2] : [it.top1];
-        });
-        ticketGroups.push({
-          label: "メインWマルチ（" + (Math.pow(2, wSet.length) * 100) + "円）",
-          picks: mainGroupPicks,
-          cost: Math.pow(2, wSet.length) * 100
-        });
+        var framePickCounts = [];
 
-        if (subMulti) {
-          var subGroupPicks = items.map(function(it, idx) {
-            if (idx === subMulti.fixedIdx) return [subMulti.fixedCode];
-            if (subMulti.wSet.indexOf(idx) !== -1) return [it.top1, it.top2];
-            return [it.top1];
+        if (modeOrBudget === "smart") {
+          framePickCounts = items.map(function(it) {
+            if (it.rank === "S") return 1;
+            if (it.rank === "A") return 2;
+            return 3;
+          });
+
+          function calcCombos(counts) {
+            return counts.reduce(function(acc, c) { return acc * c; }, 1);
+          }
+
+          var maxAllowedCombos = (gameType === "toto_main") ? 16 : 12;
+
+          while (calcCombos(framePickCounts) > maxAllowedCombos) {
+            var bestBIdx = -1, minP3 = 999;
+            framePickCounts.forEach(function(cnt, idx) {
+              if (cnt === 3 && items[idx].p3 < minP3) { minP3 = items[idx].p3; bestBIdx = idx; }
+            });
+            if (bestBIdx !== -1) framePickCounts[bestBIdx] = 2;
+            else break;
+          }
+
+          while (calcCombos(framePickCounts) > maxAllowedCombos) {
+            var bestAIdx = -1, maxScore = -999;
+            framePickCounts.forEach(function(cnt, idx) {
+              var sc = items[idx].p1 * 1.5 + items[idx].diff;
+              if (cnt === 2 && sc > maxScore) { maxScore = sc; bestAIdx = idx; }
+            });
+            if (bestAIdx !== -1) framePickCounts[bestAIdx] = 1;
+            else break;
+          }
+
+          if (calcCombos(framePickCounts) === 1 && items.length >= 5) {
+            var cOrder = selectBestCoverIndices(items, 1);
+            if (cOrder.length > 0) framePickCounts[cOrder[0]] = 2;
+          }
+
+          var smartPicks = items.map(function(it, idx) {
+            var c = framePickCounts[idx];
+            if (c === 1) return [it.top1];
+            if (c === 2) return [it.top1, it.top2];
+            return [it.top1, it.top2, it.top3];
+          });
+          var smartCost = calcCombos(framePickCounts) * 100;
+
+          var sCntNow = framePickCounts.filter(function(c) { return c === 1; }).length;
+          var aCntNow = framePickCounts.filter(function(c) { return c === 2; }).length;
+          var bCntNow = framePickCounts.filter(function(c) { return c === 3; }).length;
+
+          ticketGroups.push({
+            label: "強弱マルチ1枚完結（1点×" + sCntNow + " / 2点W×" + aCntNow + " / 3点×" + bCntNow + "）",
+            picks: smartPicks,
+            cost: smartCost
+          });
+        } else {
+          var budget = parseInt(modeOrBudget, 10) || 500;
+          var coverOrder = selectBestCoverIndices(items, items.length);
+          var wCount = (budget === 500) ? 2 : ((budget === 1000 || budget === 1500) ? 3 : 4);
+          var wSet = coverOrder.slice(0, wCount);
+          framePickCounts = items.map(function(_, idx) { return wSet.indexOf(idx) !== -1 ? 2 : 1; });
+
+          var mainPicks = items.map(function(it, idx) {
+            return wSet.indexOf(idx) !== -1 ? [it.top1, it.top2] : [it.top1];
           });
           ticketGroups.push({
-            label: "サブWマルチ（" + (Math.pow(2, subMulti.wSet.length) * 100) + "円 / 第" + (subMulti.fixedIdx + 1) + "枠固定）",
-            picks: subGroupPicks,
-            cost: Math.pow(2, subMulti.wSet.length) * 100
+            label: "シート1：メインWマルチ",
+            picks: mainPicks,
+            cost: Math.pow(2, wSet.length) * 100
           });
-        }
 
-        singleMods.forEach(function(mod, sIdx) {
-          var sPicks = items.map(function(it, idx) {
-            return idx === mod.idx ? [mod.code] : [it.top1];
-          });
-          ticketGroups.push({
-            label: "押さえシングル" + (singleMods.length > 1 ? (sIdx + 1) : "") + "（100円 / 第" + (mod.idx + 1) + "枠変更）",
-            picks: sPicks,
-            cost: 100
-          });
-        });
-
-        var tickets = [];
-        var mainTotal = Math.pow(2, wSet.length);
-        for (var mask = 0; mask < mainTotal; mask++) {
-          tickets.push(items.map(function(it, idx) {
-            var pos = wSet.indexOf(idx);
-            if (pos !== -1 && ((mask >> pos) & 1) === 1) return it.top2;
-            return it.top1;
-          }));
-        }
-
-        if (subMulti) {
-          var subTotal = Math.pow(2, subMulti.wSet.length);
-          for (var sm = 0; sm < subTotal; sm++) {
-            tickets.push(items.map(function(it, idx) {
-              if (idx === subMulti.fixedIdx) return subMulti.fixedCode;
-              var pos = subMulti.wSet.indexOf(idx);
-              if (pos !== -1 && ((sm >> pos) & 1) === 1) return it.top2;
-              return it.top1;
-            }));
+          if (budget === 500 && coverOrder.length >= 3) {
+            var m3 = coverOrder[2];
+            ticketGroups.push({
+              label: "シート2：押さえシングル（第" + (m3 + 1) + "枠変更）",
+              picks: items.map(function(it, i) { return i === m3 ? [it.top2] : [it.top1]; }),
+              cost: 100
+            });
+          } else if (budget === 1000 && coverOrder.length >= 5) {
+            [coverOrder[3], coverOrder[4]].forEach(function(mIdx, k) {
+              ticketGroups.push({
+                label: "シート" + (k + 2) + "：押さえシングル（第" + (mIdx + 1) + "枠変更）",
+                picks: items.map(function(it, i) { return i === mIdx ? [it.top2] : [it.top1]; }),
+                cost: 100
+              });
+            });
+          } else if (budget === 1500 && coverOrder.length >= 4) {
+            var fix4 = coverOrder[3];
+            var subW2 = coverOrder.slice(0, 2);
+            ticketGroups.push({
+              label: "シート2：サブWマルチ（第" + (fix4 + 1) + "枠固定）",
+              picks: items.map(function(it, i) {
+                if (i === fix4) return [it.top2];
+                return subW2.indexOf(i) !== -1 ? [it.top1, it.top2] : [it.top1];
+              }),
+              cost: 400
+            });
+            for (var s = 0; s < 3; s++) {
+              var bIdx = coverOrder[s];
+              ticketGroups.push({
+                label: "シート" + (s + 3) + "：波乱ケアシングル",
+                picks: items.map(function(it, i) { return i === bIdx ? [it.top3] : [it.top1]; }),
+                cost: 100
+              });
+            }
+          } else if (budget === 2000 && coverOrder.length >= 5) {
+            var fix5 = coverOrder[4];
+            var subW2b = coverOrder.slice(0, 2);
+            ticketGroups.push({
+              label: "シート2：サブWマルチ（第" + (fix5 + 1) + "枠固定）",
+              picks: items.map(function(it, i) {
+                if (i === fix5) return [it.top2];
+                return subW2b.indexOf(i) !== -1 ? [it.top1, it.top2] : [it.top1];
+              }),
+              cost: 400
+            });
           }
         }
 
-        singleMods.forEach(function(mod) {
-          tickets.push(items.map(function(it, idx) {
-            return idx === mod.idx ? mod.code : it.top1;
-          }));
+        var allTickets = [];
+        ticketGroups.forEach(function(grp) {
+          function expand(idx, current) {
+            if (idx === grp.picks.length) {
+              allTickets.push(current.slice());
+              return;
+            }
+            var choices = grp.picks[idx];
+            for (var c = 0; c < choices.length; c++) {
+              current.push(choices[c]);
+              expand(idx + 1, current);
+              current.pop();
+            }
+          }
+          expand(0, []);
         });
 
-        var cost = tickets.length * 100;
-        var sumHitProb1st = 0;
-        var pay1List = [], pay2List = [], pay3List = [];
-        var weightedPay1 = 0, weightedPay2 = 0, weightedPay3 = 0;
+        var totalCost = allTickets.length * 100;
+        var sumProb1st = 0;
+        var pay1List = [];
+        var weightedReturn = 0;
 
-        tickets.forEach(function(combo) {
+        allTickets.forEach(function(combo) {
           var pAi = 1.0;
           var mktProbs = [];
           for (var i = 0; i < combo.length; i++) {
             var code = combo[i];
-            pAi *= Math.max(0.02, items[i].aiMap[code] || 0.15);
-            mktProbs.push(Math.max(0.02, items[i].mktMap[code] || 0.15));
+            pAi *= Math.max(0.02, items[i].aiMap[code] || 0.12);
+            mktProbs.push(Math.max(0.02, items[i].mktMap[code] || 0.12));
           }
-          sumHitProb1st += pAi;
-
+          sumProb1st += pAi;
           var mktDp = runMissDP(mktProbs);
-          var p1 = 0, p2 = 0, p3 = 0;
-
-          if (gameType === "toto_main") {
-            p1 = Math.max(500000, Math.min(100000000, 40.0 / Math.max(1e-8, mktDp[0])));
-            p2 = Math.max(20000, Math.min(1200000, 12.0 / Math.max(1e-6, mktDp[1])));
-            p3 = Math.max(2000, Math.min(80000, 11.0 / Math.max(1e-5, mktDp[2])));
-          } else if (gameType === "goal3") {
-            p1 = Math.max(3000, Math.min(250000, 30.0 / Math.max(1e-6, mktDp[0])));
-            p2 = Math.max(600, Math.min(20000, 20.0 / Math.max(1e-5, mktDp[1])));
-          } else {
-            p1 = Math.max(1800, Math.min(150000, 50.0 / Math.max(1e-6, mktDp[0])));
-          }
-
+          var p1 = 2500;
+          if (gameType === "toto_main") p1 = Math.max(500000, Math.min(100000000, 40.0 / Math.max(1e-8, mktDp[0])));
+          else if (gameType === "goal3") p1 = Math.max(3000, Math.min(250000, 30.0 / Math.max(1e-6, mktDp[0])));
+          else p1 = Math.max(2000, Math.min(120000, 50.0 / Math.max(1e-6, mktDp[0])));
           pay1List.push(p1);
-          if (p2 > 0) pay2List.push(p2);
-          if (p3 > 0) pay3List.push(p3);
-
-          weightedPay1 += pAi * p1;
-          weightedPay2 += pAi * p2;
-          weightedPay3 += pAi * p3;
+          weightedReturn += pAi * p1;
         });
 
         var effQ = items.map(function(it, idx) {
-          var pTop1 = it.aiMap[it.top1] || 0.35;
-          var pTop2 = it.aiMap[it.top2] || 0.25;
-          if (wSet.indexOf(idx) !== -1) {
-            return Math.min(0.96, pTop1 + pTop2);
-          }
-          return pTop1;
+          var choices = ticketGroups[0].picks[idx];
+          var sumP = 0;
+          choices.forEach(function(ch) { sumP += (it.aiMap[ch] || 0.15); });
+          return Math.min(0.97, sumP);
         });
-
-        var baseDp = runMissDP(effQ);
-        var boostRatio = sumHitProb1st / Math.max(1e-9, baseDp[0]);
-        if (boostRatio > 1.001) {
-          var nonWIndices = [];
-          items.forEach(function(_, idx) {
-            if (wSet.indexOf(idx) === -1) nonWIndices.push(idx);
-          });
-          if (nonWIndices.length > 0) {
-            var perFrameBoost = Math.pow(boostRatio, 1.0 / nonWIndices.length);
-            nonWIndices.forEach(function(idx) {
-              effQ[idx] = Math.min(0.95, effQ[idx] * perFrameBoost);
-            });
-          }
-        }
-        var portfolioDp = runMissDP(effQ);
-        var prob1st = sumHitProb1st;
-        var prob2nd = portfolioDp[1];
-        var prob3rd = portfolioDp[2];
+        var portDp = runMissDP(effQ);
+        var prob2nd = portDp[1];
 
         pay1List.sort(function(a, b) { return a - b; });
-        pay2List.sort(function(a, b) { return a - b; });
-        pay3List.sort(function(a, b) { return a - b; });
+        var minPay = pay1List[0] || 2500;
+        var maxPay = pay1List[pay1List.length - 1] || 30000;
 
-        var avgPay1 = sumHitProb1st > 0 ? (weightedPay1 / sumHitProb1st) : (pay1List[0] || 0);
-        var avgPay2 = sumHitProb1st > 0 ? (weightedPay2 / sumHitProb1st) : (pay2List[0] || 0);
-        var avgPay3 = sumHitProb1st > 0 ? (weightedPay3 / sumHitProb1st) : (pay3List[0] || 0);
-
-        var ev1Yen = prob1st * avgPay1;
-        var ev2Yen = (gameType === "toto_main" || gameType === "goal3") ? (prob2nd * avgPay2) : 0;
-        var ev3Yen = (gameType === "toto_main") ? (prob3rd * avgPay3) : 0;
-        var expectedReturnYen = ev1Yen + ev2Yen + ev3Yen;
-
-        var tiers = [];
-        if (gameType === "toto_main") {
-          tiers.push({
-            rank: "🥇 1等",
-            badgeClass: "t1",
-            cond: "全" + items.length + "枠的中",
-            probPct: prob1st * 100,
-            probFmt: (prob1st * 100).toFixed(4) + "%",
-            minPay: pay1List[0] || 500000,
-            maxPay: pay1List[pay1List.length - 1] || 10000000,
-            payFmt: formatPayoutRange(pay1List[0] || 500000, pay1List[pay1List.length - 1] || 10000000, true),
-            evYen: ev1Yen
-          });
-          tiers.push({
-            rank: "🥈 2等",
-            badgeClass: "t2",
-            cond: (items.length - 1) + "枠的中（1枠外れ）",
-            probPct: prob2nd * 100,
-            probFmt: (prob2nd * 100).toFixed(2) + "%",
-            minPay: pay2List[0] || 25000,
-            maxPay: pay2List[pay2List.length - 1] || 300000,
-            payFmt: formatPayoutRange(pay2List[0] || 25000, pay2List[pay2List.length - 1] || 300000, false),
-            evYen: ev2Yen
-          });
-          tiers.push({
-            rank: "🥉 3等",
-            badgeClass: "t3",
-            cond: (items.length - 2) + "枠的中（2枠外れ）",
-            probPct: prob3rd * 100,
-            probFmt: (prob3rd * 100).toFixed(2) + "%",
-            minPay: pay3List[0] || 2500,
-            maxPay: pay3List[pay3List.length - 1] || 30000,
-            payFmt: formatPayoutRange(pay3List[0] || 2500, pay3List[pay3List.length - 1] || 30000, false),
-            evYen: ev3Yen
-          });
-        } else if (gameType === "goal3") {
-          tiers.push({
-            rank: "🥇 1等",
-            badgeClass: "t1",
-            cond: "全6枠的中（3試合完全的中）",
-            probPct: prob1st * 100,
-            probFmt: (prob1st * 100).toFixed(2) + "%",
-            minPay: pay1List[0] || 5000,
-            maxPay: pay1List[pay1List.length - 1] || 80000,
-            payFmt: formatPayoutRange(pay1List[0] || 5000, pay1List[pay1List.length - 1] || 80000, false),
-            evYen: ev1Yen
-          });
-          tiers.push({
-            rank: "🥈 2等",
-            badgeClass: "t2",
-            cond: "5枠的中（1枠外れ）",
-            probPct: prob2nd * 100,
-            probFmt: (prob2nd * 100).toFixed(1) + "%",
-            minPay: pay2List[0] || 800,
-            maxPay: pay2List[pay2List.length - 1] || 6000,
-            payFmt: formatPayoutRange(pay2List[0] || 800, pay2List[pay2List.length - 1] || 6000, false),
-            evYen: ev2Yen
-          });
-        } else {
-          tiers.push({
-            rank: "🥇 1等",
-            badgeClass: "t1",
-            cond: "全5枠的中（※2等以下なし）",
-            probPct: prob1st * 100,
-            probFmt: (prob1st * 100).toFixed(1) + "%",
-            minPay: pay1List[0] || 2500,
-            maxPay: pay1List[pay1List.length - 1] || 40000,
-            payFmt: formatPayoutRange(pay1List[0] || 2500, pay1List[pay1List.length - 1] || 40000, false),
-            evYen: ev1Yen
-          });
-        }
-
-        var hitProbAny = prob1st;
-        if (gameType === "toto_main") hitProbAny = prob1st + prob2nd + prob3rd;
-        else if (gameType === "goal3") hitProbAny = prob1st + prob2nd;
-
-        var evRatioPct = Math.round((expectedReturnYen / Math.max(100, cost)) * 100);
+        var evRatio = Math.round(((weightedReturn + (gameType === "goal3" ? prob2nd * 2200 : 0)) / Math.max(100, totalCost)) * 100);
+        var recScore = (sumProb1st * 100 * 2.2) + (sCount * 12) + (evRatio * 0.25) - (isSkipRecommended ? 80 : 0);
 
         return {
-          cost: cost,
-          ticketCount: tickets.length,
-          tickets: tickets,
+          cost: totalCost,
+          ticketCount: allTickets.length,
           ticketGroups: ticketGroups,
-          wSet: wSet,
-          subMulti: subMulti,
-          singleMods: singleMods,
-          hitProb1stPct: prob1st * 100,
+          sCount: sCount,
+          hitProb1stPct: sumProb1st * 100,
           hitProb2ndPct: prob2nd * 100,
-          hitProb3rdPct: prob3rd * 100,
-          hitProbAnyPct: hitProbAny * 100,
-          minEstPay: pay1List[0] || 2500,
-          maxEstPay: pay1List[pay1List.length - 1] || 100000,
-          expectedReturnYen: expectedReturnYen,
-          evRatioPct: evRatioPct,
-          tiers: tiers
+          minPay: minPay,
+          maxPay: maxPay,
+          evRatioPct: evRatio,
+          isSkipRecommended: isSkipRecommended,
+          skipReason: skipReason,
+          recScore: recScore
         };
       }
 
-      function buildStrategyGuideHtml(planConfigs, analyzed) {
-        var targetConfigs = (planConfigs || []).filter(function(p) {
-          return p.gameType !== "toto_main";
-        });
-        if (targetConfigs.length === 0) return "";
+      /* 1枚分のマークシートHTML生成 */
+      function renderSingleMarksheetTable(items, picks, isGoal3) {
+        var options = isGoal3 ? ["0", "1", "2", "3"] : ["1", "0", "2"];
+        var thCols = options.map(function(opt) {
+          return '<th>' + (isGoal3 && opt === "3" ? "3+" : opt) + '</th>';
+        }).join("");
 
-        var byEv = targetConfigs.slice().sort(function(a, b) {
-          return b.metrics.evRatioPct - a.metrics.evRatioPct;
-        });
-        var bestEv = byEv[0];
+        var rowsHtml = items.map(function(it, idx) {
+          var selectedList = picks[idx] || [];
+          var cnt = selectedList.length;
+          var onClass = cnt === 1 ? "on-s" : (cnt === 2 ? "on-a" : "on-b");
 
-        var byProb1st = targetConfigs.slice().sort(function(a, b) {
-          return b.metrics.hitProb1stPct - a.metrics.hitProb1stPct;
-        });
-        var bestSteady = byProb1st[0];
+          var cellsHtml = options.map(function(opt) {
+            var isMarked = selectedList.indexOf(opt) !== -1;
+            var dispTxt = (isGoal3 && opt === "3") ? "3+" : opt;
+            return '<td><span class="oval' + (isMarked ? (' ' + onClass) : '') + '">' + dispTxt + '</span></td>';
+          }).join("");
 
-        var partnerCfg = bestSteady.id !== bestEv.id
-          ? bestSteady
-          : (byEv.length > 1 ? byEv[1] : bestSteady);
-
-        var goal3Cfg = targetConfigs.find(function(p) { return p.gameType === "goal3"; });
-        var miniACfg = targetConfigs.find(function(p) { return p.gameType === "mini_a"; });
-        var miniBCfg = targetConfigs.find(function(p) { return p.gameType === "mini_b"; });
-
-        var aKnown = analyzed.slice(0, 5).filter(function(x) { return x.ctx.isLineupAnnounced; }).length;
-        var bKnown = analyzed.slice(5, 10).filter(function(x) { return x.ctx.isLineupAnnounced; }).length;
-        var lineupComment = "";
-        if (analyzed.length >= 10) {
-          if (aKnown === 5 && bKnown === 5) {
-            lineupComment = "<li><strong>スタメン判明状況</strong>：A組・B組ともに<strong>全5試合のスタメン発表データ（主力先発補正）が反映済み</strong>です。</li>";
-          } else if (aKnown !== bKnown) {
-            var betterMini = aKnown > bKnown ? "mini toto A組（判明" + aKnown + "/5試合）" : "mini toto B組（判明" + bKnown + "/5試合）";
-            lineupComment = "<li><strong>スタメン判明度の比較</strong>：現在は <strong>" + betterMini + "</strong> の方がスタメン判明試合が多く、予測精度が安定しています。</li>";
-          }
-        }
-
-        var bestEvProbTxt = bestEv.gameType === "goal3"
-          ? "1〜2等合算 " + bestEv.metrics.hitProbAnyPct.toFixed(1) + "%（1等 " + bestEv.metrics.hitProb1stPct.toFixed(2) + "%）"
-          : "1等当選率 " + bestEv.metrics.hitProb1stPct.toFixed(1) + "%";
-
-        var conclusionHtml = "";
-        if (bestEv.id === bestSteady.id) {
-          conclusionHtml =
-            "【予算 " + selectedBudget.toLocaleString() + "円｜mini toto・GOAL3 厳選判定】今節は<strong>「" + bestEv.shortName + "」が期待値（" + bestEv.metrics.evRatioPct + "%）・当選確率（" + bestEvProbTxt + "）ともにNo.1の単独イチオシ</strong>です！" +
-            (partnerCfg && partnerCfg.id !== bestEv.id ? " 2番手候補は<strong>「" + partnerCfg.shortName + "（期待値 " + partnerCfg.metrics.evRatioPct + "%・1〜2等合算 " + partnerCfg.metrics.hitProbAnyPct.toFixed(1) + "%）」</strong>です。" : "");
-        } else {
-          conclusionHtml =
-            "【予算 " + selectedBudget.toLocaleString() + "円｜mini toto・GOAL3 厳選判定】今節はコスパ重視なら<strong>「" + bestEv.shortName + "（期待値No.1：" + bestEv.metrics.evRatioPct + "% / " + bestEvProbTxt + "）」</strong>、手堅い1等的中重視なら<strong>「" + bestSteady.shortName + "（1等当選率No.1：" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "% / 期待値 " + bestSteady.metrics.evRatioPct + "%）」</strong>が2大狙い目です。";
-        }
-
-        var comments = [];
-        if (miniACfg) {
-          var ma = miniACfg.metrics;
-          comments.push(
-            "<li><strong>② mini toto A組（1等当選率 " + ma.hitProb1stPct.toFixed(1) + "% / 期待値 " + ma.evRatioPct + "%）</strong>：" + formatFreqText(ma.hitProb1stPct).replace(/[（）]/g, "") + "で1等（目安 <strong>" + ma.tiers[0].payFmt + "</strong>）が狙えます（期待リターン 約" + formatYen(ma.expectedReturnYen) + "）。</li>"
-          );
-        }
-        if (miniBCfg) {
-          var mb = miniBCfg.metrics;
-          comments.push(
-            "<li><strong>③ mini toto B組（1等当選率 " + mb.hitProb1stPct.toFixed(1) + "% / 期待値 " + mb.evRatioPct + "%）</strong>：" + formatFreqText(mb.hitProb1stPct).replace(/[（）]/g, "") + "で1等（目安 <strong>" + mb.tiers[0].payFmt + "</strong>）が狙えます（期待リターン 約" + formatYen(mb.expectedReturnYen) + "）。</li>"
-          );
-        }
-        if (goal3Cfg) {
-          var gm = goal3Cfg.metrics;
-          var g1 = gm.tiers[0], g2 = gm.tiers[1];
-          comments.push(
-            "<li><strong>① toto GOAL3（1〜2等合算 " + gm.hitProbAnyPct.toFixed(1) + "% / 期待値 " + gm.evRatioPct + "%）</strong>：1等6枠的中は <strong>" + g1.probFmt + "（" + g1.payFmt + "）</strong>、1枠外れの<strong>2等が " + g2.probFmt + "（" + g2.payFmt + "）</strong>で当たり、合算では" + formatFreqText(gm.hitProbAnyPct).replace(/[（）]/g, "") + "で的中します。</li>"
-          );
-        }
-        if (lineupComment) comments.push(lineupComment);
-
-        var splitAdvice = "";
-        if (selectedBudget === 500) {
-          splitAdvice = "<li><strong>パターンC【1,000円・2種分散戦術】「" + bestSteady.shortName + "（500円）」＋「" + partnerCfg.shortName + "（500円）」の計1,000円購入</strong>：mini totoとGOAL3（またはA組とB組）を500円ずつ両睨みする現実的な分散戦術です。</li>";
-        } else if (selectedBudget === 1000) {
-          splitAdvice = '<li><strong>パターンC【500円×2種分散戦術】「500円プラン」に切り替えて「' + bestEv.shortName + '」＋「' + partnerCfg.shortName + '」を各500円（計1,000円）購入</strong><button type="button" class="quick-budget-btn" data-target-budget="500">500円プランへ切替</button>：予算1,000円のまま、期待値トップと堅実枠の2種類を同時に楽しめます。</li>';
-        } else if (selectedBudget === 1500) {
-          splitAdvice = '<li><strong>パターンC【1,000円＋500円ハイブリッド戦術】「' + bestEv.shortName + '（1,000円）」＋「' + partnerCfg.shortName + '（500円）」の計1,500円購入</strong><button type="button" class="quick-budget-btn" data-target-budget="1000">1,000円表示</button><button type="button" class="quick-budget-btn" data-target-budget="500">500円表示</button>：本命くじ種を10口で厚く張りつつ、もう1種を5口で押さえる実戦的な配分です。</li>';
-        } else {
-          splitAdvice = '<li><strong>パターンC【1,000円×2種ダブル主砲戦術】「1,000円プラン」に切り替えて「' + bestEv.shortName + '」＋「' + partnerCfg.shortName + '」を各1,000円（計2,000円）購入</strong><button type="button" class="quick-budget-btn" data-target-budget="1000">1,000円プランへ切替</button>：上位2種のくじを10口ずつ厚くカバーする、的中率とリターンを両立した2,000円布陣です。</li>';
-        }
-
-        var patterns = [
-          "<li><strong>パターンA【期待値No.1集中】「" + bestEv.shortName + "」を" + formatYen(selectedBudget) + "（全" + (selectedBudget / 100) + "口）購入</strong>：3種の中で最もコスパが高い「" + bestEv.shortName + "（期待値 " + bestEv.metrics.evRatioPct + "%）」に集中投資する買い方です。</li>",
-          "<li><strong>パターンB【1等当選率No.1・堅実重視】「" + bestSteady.shortName + "」を" + formatYen(selectedBudget) + "（全" + (selectedBudget / 100) + "口）購入</strong>：1等全的中率 <strong>" + bestSteady.metrics.hitProb1stPct.toFixed(1) + "%</strong>" + formatFreqText(bestSteady.metrics.hitProb1stPct) + "で着実に的中体験を楽しむ買い方です。</li>",
-          splitAdvice
-        ];
-
-        return (
-          '<div class="strategy-box">' +
-            '<div class="strategy-header">' +
-              '<div class="strategy-title">🧭 AI総合戦略・今節の狙い目ガイド（予算 ' + formatYen(selectedBudget) + ' モード）</div>' +
-              '<span class="strategy-sub-pill">✓ おすすめ対象：mini toto A/B・GOAL3（toto本戦は除外済）</span>' +
-            '</div>' +
-            '<div class="strategy-conclusion">' + conclusionHtml + '</div>' +
-            '<div class="strategy-grid">' +
-              '<div class="strategy-col">' +
-                '<div class="strategy-col-title">📊 mini toto A/B・GOAL3 比較コメント</div>' +
-                '<ul class="strategy-list">' + comments.join("") + '</ul>' +
-              '</div>' +
-              '<div class="strategy-col">' +
-                '<div class="strategy-col-title">🎯 おすすめの具体的な買い方（3パターン）</div>' +
-                '<ul class="strategy-list">' + patterns.join("") + '</ul>' +
-              '</div>' +
-            '</div>' +
-          '</div>'
-        );
-      }
-
-      function buildTierBreakdownHtml(cfg) {
-        var m = cfg.metrics;
-        var noteHtml = "";
-        if (cfg.gameType === "toto_main") {
-          noteHtml = '<span class="tier-only-note">※1〜3等いずれか当たる合算確率：<strong>約 ' + m.hitProbAnyPct.toFixed(2) + '%</strong>' + formatFreqText(m.hitProbAnyPct) + '</span>';
-        } else if (cfg.gameType === "goal3") {
-          noteHtml = '<span class="tier-only-note">※1〜2等いずれか当たる合算確率：<strong>約 ' + m.hitProbAnyPct.toFixed(1) + '%</strong>' + formatFreqText(m.hitProbAnyPct) + '</span>';
-        } else {
-          noteHtml = '<span class="tier-only-note">※mini totoは1等（全5枠的中）のみの設定です（2等以下はありません）</span>';
-        }
-
-        var rowsHtml = m.tiers.map(function(t) {
           return (
             '<tr>' +
-              '<td><span class="tier-badge ' + t.badgeClass + '">' + t.rank + '</span><span class="tier-cond">' + t.cond + '</span></td>' +
-              '<td><span class="tier-prob">約 ' + t.probFmt + '</span><span class="tier-freq">' + formatFreqText(t.probPct) + '</span></td>' +
-              '<td><span class="tier-pay">' + t.payFmt + '</span></td>' +
-              '<td><span class="tier-ev">期待値寄与: 約 ' + formatYen(t.evYen) + '</span></td>' +
+              '<td class="col-frame">' + it.fNum + '</td>' +
+              '<td class="col-match">' + it.label + '</td>' +
+              cellsHtml +
             '</tr>'
           );
         }).join("");
 
         return (
-          '<div class="tier-breakdown-box">' +
-            '<div class="tier-breakdown-header">' +
-              '<span>🏅 等級別の当選確率・払い戻し目安（全' + m.ticketCount + '口購入時）</span>' +
-              noteHtml +
-            '</div>' +
-            '<table class="tier-table">' +
-              '<thead>' +
-                '<tr>' +
-                  '<th>等級・当選条件</th>' +
-                  '<th>当選確率（当選頻度目安）</th>' +
-                  '<th>払い戻し金額目安（順当〜波乱時）</th>' +
-                  '<th>理論期待値への寄与</th>' +
-                '</tr>' +
-              '</thead>' +
-              '<tbody>' + rowsHtml + '</tbody>' +
-            '</table>' +
-          '</div>'
+          '<table class="ms-table">' +
+            '<thead><tr><th>枠</th><th class="col-match">' + (isGoal3 ? 'チーム' : '対戦カード') + '</th>' + thCols + '</tr></thead>' +
+            '<tbody>' + rowsHtml + '</tbody>' +
+          '</table>'
         );
       }
 
-      function buildPlanCard(cfg, budget, roleTag) {
+      /* 最上部配置：公式マークシートカード（複数口ある場合は全シートを表示） */
+      function buildMarksheetCardHtml(cfg, roleTag) {
         var m = cfg.metrics;
-        var items = cfg.items;
-        var solidSet = selectSuperSolidIndices(items, cfg.solidCount, false);
+        var isGoal3 = (cfg.gameType === "goal3");
 
-        var mainMultiCost = Math.pow(2, m.wSet.length) * 100;
-        var multiHtml = items.map(function(it, idx) {
-          if (m.wSet.indexOf(idx) !== -1) {
-            return '<span class="w-pair">' + it.top1 + '/' + it.top2 + '</span>';
-          }
-          return renderPickToken(it.top1, idx, solidSet);
-        }).join(' － ');
-
-        var subMultiHtml = "";
-        var subMultiCost = 0;
-        if (m.subMulti) {
-          subMultiCost = Math.pow(2, m.subMulti.wSet.length) * 100;
-          var smLine = items.map(function(it, idx) {
-            if (idx === m.subMulti.fixedIdx) {
-              return '<span class="fix-sub" title="対抗に固定">' + m.subMulti.fixedCode + '</span>';
-            }
-            if (m.subMulti.wSet.indexOf(idx) !== -1) {
-              return '<span class="w-pair">' + it.top1 + '/' + it.top2 + '</span>';
-            }
-            return renderPickToken(it.top1, idx, solidSet);
-          }).join(' － ');
-          subMultiHtml =
-            '<div class="ticket-box">' +
-              '<div class="ticket-label sub-multi">◆ サブ：Wマルチ買い（' + subMultiCost + '円 / 第' + (m.subMulti.fixedIdx + 1) + '枠を対抗[' + m.subMulti.fixedCode + ']固定＋接戦TOP' + m.subMulti.wSet.length + '枠をダブル）</div>' +
-              '<div class="ticket-line">' + smLine + '</div>' +
-            '</div>';
-        }
-
-        var extraCost = m.singleMods.length * 100;
-        var extraHtml = m.singleMods.map(function(mod, orderIdx) {
-          var line = items.map(function(it, idx) {
-            if (idx === mod.idx) return '<span class="w-pair">' + mod.code + '</span>';
-            return renderPickToken(it.top1, idx, solidSet);
-          }).join(' － ');
-          var labelNum = m.singleMods.length > 1 ? '押さえシングル' + (orderIdx + 1) : '押さえシングル';
-          var d2Note = items[mod.idx].isUnannouncedRisk ? '・未発表リスクケア' : '';
-          return (
-            '<div class="ticket-box">' +
-              '<div class="ticket-label sub">◆ ' + labelNum + '（100円 / 第' + (mod.idx + 1) + '枠を' + mod.tier + '[' + mod.code + ']へ変更' + d2Note + '）</div>' +
-              '<div class="ticket-line">' + line + '</div>' +
-            '</div>'
-          );
-        }).join('');
-
-        var probMainText = "";
-        var probSubText = "";
-        var returnMainText = "";
-        var returnSubText = "";
-
+        var cardClass = "ms-card";
+        var statusPill = "";
         if (cfg.gameType === "toto_main") {
-          probMainText = "1〜3等合算 約 " + m.hitProbAnyPct.toFixed(2) + "%";
-          probSubText = "1等:" + m.tiers[0].probFmt + " / 2等:" + m.tiers[1].probFmt + " / 3等:" + m.tiers[2].probFmt;
-          returnMainText = "1等 " + m.tiers[0].payFmt;
-          returnSubText = "2等:" + m.tiers[1].payFmt + " / 3等:" + m.tiers[2].payFmt;
-        } else if (cfg.gameType === "goal3") {
-          probMainText = "1〜2等合算 約 " + m.hitProbAnyPct.toFixed(1) + "%";
-          probSubText = "1等(6枠):" + m.tiers[0].probFmt + " ／ 2等(5枠):" + m.tiers[1].probFmt;
-          returnMainText = "1等 " + m.tiers[0].payFmt;
-          returnSubText = "2等(1枠外れ)目安: " + m.tiers[1].payFmt;
+          statusPill = '<span class="ms-pill ref">🎲 参考（低確率）</span>';
+        } else if (m.isSkipRecommended) {
+          cardClass += " skip";
+          statusPill = '<span class="ms-pill skip">⚠️ 見送り推奨（鉄板' + m.sCount + '枠）</span>';
+        } else if (roleTag === "best") {
+          cardClass += " rec";
+          statusPill = '<span class="ms-pill rec">👑 今節イチオシ（鉄板' + m.sCount + '枠）</span>';
         } else {
-          probMainText = "1等全的中率 約 " + m.hitProb1stPct.toFixed(1) + "%";
-          probSubText = formatFreqText(m.hitProb1stPct) + "（※1等のみ設定）";
-          returnMainText = m.tiers[0].payFmt;
-          returnSubText = "（順当決着時〜穴目絡み決着時の1等想定配当）";
+          statusPill = '<span class="ms-pill ok">🎯 購入候補（鉄板' + m.sCount + '枠）</span>';
         }
 
-        var evBadge = m.evRatioPct >= 100 ? "🔥 期待値プラス圏" : "📊 標準還元レンジ";
-        if (cfg.gameType === "toto_main") {
-          evBadge = m.evRatioPct >= 150 ? "🎲 150%超（少額つまみ検討圏）" : "🎲 低確率・参考枠";
-        }
-        var evMainText = "約 " + formatYen(m.expectedReturnYen) + "（期待値 " + m.evRatioPct + "%）";
-
-        var breakdownParts = ["メインWマルチ" + mainMultiCost + "円"];
-        if (subMultiCost > 0) breakdownParts.push("サブWマルチ" + subMultiCost + "円");
-        if (extraCost > 0) breakdownParts.push("シングル" + extraCost + "円");
-        var badgeText = breakdownParts.join("＋") + "（計" + formatYen(m.cost) + "）";
-
-        var badgeClass = "plan-badge";
-        if (budget === 1000) badgeClass += " b1000";
-        else if (budget === 1500) badgeClass += " b1500";
-        else if (budget === 2000) badgeClass += " b2000";
-
-        var cardClass = "plan-card";
-        var pillHtml = "";
-        if (roleTag === "best_both") {
-          cardClass += " recommended-card";
-          pillHtml = '<span class="rec-pill best-ev">👑 今節イチオシ（期待値＆当選率Wトップ）</span>';
-        } else if (roleTag === "best_ev") {
-          cardClass += " recommended-card";
-          pillHtml = '<span class="rec-pill best-ev">👑 今節イチオシ（期待値No.1）</span>';
-        } else if (roleTag === "best_prob") {
-          cardClass += " recommended-card";
-          pillHtml = '<span class="rec-pill best-prob">🎯 堅実狙い目（当選率No.1）</span>';
-        } else if (roleTag === "second_rec") {
-          cardClass += " recommended-card";
-          pillHtml = '<span class="rec-pill best-prob">🎯 対抗狙い目（分散購入推奨）</span>';
-        } else if (roleTag === "skip") {
-          cardClass += " skip-card";
-          pillHtml = '<span class="rec-pill skip">⚠️ 今節は見送り推奨</span>';
-        } else if (roleTag === "bonus_ref") {
-          cardClass += " bonus-card";
-          pillHtml = '<span class="rec-pill bonus-ref">🎲 番外・一攫千金参考枠（おすすめ対象外）</span>';
-        }
+        /* 強弱マルチは1シート、固定予算で複数口に分かれる場合はシート1・シート2...をすべて描画 */
+        var sheetsHtml = m.ticketGroups.map(function(grp, gIdx) {
+          var headerHtml = m.ticketGroups.length > 1
+            ? '<div class="sheet-sub-label"><span>' + grp.label + '</span><span>' + formatYen(grp.cost) + '</span></div>'
+            : '';
+          return headerHtml + renderSingleMarksheetTable(cfg.items, grp.picks, isGoal3);
+        }).join("");
 
         return (
           '<div class="' + cardClass + '">' +
-            '<div class="plan-header">' +
-              '<div class="plan-title-wrap"><span class="plan-title">' + cfg.title + '</span>' + pillHtml + '</div>' +
-              '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' +
-                '<span class="' + badgeClass + '">' + badgeText + '</span>' +
-                '<button type="button" class="register-plan-btn" data-reg-game="' + cfg.gameType + '">📌 これを購入済に登録</button>' +
+            '<div>' +
+              '<div class="ms-top">' +
+                '<div class="ms-title">' + cfg.shortName + '</div>' +
+                '<span class="ms-cost">合計 ' + formatYen(m.cost) + '（' + m.ticketCount + '口）</span>' +
               '</div>' +
+              '<div class="ms-status-bar">' +
+                statusPill +
+                '<span style="color:#cbd5e1;">1等目安: <strong style="color:#fbbf24;">' + formatYen(m.minPay) + '〜</strong></span>' +
+              '</div>' +
+              sheetsHtml +
             '</div>' +
-            '<div class="plan-sub">' + cfg.subInfo + '</div>' +
-            '<div class="ev-grid">' +
-              '<div class="ev-box">' +
-                '<div class="ev-label">🎯 当選確率サマリー（全' + m.ticketCount + '口合計）</div>' +
-                '<div class="ev-value">' + probMainText + '</div>' +
-                '<div class="ev-note">' + probSubText + '</div>' +
-              '</div>' +
-              '<div class="ev-box highlight">' +
-                '<div class="ev-label">💴 払い戻し金額目安（想定配当）</div>' +
-                '<div class="ev-value gold">' + returnMainText + '</div>' +
-                '<div class="ev-note">' + returnSubText + '</div>' +
-              '</div>' +
-              '<div class="ev-box highlight">' +
-                '<div class="ev-label">📈 理論期待値（全等級合算）</div>' +
-                '<div class="ev-value green">' + evMainText + '</div>' +
-                '<div class="ev-note">' + evBadge + '（投資' + formatYen(m.cost) + 'あたり）</div>' +
-              '</div>' +
+            '<div class="ms-footer">' +
+              '<span>1等確率: 約' + m.hitProb1stPct.toFixed(1) + '%</span>' +
+              '<button type="button" class="register-plan-btn" data-reg-game="' + cfg.gameType + '">📌 購入済に登録</button>' +
             '</div>' +
-            buildTierBreakdownHtml(cfg) +
-            '<div class="ticket-box">' +
-              '<div class="ticket-label">◆ メイン：Wマルチ買い（' + mainMultiCost + '円 / 接戦TOP' + m.wSet.length + '枠をダブル）</div>' +
-              '<div class="ticket-line">' + multiHtml + '</div>' +
-            '</div>' +
-            subMultiHtml +
-            extraHtml +
           '</div>'
         );
       }
 
-      function registerAiPlanToMyBets(gameType, budget) {
-        if (!lastAnalyzedCache || lastAnalyzedCache.length === 0) return;
-        var items = [];
-        if (gameType === "goal3" && lastAnalyzedCache.length >= 3) {
-          lastAnalyzedCache.slice(0, 3).forEach(function(x) { items.push(x.gH); items.push(x.gA); });
-        } else if (gameType === "mini_a" && lastAnalyzedCache.length >= 5) {
-          items = lastAnalyzedCache.slice(0, 5).map(function(x) { return x.c1x2; });
-        } else if (gameType === "mini_b" && lastAnalyzedCache.length >= 10) {
-          items = lastAnalyzedCache.slice(5, 10).map(function(x) { return x.c1x2; });
-        } else if (gameType === "toto_main") {
-          items = lastAnalyzedCache.map(function(x) { return x.c1x2; });
-        }
-        if (items.length === 0) return;
+      /* 下部：細かい情報（確率・想定配当・期待値・テキスト内訳） */
+      function buildDetailPlanCard(cfg) {
+        var m = cfg.metrics;
+        var probTxt = cfg.gameType === "goal3"
+          ? '1等: <strong>' + m.hitProb1stPct.toFixed(1) + '%</strong>（2等含め <strong>' + (m.hitProb1stPct + m.hitProb2ndPct).toFixed(1) + '%</strong>）'
+          : '1等: <strong>' + m.hitProb1stPct.toFixed(2) + '%</strong>（' + formatFreqText(m.hitProb1stPct) + '）';
 
-        var m = evaluatePlanMetrics(items, budget, gameType);
-        var currentBets = loadMyBets(currentRoundKey);
-        m.ticketGroups.forEach(function(grp) {
-          currentBets.push({
-            id: "bet_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
-            gameType: gameType,
-            label: "AI " + budget + "円プラン｜" + grp.label,
-            picks: grp.picks,
-            cost: grp.cost
-          });
-        });
-        saveMyBets(currentRoundKey, currentBets);
-        if (currentRoundKey) renderRound(currentRoundKey);
+        var linesHtml = m.ticketGroups.map(function(grp) {
+          var lineStr = grp.picks.map(function(ch, idx) {
+            if (ch.length === 1 && cfg.items[idx].rank === "S") {
+              return '<span class="super-solid">' + ch[0] + '</span>';
+            }
+            if (ch.length >= 2) {
+              return '<span class="w-pair">' + ch.join("/") + '</span>';
+            }
+            return ch[0];
+          }).join(" － ");
+          return (
+            '<div class="ticket-box">' +
+              '<div class="ticket-label">◆ ' + grp.label + '（' + formatYen(grp.cost) + '）</div>' +
+              '<div class="ticket-line">' + lineStr + '</div>' +
+            '</div>'
+          );
+        }).join("");
 
-        document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
-        document.querySelectorAll(".tab-content").forEach(function(c) { c.classList.add("hidden"); });
-        var tab3Btn = document.querySelector('.tab-btn[data-tab="tab3"]');
-        if (tab3Btn) tab3Btn.classList.add("active");
-        document.getElementById("tab3").classList.remove("hidden");
+        return (
+          '<div class="plan-card">' +
+            '<div class="plan-title">' + cfg.title + '（計 ' + formatYen(m.cost) + ' / ' + m.ticketCount + '口）</div>' +
+            '<div class="simple-metrics">' +
+              '<span>🔥 絶対鉄板: <strong>' + m.sCount + '枠</strong></span>' +
+              '<span>🎯 当選確率: ' + probTxt + '</span>' +
+              '<span>💴 想定1等配当: <span class="gold">約' + formatYen(m.minPay) + '〜' + formatYen(m.maxPay) + '</span></span>' +
+              '<span>📈 期待値: <span class="green">' + m.evRatioPct + '%</span></span>' +
+            '</div>' +
+            linesHtml +
+          '</div>'
+        );
       }
 
       function judgeTicketAgainstActuals(picksArray, actualCodes, gameType) {
         var totalFrames = picksArray.length;
-        var hitCount = 0;
-        var knownCount = 0;
+        var hitCount = 0, knownCount = 0;
 
         var tokenHtmlList = picksArray.map(function(frameChoices, idx) {
           var act = actualCodes[idx];
@@ -1648,55 +1105,27 @@
         var isWin = false;
 
         if (knownCount < totalFrames) {
-          statusBadge = '<span class="tier-badge miss">⏳ 進行中（' + hitCount + '/' + knownCount + '枠的中）</span>';
+          statusBadge = '<span class="tier-badge miss">⏳ 進行中（' + hitCount + '/' + knownCount + '的中）</span>';
+        } else if (gameType === "mini_a" || gameType === "mini_b") {
+          if (missCount === 0) { statusBadge = '<span class="tier-badge t1">🎉 🥇 1等当選！（5/5全的中）</span>'; isWin = true; }
+          else if (missCount === 1) { statusBadge = '<span class="tier-badge miss">😢 惜敗・あと1枠（4/5的中）</span>'; }
+          else { statusBadge = '<span class="tier-badge miss">❌ 不的中（' + hitCount + '/5的中）</span>'; }
+        } else if (gameType === "goal3") {
+          if (missCount === 0) { statusBadge = '<span class="tier-badge t1">🎉 🥇 1等当選！（6/6全的中）</span>'; isWin = true; }
+          else if (missCount === 1) { statusBadge = '<span class="tier-badge t2">🎉 🥈 2等当選！（5/6的中）</span>'; isWin = true; }
+          else if (missCount === 2) { statusBadge = '<span class="tier-badge miss">😢 あと1枠で2等（4/6的中）</span>'; }
+          else { statusBadge = '<span class="tier-badge miss">❌ 不的中（' + hitCount + '/6的中）</span>'; }
         } else {
-          if (gameType === "mini_a" || gameType === "mini_b") {
-            if (missCount === 0) {
-              statusBadge = '<span class="tier-badge t1">🎉 🥇 1等当選！（5/5全的中）</span>';
-              isWin = true;
-            } else if (missCount === 1) {
-              statusBadge = '<span class="tier-badge miss">😢 惜敗・あと1枠（4/5枠的中）</span>';
-            } else {
-              statusBadge = '<span class="tier-badge miss">❌ 不的中（' + hitCount + '/5枠的中）</span>';
-            }
-          } else if (gameType === "goal3") {
-            if (missCount === 0) {
-              statusBadge = '<span class="tier-badge t1">🎉 🥇 1等当選！（6/6全的中）</span>';
-              isWin = true;
-            } else if (missCount === 1) {
-              statusBadge = '<span class="tier-badge t2">🎉 🥈 2等当選！（5/6枠的中）</span>';
-              isWin = true;
-            } else if (missCount === 2) {
-              statusBadge = '<span class="tier-badge miss">😢 惜敗・あと1枠で2等（4/6枠的中）</span>';
-            } else {
-              statusBadge = '<span class="tier-badge miss">❌ 不的中（' + hitCount + '/6枠的中）</span>';
-            }
-          } else {
-            if (missCount === 0) {
-              statusBadge = '<span class="tier-badge t1">🎉 🥇 1等当選！（全' + totalFrames + '枠的中）</span>';
-              isWin = true;
-            } else if (missCount === 1) {
-              statusBadge = '<span class="tier-badge t2">🎉 🥈 2等当選！（1枠外れ・' + hitCount + '/' + totalFrames + '的中）</span>';
-              isWin = true;
-            } else if (missCount === 2) {
-              statusBadge = '<span class="tier-badge t3">🎉 🥉 3等当選！（2枠外れ・' + hitCount + '/' + totalFrames + '的中）</span>';
-              isWin = true;
-            } else if (missCount === 3) {
-              statusBadge = '<span class="tier-badge miss">😢 惜敗・あと1枠で3等（' + hitCount + '/' + totalFrames + '枠的中）</span>';
-            } else {
-              statusBadge = '<span class="tier-badge miss">❌ 不的中（' + hitCount + '/' + totalFrames + '枠的中）</span>';
-            }
-          }
+          if (missCount === 0) { statusBadge = '<span class="tier-badge t1">🎉 🥇 1等当選！</span>'; isWin = true; }
+          else if (missCount === 1) { statusBadge = '<span class="tier-badge t2">🎉 🥈 2等当選！（1枠外れ）</span>'; isWin = true; }
+          else if (missCount === 2) { statusBadge = '<span class="tier-badge t3">🎉 🥉 3等当選！（2枠外れ）</span>'; isWin = true; }
+          else { statusBadge = '<span class="tier-badge miss">❌ 不的中（' + hitCount + '/' + totalFrames + '的中）</span>'; }
         }
 
         return {
-          hitCount: hitCount,
-          knownCount: knownCount,
-          missCount: missCount,
-          totalFrames: totalFrames,
-          lineHtml: tokenHtmlList.join(" － "),
-          statusBadge: statusBadge,
-          isWin: isWin
+          hitCount: hitCount, knownCount: knownCount, missCount: missCount,
+          totalFrames: totalFrames, lineHtml: tokenHtmlList.join(" － "),
+          statusBadge: statusBadge, isWin: isWin
         };
       }
 
@@ -1705,8 +1134,6 @@
           var a = actuals[String(x.f)];
           return a && a.res !== undefined ? String(a.res) : null;
         });
-        var miniACodes = mainCodes.slice(0, 5);
-        var miniBCodes = mainCodes.slice(5, 10);
         var goal3Codes = [];
         analyzed.slice(0, 3).forEach(function(x) {
           var a = actuals[String(x.f)];
@@ -1714,78 +1141,91 @@
             goal3Codes.push(String(Math.min(3, parseInt(a.hs, 10))));
             goal3Codes.push(String(Math.min(3, parseInt(a.as, 10))));
           } else {
-            goal3Codes.push(null);
-            goal3Codes.push(null);
+            goal3Codes.push(null); goal3Codes.push(null);
           }
         });
         return {
-          mini_a: miniACodes,
-          mini_b: miniBCodes,
+          mini_a: mainCodes.slice(0, 5),
+          mini_b: mainCodes.slice(5, 10),
           goal3: goal3Codes,
           toto_main: mainCodes
         };
       }
 
-      function renderMyBetsSection(actualArrays) {
-        var listEl = document.getElementById("my-bets-result-list");
-        if (!listEl) return;
-        var myBets = loadMyBets(currentRoundKey);
-        if (!myBets || myBets.length === 0) {
-          listEl.innerHTML =
-            '<div style="font-size:12.5px; color:#94a3b8; padding:8px 4px;">まだこの開催回の購入チケットが登録されていません。上の入力欄または「⚡ AI提案プランからワンタップ登録」ボタンで登録できます。</div>';
-          return;
+      function registerAiPlanToMyBets(gameType, modeOrBudget) {
+        if (!lastAnalyzedCache || lastAnalyzedCache.length === 0) return;
+        var items = [];
+        if (gameType === "goal3" && lastAnalyzedCache.length >= 3) {
+          lastAnalyzedCache.slice(0, 3).forEach(function(x) { items.push(x.gH); items.push(x.gA); });
+        } else if (gameType === "mini_a" && lastAnalyzedCache.length >= 5) {
+          items = lastAnalyzedCache.slice(0, 5).map(function(x) { return x.c1x2; });
+        } else if (gameType === "mini_b" && lastAnalyzedCache.length >= 10) {
+          items = lastAnalyzedCache.slice(5, 10).map(function(x) { return x.c1x2; });
+        } else if (gameType === "toto_main") {
+          items = lastAnalyzedCache.map(function(x) { return x.c1x2; });
         }
+        if (items.length === 0) return;
 
-        var gameNames = {
-          mini_a: "mini toto A組",
-          mini_b: "mini toto B組",
-          goal3: "toto GOAL3",
-          toto_main: "toto 本戦"
-        };
-
-        var totalCost = 0;
-        var rowsHtml = myBets.map(function(bet) {
-          totalCost += (bet.cost || 100);
-          var actArr = actualArrays[bet.gameType] || [];
-          var j = judgeTicketAgainstActuals(bet.picks, actArr, bet.gameType);
-          return (
-            '<div class="my-ticket-item' + (j.isWin ? ' win-item' : '') + '">' +
-              '<div>' +
-                '<div style="font-size:12px; color:#fbbf24; font-weight:bold; margin-bottom:4px;">' +
-                  '[' + (gameNames[bet.gameType] || bet.gameType) + '] ' + (bet.label || "登録チケット") + '（' + formatYen(bet.cost || 100) + '）' +
-                '</div>' +
-                '<div style="font-size:14.5px; font-weight:bold; letter-spacing:1px;">' + j.lineHtml + '</div>' +
-              '</div>' +
-              '<div style="display:flex; align-items:center; gap:6px;">' +
-                j.statusBadge +
-                '<button type="button" class="del-ticket-btn" data-del-id="' + bet.id + '">削除</button>' +
-              '</div>' +
-            '</div>'
-          );
-        }).join("");
-
-        listEl.innerHTML =
-          '<div style="font-size:12px; color:#6ee7b7; font-weight:bold; margin-bottom:8px;">✓ 登録済み購入チケット（計 ' + myBets.length + '件 ／ 合計購入額: ' + formatYen(totalCost) + '）</div>' +
-          rowsHtml;
-
-        listEl.querySelectorAll(".del-ticket-btn").forEach(function(btn) {
-          btn.addEventListener("click", function() {
-            var targetId = btn.getAttribute("data-del-id");
-            var filtered = loadMyBets(currentRoundKey).filter(function(b) { return b.id !== targetId; });
-            saveMyBets(currentRoundKey, filtered);
-            renderMyBetsSection(actualArrays);
+        var m = evaluatePlanMetrics(items, modeOrBudget, gameType);
+        var currentBets = loadMyBets(currentRoundKey);
+        var modeName = modeOrBudget === "smart" ? "AI強弱マルチ" : (modeOrBudget + "円プラン");
+        m.ticketGroups.forEach(function(grp) {
+          currentBets.push({
+            id: "bet_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
+            gameType: gameType,
+            label: modeName,
+            picks: grp.picks,
+            cost: grp.cost
           });
         });
+        saveMyBets(currentRoundKey, currentBets);
+        if (currentRoundKey) renderRound(currentRoundKey);
+
+        document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
+        document.querySelectorAll(".tab-content").forEach(function(c) { c.classList.add("hidden"); });
+        var tab2Btn = document.querySelector('.tab-btn[data-tab="tab2"]');
+        if (tab2Btn) tab2Btn.classList.add("active");
+        document.getElementById("tab2").classList.remove("hidden");
       }
 
       function renderResultsTabSection(analyzed, actuals) {
         var actualArrays = buildActualCodeArrays(analyzed, actuals);
-        renderMyBetsSection(actualArrays);
+        var listEl = document.getElementById("my-bets-result-list");
+        var myBets = loadMyBets(currentRoundKey);
+        var gameNames = { mini_a: "mini toto A組", mini_b: "mini toto B組", goal3: "toto GOAL3", toto_main: "toto 本戦" };
 
-        var actKeys = Object.keys(actuals);
-        if (actKeys.length === 0) {
-          document.getElementById("results-list").innerHTML =
-            '<div class="empty-msg">対象試合の終了後に結果データが自動取得され、mini toto・GOAL3・購入プラン別の的中照合が表示されます。</div>';
+        if (!myBets || myBets.length === 0) {
+          listEl.innerHTML = '<div style="font-size:12px; color:#94a3b8;">まだ登録された買い目がありません。「📌 購入済に登録」ボタンまたは上の入力欄から追加できます。</div>';
+        } else {
+          var totalCost = 0;
+          var rowsHtml = myBets.map(function(bet) {
+            totalCost += (bet.cost || 100);
+            var j = judgeTicketAgainstActuals(bet.picks, actualArrays[bet.gameType] || [], bet.gameType);
+            return (
+              '<div class="my-ticket-item' + (j.isWin ? ' win-item' : '') + '">' +
+                '<div>' +
+                  '<div style="font-size:11.5px; color:#fbbf24; font-weight:bold;">[' + (gameNames[bet.gameType] || bet.gameType) + '] ' + (bet.label || "") + '（' + formatYen(bet.cost || 100) + '）</div>' +
+                  '<div style="font-size:14px; font-weight:bold; margin-top:2px;">' + j.lineHtml + '</div>' +
+                '</div>' +
+                '<div style="display:flex; align-items:center; gap:6px;">' +
+                  j.statusBadge +
+                  '<button type="button" class="del-ticket-btn" data-del-id="' + bet.id + '">削除</button>' +
+                '</div>' +
+              '</div>'
+            );
+          }).join("");
+          listEl.innerHTML = '<div style="font-size:12px; color:#6ee7b7; font-weight:bold; margin-bottom:6px;">✓ 登録済み（計 ' + formatYen(totalCost) + '）</div>' + rowsHtml;
+          listEl.querySelectorAll(".del-ticket-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() {
+              var id = btn.getAttribute("data-del-id");
+              saveMyBets(currentRoundKey, loadMyBets(currentRoundKey).filter(function(b) { return b.id !== id; }));
+              renderResultsTabSection(analyzed, actuals);
+            });
+          });
+        }
+
+        if (Object.keys(actuals).length === 0) {
+          document.getElementById("results-list").innerHTML = '<div class="empty-msg">試合終了後に確定結果とプラン別の答え合わせが表示されます。</div>';
           return;
         }
 
@@ -1795,516 +1235,101 @@
         var mbItems = analyzed.slice(5, 10).map(function(x) { return x.c1x2; });
         var tmItems = analyzed.map(function(x) { return x.c1x2; });
 
-        function buildGameResultSummaryRow(title, gameType, items, flipCnt, actCodes, scoreSummaryTxt) {
-          var flipSet = selectBestCoverIndices(items, flipCnt);
-          var mainPicks = items.map(function(it) { return [it.top1]; });
-          var subPicks = items.map(function(it, idx) {
-            return flipSet.indexOf(idx) !== -1 ? [it.top2] : [it.top1];
-          });
-          var wCoverPicks = items.map(function(it, idx) {
-            return flipSet.indexOf(idx) !== -1 ? [it.top1, it.top2] : [it.top1];
-          });
-
-          var jMain = judgeTicketAgainstActuals(mainPicks, actCodes, gameType);
-          var jSub = judgeTicketAgainstActuals(subPicks, actCodes, gameType);
-          var jW = judgeTicketAgainstActuals(wCoverPicks, actCodes, gameType);
-          var actStr = actCodes.map(function(c) { return c !== null ? c : "?"; }).join(" － ");
-
-          return (
-            '<div class="plan-card" style="margin-bottom:14px;">' +
-              '<div class="plan-header">' +
-                '<div class="plan-title">' + title + '</div>' +
-                '<span class="plan-badge">確定出目：' + actStr + '</span>' +
-              '</div>' +
-              (scoreSummaryTxt ? '<div class="plan-sub">' + scoreSummaryTxt + '</div>' : '') +
-              '<div class="ticket-box">' +
-                '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">' +
-                  '<div><span class="line-tag-main">AI本命シングル</span><span class="ticket-line">' + jMain.lineHtml + '</span></div>' +
-                  '<div>' + jMain.statusBadge + '</div>' +
-                '</div>' +
-              '</div>' +
-              '<div class="ticket-box">' +
-                '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">' +
-                  '<div><span class="line-tag-sub">AIもう1口シングル</span><span class="ticket-line">' + jSub.lineHtml + '</span></div>' +
-                  '<div>' + jSub.statusBadge + '</div>' +
-                '</div>' +
-              '</div>' +
-              '<div class="ticket-box">' +
-                '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">' +
-                  '<div><span class="ticket-label" style="display:inline-block; margin-right:8px;">◆ 基本Wマルチ</span><span class="ticket-line">' + jW.lineHtml + '</span></div>' +
-                  '<div>' + jW.statusBadge + '</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>'
-          );
-        }
-
-        var g3ScoreDesc = analyzed.slice(0, 3).map(function(x) {
-          var a = actuals[String(x.f)];
-          return a ? ("第" + x.f + "枠: " + x.h + " " + a.hs + "-" + a.as + " " + x.a) : ("第" + x.f + "枠: 未定");
-        }).join(" ／ ");
-
-        var gameSummariesHtml =
-          '<div class="section-heading">🎯 くじ種別（mini toto A/B・GOAL3・本戦）確定結果＆AI予想照合</div>' +
-          buildGameResultSummaryRow("① mini toto A組（第1〜5枠）結果照合", "mini_a", maItems, 2, actualArrays.mini_a, "対象：第1枠〜第5枠（5試合すべて的中＝1等）") +
-          (analyzed.length >= 10 ? buildGameResultSummaryRow("② mini toto B組（第6〜10枠）結果照合", "mini_b", mbItems, 2, actualArrays.mini_b, "対象：第6枠〜第10枠（5試合すべて的中＝1等）") : "") +
-          buildGameResultSummaryRow("③ toto GOAL3（第1〜3枠・計6枠）結果照合", "goal3", g3Items, 2, actualArrays.goal3, "確定スコア：" + g3ScoreDesc + "（※3点以上はすべて[3]判定 ／ 6枠的中＝1等・5枠的中＝2等）") +
-          buildGameResultSummaryRow("④ toto 本戦（全" + analyzed.length + "枠）結果照合", "toto_main", tmItems, 3, actualArrays.toto_main, "13枠的中＝1等 ／ 12枠的中(1枠外れ)＝2等 ／ 11枠的中(2枠外れ)＝3等");
-
-        var budgets = [500, 1000, 1500, 2000];
+        var modes = ["smart", 500, 1000, 1500, 2000];
         var gameRowsCfg = [
-          { label: "mini toto A組（5枠）", gameType: "mini_a", items: maItems, act: actualArrays.mini_a },
-          { label: "mini toto B組（5枠）", gameType: "mini_b", items: mbItems, act: actualArrays.mini_b },
-          { label: "toto GOAL3（6枠）", gameType: "goal3", items: g3Items, act: actualArrays.goal3 },
-          { label: "toto 本戦（13枠）", gameType: "toto_main", items: tmItems, act: actualArrays.toto_main }
+          { label: "mini toto A組（1〜5枠）", gameType: "mini_a", items: maItems, act: actualArrays.mini_a },
+          { label: "mini toto B組（6〜10枠）", gameType: "mini_b", items: mbItems, act: actualArrays.mini_b },
+          { label: "toto GOAL3（第1〜3枠）", gameType: "goal3", items: g3Items, act: actualArrays.goal3 },
+          { label: "toto 本戦（全13枠）", gameType: "toto_main", items: tmItems, act: actualArrays.toto_main }
         ];
 
-        var planComparisonRows = gameRowsCfg.map(function(gCfg) {
+        var tableRows = gameRowsCfg.map(function(gCfg) {
           if (!gCfg.items || gCfg.items.length === 0) return "";
-          var cells = budgets.map(function(bYen) {
-            var m = evaluatePlanMetrics(gCfg.items, bYen, gCfg.gameType);
-            var bestHit = -1;
-            var bestGroupResult = null;
-            var bestGroupLabel = "";
-
+          var actStr = gCfg.act.map(function(c) { return c !== null ? c : "?"; }).join("-");
+          var cells = modes.map(function(md) {
+            var m = evaluatePlanMetrics(gCfg.items, md, gCfg.gameType);
+            var bestJ = null, bestHit = -1;
             m.ticketGroups.forEach(function(grp) {
               var jr = judgeTicketAgainstActuals(grp.picks, gCfg.act, gCfg.gameType);
-              if (jr.hitCount > bestHit) {
-                bestHit = jr.hitCount;
-                bestGroupResult = jr;
-                bestGroupLabel = grp.label.split("（")[0];
-              }
+              if (jr.hitCount > bestHit) { bestHit = jr.hitCount; bestJ = jr; }
             });
-
-            if (!bestGroupResult) return "<td>-</td>";
             return (
               '<td>' +
-                '<div style="margin-bottom:3px;">' + bestGroupResult.statusBadge + '</div>' +
-                '<div style="font-size:11px; color:#94a3b8;">最高: ' + bestGroupResult.hitCount + '/' + bestGroupResult.totalFrames + '枠（' + bestGroupLabel + '）</div>' +
+                '<div>' + (bestJ ? bestJ.statusBadge : "-") + '</div>' +
+                '<div style="font-size:11px; color:#94a3b8; margin-top:2px;">' + formatYen(m.cost) + '（' + (bestJ ? bestJ.hitCount + '/' + bestJ.totalFrames + '枠' : '-') + '）</div>' +
               '</td>'
             );
           }).join("");
-
-          return (
-            '<tr>' +
-              '<td style="font-weight:bold; color:#38bdf8;">' + gCfg.label + '</td>' +
-              cells +
-            '</tr>'
-          );
+          return '<tr><td><strong style="color:#38bdf8;">' + gCfg.label + '</strong><br/><span style="font-size:11px; color:#94a3b8;">確定出目: ' + actStr + '</span></td>' + cells + '</tr>';
         }).join("");
 
-        var planComparisonHtml =
-          '<div class="section-heading">💰 購入プラン別（500円〜2,000円）AI提案の的中結果一覧</div>' +
-          '<div class="tier-breakdown-box" style="margin-bottom:18px;">' +
-            '<div class="tier-breakdown-header">' +
-              '<span>各予算プラン（5口〜20口）を購入していた場合の最高的中枠数・当選結果</span>' +
-            '</div>' +
-            '<table class="tier-table">' +
-              '<thead>' +
-                '<tr>' +
-                  '<th>くじ種</th>' +
-                  '<th>💵 500円プラン（5口）</th>' +
-                  '<th>💴 1,000円プラン（10口）</th>' +
-                  '<th>💎 1,500円プラン（15口）</th>' +
-                  '<th>👑 2,000円プラン（20口）</th>' +
-                '</tr>' +
-              '</thead>' +
-              '<tbody>' + planComparisonRows + '</tbody>' +
-            '</table>' +
-          '</div>';
-
-        var hitTop1 = 0, hitTop2 = 0, totalFin = 0;
-        var matchRows = analyzed.map(function(x) {
+        var matchScoreRows = analyzed.map(function(x) {
           var a = actuals[String(x.f)];
           if (!a) return "";
-          totalFin++;
-          var ok1 = (String(a.res) === x.c1x2.top1);
-          var ok2 = (String(a.res) === x.c1x2.top1 || String(a.res) === x.c1x2.top2);
-          if (ok1) hitTop1++;
-          if (ok2) hitTop2++;
-          var badgeTxt = ok1 ? '✅ 本命的中' : (ok2 ? '☑️ 対抗カバー的中' : '❌ 不的中');
-          var g3Info = "";
-          if (x.f <= 3) {
-            var actGH = String(Math.min(3, parseInt(a.hs, 10)));
-            var actGA = String(Math.min(3, parseInt(a.as, 10)));
-            var okGH = (actGH === x.gH.top1 || actGH === x.gH.top2);
-            var okGA = (actGA === x.gA.top1 || actGA === x.gA.top2);
-            g3Info = '<div class="match-metrics" style="margin-top:4px; margin-bottom:0;">GOAL3結果: H[' + actGH + '] (予想:' + x.gH.top1 + '/' + x.gH.top2 + ' ' + (okGH ? '✅' : '❌') + ') ／ A[' + actGA + '] (予想:' + x.gA.top1 + '/' + x.gA.top2 + ' ' + (okGA ? '✅' : '❌') + ')</div>';
-          }
+          var ok1 = String(a.res) === x.c1x2.top1;
+          var ok2 = ok1 || String(a.res) === x.c1x2.top2;
+          var mark = ok1 ? '<span style="color:#4ade80; font-weight:bold;">✅ 本命的中</span>' : (ok2 ? '<span style="color:#38bdf8; font-weight:bold;">☑️ 2点W的中</span>' : '<span style="color:#f87171;">❌ 波乱外れ</span>');
           return (
-            '<div class="match-card">' +
-              '<div class="match-top">' +
-                '<div class="match-teams">第' + x.f + '枠：' + x.h + ' ' + a.hs + ' - ' + a.as + ' ' + x.a + '</div>' +
-                '<div class="match-rec">確定結果: [' + a.res + '] ｜ AI本命: ' + x.c1x2.top1 + ' / 対抗: ' + x.c1x2.top2 + ' （' + badgeTxt + '）</div>' +
-              '</div>' +
-              g3Info +
+            '<div class="compact-match-row">' +
+              '<div><strong>第' + x.f + '枠</strong>：' + x.h + ' <strong>' + a.hs + ' - ' + a.as + '</strong> ' + x.a + ' （結果: <strong>[' + a.res + ']</strong>）</div>' +
+              '<div>AI予想: [' + x.c1x2.top1 + '/' + x.c1x2.top2 + '] ｜ ' + mark + '</div>' +
             '</div>'
           );
         }).join("");
 
         document.getElementById("results-list").innerHTML =
-          gameSummariesHtml +
-          planComparisonHtml +
-          '<div class="section-heading">⚽ 全' + totalFin + '試合 スコア＆本命・対抗照合（本命的中 ' + hitTop1 + '試合 ／ 対抗含め的中 ' + hitTop2 + '試合）</div>' +
-          matchRows;
+          '<div class="plan-card">' +
+            '<div class="plan-title" style="margin-bottom:8px;">📊 くじ種・買い方モード別の的中結果一覧</div>' +
+            '<table class="tier-table">' +
+              '<thead><tr><th>くじ種（確定出目）</th><th>⚡ AI強弱マルチ</th><th>500円</th><th>1,000円</th><th>1,500円</th><th>2,000円</th></tr></thead>' +
+              '<tbody>' + tableRows + '</tbody>' +
+            '</table>' +
+          '</div>' +
+          '<div class="plan-card">' +
+            '<div class="plan-title" style="margin-bottom:8px;">⚽ 各試合の確定スコア＆的中一覧（全' + Object.keys(actuals).length + '試合）</div>' +
+            matchScoreRows +
+          '</div>';
       }
 
-      /* タブ4: 振り返り（試合結果の精度検証・波乱原因分析・次節への戦略フィードバック） */
       function renderReviewTabSection(analyzed, actuals) {
         var revEl = document.getElementById("review-list");
         if (!revEl) return;
 
-        var all1x2 = analyzed.map(function(x) { return x.c1x2; });
-        var solidIndices = selectSuperSolidIndices(all1x2, 3, true);
-        var coverIndices = selectBestCoverIndices(all1x2, 4);
-
-        var totalFinished = 0;
-        var hitMainCnt = 0;
-        var hitSubCnt = 0;
-        var upsetCnt = 0;
-        var count1 = 0, count0 = 0, count2 = 0;
-        var highScoringMatches = 0;
-        var upsetMatches = [];
+        var sMatches = analyzed.filter(function(x) { return x.c1x2.rank === "S"; });
+        var totalFin = 0, hit1 = 0, hit2 = 0, sHit = 0, sTotal = 0;
 
         analyzed.forEach(function(x) {
           var a = actuals[String(x.f)];
           if (!a || a.res === undefined) return;
-          totalFinished++;
-          var resStr = String(a.res);
-          if (resStr === "1") count1++;
-          else if (resStr === "0") count0++;
-          else if (resStr === "2") count2++;
-
-          var hs = parseInt(a.hs, 10) || 0;
-          var as_ = parseInt(a.as, 10) || 0;
-          if (hs + as_ >= 4) highScoringMatches++;
-
-          if (resStr === x.c1x2.top1) {
-            hitMainCnt++;
-          } else if (resStr === x.c1x2.top2) {
-            hitSubCnt++;
-          } else {
-            upsetCnt++;
-            var reasonParts = [];
-            if (resStr === "0") {
-              reasonParts.push("勝敗決着予想に対し引き分け[0]（" + hs + "-" + as_ + "）の痛み分け決着");
-            } else if (resStr === "2") {
-              reasonParts.push("アウェイの" + x.a + "が" + hs + "-" + as_ + "で勝利する番狂わせ");
-            } else {
-              reasonParts.push("ホームの" + x.h + "が" + hs + "-" + as_ + "で勝利");
-            }
-            if (hs + as_ >= 5) {
-              reasonParts.push("合計" + (hs + as_) + "得点の激しい乱打戦により戦前λ（" + x.hLam.toFixed(2) + "-" + x.aLam.toFixed(2) + "）から大きく乖離");
-            } else if (Math.abs(hs - as_) >= 3) {
-              reasonParts.push(Math.abs(hs - as_) + "点差がつく一方的な展開");
-            }
-            upsetMatches.push({
-              game: x,
-              act: a,
-              reason: reasonParts.join("・")
-            });
+          totalFin++;
+          var r = String(a.res);
+          if (r === x.c1x2.top1) hit1++;
+          if (r === x.c1x2.top1 || r === x.c1x2.top2) hit2++;
+          if (x.c1x2.rank === "S") {
+            sTotal++;
+            if (r === x.c1x2.top1) sHit++;
           }
         });
 
-        /* 1. 全体精度サマリーパネル（試合終了後に表示） */
-        var summaryDashboardHtml = "";
-        if (totalFinished > 0) {
-          var mainRate = Math.round((hitMainCnt / totalFinished) * 100);
-          var coverRate = Math.round(((hitMainCnt + hitSubCnt) / totalFinished) * 100);
-
-          var solidHit = 0, solidTotal = 0;
-          solidIndices.forEach(function(idx) {
-            var g = analyzed[idx];
-            var a = actuals[String(g.f)];
-            if (a && a.res !== undefined) {
-              solidTotal++;
-              if (String(a.res) === g.c1x2.top1) solidHit++;
-            }
-          });
-
-          var wSaved = 0, wHitTotal = 0, wTotal = 0;
-          coverIndices.forEach(function(idx) {
-            var g = analyzed[idx];
-            var a = actuals[String(g.f)];
-            if (a && a.res !== undefined) {
-              wTotal++;
-              if (String(a.res) === g.c1x2.top1) wHitTotal++;
-              else if (String(a.res) === g.c1x2.top2) {
-                wHitTotal++;
-                wSaved++;
-              }
-            }
-          });
-
-          summaryDashboardHtml =
-            '<div class="strategy-box">' +
-              '<div class="strategy-header">' +
-                '<div class="strategy-title">📊 今節のAI予測精度・結果振り返りダッシュボード（確定 ' + totalFinished + '試合）</div>' +
-                '<span class="strategy-sub-pill">出目内訳：ホーム勝[1] ' + count1 + '件 ／ 引分[0] ' + count0 + '件 ／ アウェイ勝[2] ' + count2 + '件</span>' +
-              '</div>' +
-              '<div class="ev-grid" style="margin-bottom:14px;">' +
-                '<div class="ev-box highlight">' +
-                  '<div class="ev-label">🎯 AI本命（1点）的中率</div>' +
-                  '<div class="ev-value green">' + hitMainCnt + ' / ' + totalFinished + ' 試合（' + mainRate + '%）</div>' +
-                  '<div class="ev-note">鉄板本命TOP3の1点的中：' + solidHit + ' / ' + solidTotal + ' 試合</div>' +
-                '</div>' +
-                '<div class="ev-box highlight">' +
-                  '<div class="ev-label">🛡️ Wカバー（本命＋対抗）的中率</div>' +
-                  '<div class="ev-value gold">' + (hitMainCnt + hitSubCnt) + ' / ' + totalFinished + ' 試合（' + coverRate + '%）</div>' +
-                  '<div class="ev-note">対抗カバーによる救済成功：+' + hitSubCnt + ' 試合（推奨W枠内で' + wSaved + '試合救済）</div>' +
-                '</div>' +
-                '<div class="ev-box">' +
-                  '<div class="ev-label">💥 波乱（第3候補決着）発生数</div>' +
-                  '<div class="ev-value">' + upsetCnt + ' / ' + totalFinished + ' 試合</div>' +
-                  '<div class="ev-note">4得点以上の乱打戦カード：' + highScoringMatches + ' 試合</div>' +
-                '</div>' +
-              '</div>' +
-              '<div class="strategy-conclusion" style="margin-bottom:0;">' +
-                '<strong>【今節の総評】</strong>全' + totalFinished + '試合中、AI本命が <strong>' + hitMainCnt + '試合</strong>、対抗が <strong>' + hitSubCnt + '試合</strong> 的中し、本命＋対抗のカバー率は <strong>' + coverRate + '%（' + (hitMainCnt + hitSubCnt) + '/' + totalFinished + '枠）</strong> でした。' +
-                (solidHit === solidTotal && solidTotal > 0 ? ' 特に<strong>「🔥鉄板本命TOP3」が ' + solidHit + '/' + solidTotal + ' 試合すべて本命通り的中</strong>し、軸としての役割を完璧に果たしました。' : '') +
-              '</div>' +
-            '</div>';
-        }
-
-        /* 2. 鉄板本命TOP3の検証カード */
-        var solidRowsHtml = solidIndices.map(function(idx, rank) {
-          var g = analyzed[idx];
-          var a = actuals[String(g.f)];
-          var stTxt = g.ctx.isLineupAnnounced ? "✓スタメン反映済" : "未発表";
-          var rightBadge = '<span class="tier-badge miss">⏳ 結果待ち</span>';
-          var scoreTxt = "";
-          if (a && a.res !== undefined) {
-            scoreTxt = " ｜ 確定スコア: <strong>" + g.h + " " + a.hs + " - " + a.as + " " + g.a + "（結果:[" + a.res + "]）</strong>";
-            if (String(a.res) === g.c1x2.top1) {
-              rightBadge = '<span class="tier-badge t3">✅ 鉄板本命通り的中！</span>';
-            } else if (String(a.res) === g.c1x2.top2) {
-              rightBadge = '<span class="tier-badge t2">☑️ 対抗[' + g.c1x2.top2 + ']で決着</span>';
-            } else {
-              rightBadge = '<span class="tier-badge upset">💥 波乱外れ（結果:[' + a.res + ']）</span>';
-            }
-          }
-          return (
-            '<div class="review-item-row">' +
-              '<div>' +
-                '<div class="review-item-title">鉄板' + (rank + 1) + '位：第' + g.f + '枠 ' + g.h + ' vs ' + g.a + ' <span style="font-size:11.5px; color:#94a3b8;">[' + stTxt + ']</span></div>' +
-                '<div class="review-item-sub">AI本命: <strong>[' + g.c1x2.top1 + ']（勝率 ' + g.c1x2.p1 + '% / 対抗差 +' + g.c1x2.diff + '%）</strong>' + scoreTxt + '</div>' +
-              '</div>' +
-              '<div>' + rightBadge + '</div>' +
-            '</div>'
-          );
-        }).join("");
-
-        var solidCardHtml =
-          '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:6px;">🔥 鉄板本命TOP3 の答え合わせ（軸カードの信頼度検証）</div>' +
-            '<div class="plan-sub">AIが「1点固定の軸」として最も高く評価した上位3試合の予測と結果の照合です。</div>' +
-            solidRowsHtml +
-          '</div>';
-
-        /* 3. 波乱・接戦優先カバーTOP4（Wマルチ推奨枠）の検証カード */
-        var coverRowsHtml = coverIndices.map(function(idx, rank) {
-          var g = analyzed[idx];
-          var a = actuals[String(g.f)];
-          var stTxt = g.ctx.isUnannouncedRisk ? "⚠️2日目・スタメン未発表" : "接戦・波乱警戒枠";
-          var rightBadge = '<span class="tier-badge miss">⏳ 結果待ち</span>';
-          var scoreTxt = "";
-          if (a && a.res !== undefined) {
-            scoreTxt = " ｜ 確定スコア: <strong>" + g.h + " " + a.hs + " - " + a.as + " " + g.a + "（結果:[" + a.res + "]）</strong>";
-            if (String(a.res) === g.c1x2.top2) {
-              rightBadge = '<span class="tier-badge t1">🎯 Wマルチ救済成功！（対抗[' + g.c1x2.top2 + ']拾い）</span>';
-            } else if (String(a.res) === g.c1x2.top1) {
-              rightBadge = '<span class="tier-badge t3">✅ 本命[' + g.c1x2.top1 + ']で順当的中</span>';
-            } else {
-              rightBadge = '<span class="tier-badge upset">💥 第3候補[' + a.res + ']の大波乱</span>';
-            }
-          }
-          return (
-            '<div class="review-item-row">' +
-              '<div>' +
-                '<div class="review-item-title">優先' + (rank + 1) + '位：第' + g.f + '枠 ' + g.h + ' vs ' + g.a + ' <span style="font-size:11.5px; color:#94a3b8;">[' + stTxt + ']</span></div>' +
-                '<div class="review-item-sub">推奨Wマルチ: <strong>[' + g.c1x2.top1 + '/' + g.c1x2.top2 + ']</strong>（本命' + g.c1x2.p1 + '%・対抗' + g.c1x2.p2 + '%）' + scoreTxt + '</div>' +
-              '</div>' +
-              '<div>' + rightBadge + '</div>' +
-            '</div>'
-          );
-        }).join("");
-
-        var coverCardHtml =
-          '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:6px;">⚠️ 波乱・接戦優先カバーTOP4 の答え合わせ（Wマルチ有効性検証）</div>' +
-            '<div class="plan-sub">接戦度や2日目リスクから「Wマルチ・もう1口」で優先カバーした4試合の検証です。</div>' +
-            coverRowsHtml +
-          '</div>';
-
-        /* 4. 今節の波乱（本命・対抗外れ）カードの原因分析と次節への教訓 */
-        var upsetSectionHtml = "";
-        if (totalFinished > 0) {
-          var upsetListHtml = "";
-          if (upsetMatches.length === 0) {
-            upsetListHtml = '<div class="review-item-row"><div class="review-item-title">🎉 今節は本命・対抗から漏れた試合（第3候補決着）が0件でした！</div></div>';
-          } else {
-            upsetListHtml = upsetMatches.map(function(u) {
-              var g = u.game;
-              var a = u.act;
-              return (
-                '<div class="review-item-row">' +
-                  '<div>' +
-                    '<div class="review-item-title">第' + g.f + '枠：' + g.h + ' ' + a.hs + ' - ' + a.as + ' ' + g.a + ' （確定結果: [' + a.res + '] ／ AI予想: 本命[' + g.c1x2.top1 + ']・対抗[' + g.c1x2.top2 + ']）</div>' +
-                    '<div class="review-item-sub">📌 <strong>波乱要因の分析</strong>：' + u.reason + '（第3候補[' + g.c1x2.top3 + ']のAI事前確率は ' + g.c1x2.p3 + '%）</div>' +
-                  '</div>' +
-                  '<div><span class="tier-badge upset">第3候補[' + a.res + ']決着</span></div>' +
-                '</div>'
-              );
+        var sListHtml = sMatches.length === 0
+          ? '<div style="font-size:13px; color:#94a3b8;">今節は絶対基準（勝率55%以上＆差25%以上）を満たす鉄板試合がありませんでした。</div>'
+          : sMatches.map(function(x) {
+              var a = actuals[String(x.f)];
+              var resTxt = a ? ('確定: ' + x.h + ' ' + a.hs + '-' + a.as + ' ' + x.a + ' → ' + (String(a.res) === x.c1x2.top1 ? '<strong style="color:#4ade80;">✅ 鉄板1点的中！</strong>' : '<strong style="color:#f87171;">❌ 波乱外れ</strong>')) : '結果待ち';
+              return '<div class="compact-match-row"><div><strong>第' + x.f + '枠：' + x.h + ' vs ' + x.a + '</strong>（AI本命: [' + x.c1x2.top1 + '] 勝率' + x.c1x2.p1 + '%）</div><div>' + resTxt + '</div></div>';
             }).join("");
-          }
 
-          var nextLessons = [];
-          if (count2 >= 5) {
-            nextLessons.push("<li><strong>アウェイ勝利[2]が多発（" + count2 + "/" + totalFinished + "試合）</strong>：ホームアドバンテージ以上にアウェイ側の決定力が上回る試合が目立ちました。接戦枠で迷った際は引き分け[0]だけでなくアウェイ勝ち[2]のWカバーも有効です。</li>");
-          }
-          if (count0 >= 4) {
-            nextLessons.push("<li><strong>引き分け[0]が多発（" + count0 + "/" + totalFinished + "試合）</strong>：拮抗したカードでのドロー決着が多く発生しました。予測λの差が0.25未満の試合は[0]絡みのWマルチが機能しやすい傾向にあります。</li>");
-          }
-          if (highScoringMatches >= 3) {
-            nextLessons.push("<li><strong>多得点・乱打戦の多発（4得点以上が" + highScoringMatches + "試合）</strong>：toto GOAL3で[3]（3点以上）が絡む高配当パターンでした。攻撃力の高いチーム同士の対戦ではGOAL3で[2]や[3]を押さえると妙味があります。</li>");
-          }
-          nextLessons.push("<li><strong>mini totoの組選び戦略</strong>：今節も鉄板軸が機能した組では4/5枠的中（あと1枠で1等）まで迫っています。次節も<strong>「スタメン判明試合が多い組」かつ「鉄板軸が2試合以上ある組」</strong>に予算を集中するのが最短の1等ルートです。</li>");
-
-          upsetSectionHtml =
-            '<div class="plan-card">' +
-              '<div class="plan-title" style="margin-bottom:6px;">💥 今節の波乱（AI本命・対抗外れ）カードの原因分析</div>' +
-              '<div class="plan-sub">本命・対抗の両方が外れ、第3候補（穴目）で決着した' + upsetMatches.length + '試合の振り返りです。</div>' +
-              upsetListHtml +
+        revEl.innerHTML =
+          '<div class="plan-card">' +
+            '<div class="plan-title" style="margin-bottom:8px;">📊 今節のシンプル振り返り（確定 ' + totalFin + '試合）</div>' +
+            '<div class="simple-metrics">' +
+              '<span>🔥 絶対鉄板(S)的中: <strong class="green">' + sHit + ' / ' + sTotal + ' 試合</strong></span>' +
+              '<span>🎯 本命(1点)的中: <strong>' + hit1 + ' / ' + totalFin + ' 試合</strong></span>' +
+              '<span>⚡ 2点ダブル内的中: <strong class="gold">' + hit2 + ' / ' + totalFin + ' 試合</strong></span>' +
             '</div>' +
-            '<div class="strategy-box" style="margin-bottom:0;">' +
-              '<div class="strategy-header">' +
-                '<div class="strategy-title">🧭 次節に向けたAIモデル＆購入戦略フィードバック</div>' +
-              '</div>' +
-              '<ul class="strategy-list">' + nextLessons.join("") + '</ul>' +
-            '</div>';
-        }
-
-        revEl.innerHTML = summaryDashboardHtml + solidCardHtml + coverCardHtml + upsetSectionHtml;
-      }
-
-      function renderPlansSection(analyzed) {
-        var headingEl = document.getElementById("plans-heading");
-        headingEl.textContent =
-          "💰 予算" + selectedBudget.toLocaleString() + "円プラン（重複なし全" + (selectedBudget / 100) + "通り）｜mini toto・GOAL3 おすすめ比較";
-
-        var configs = [];
-        if (analyzed.length >= 3) {
-          var g3Items = [];
-          var g3Desc = [];
-          analyzed.slice(0, 3).forEach(function(x) {
-            g3Items.push(x.gH);
-            g3Items.push(x.gA);
-            g3Desc.push("第" + x.f + "枠 " + x.h + "(λ" + x.hLam.toFixed(2) + ") vs " + x.a + "(λ" + x.aLam.toFixed(2) + ")");
-          });
-          configs.push({
-            id: "goal3",
-            shortName: "① toto GOAL3",
-            title: "① toto GOAL3（6枠｜1等:全6枠的中 / 2等:5枠的中）",
-            subInfo: "対象3試合の予測λ：" + g3Desc.join(" ／ "),
-            items: g3Items,
-            solidCount: 2,
-            gameType: "goal3",
-            metrics: evaluatePlanMetrics(g3Items, selectedBudget, "goal3")
-          });
-        }
-        if (analyzed.length >= 5) {
-          var maSlice = analyzed.slice(0, 5);
-          var maItems = maSlice.map(function(x) { return x.c1x2; });
-          var aKnownCnt = maSlice.filter(function(x) { return x.ctx.isLineupAnnounced; }).length;
-          var aUnannCnt = 5 - aKnownCnt;
-          configs.push({
-            id: "mini_a",
-            shortName: "② mini toto A組",
-            title: "② mini toto A組（1〜5枠｜1等:全5枠的中のみ）",
-            subInfo: "スタメン反映済 " + aKnownCnt + "/5試合 ／ 未発表 " + aUnannCnt + "試合（先発データ＆接戦度を反映済）",
-            items: maItems,
-            solidCount: 2,
-            gameType: "mini_a",
-            metrics: evaluatePlanMetrics(maItems, selectedBudget, "mini_a")
-          });
-        }
-        if (analyzed.length >= 10) {
-          var mbSlice = analyzed.slice(5, 10);
-          var mbItems = mbSlice.map(function(x) { return x.c1x2; });
-          var bKnownCnt = mbSlice.filter(function(x) { return x.ctx.isLineupAnnounced; }).length;
-          var bUnannCnt = 5 - bKnownCnt;
-          configs.push({
-            id: "mini_b",
-            shortName: "③ mini toto B組",
-            title: "③ mini toto B組（6〜10枠｜1等:全5枠的中のみ）",
-            subInfo: "スタメン反映済 " + bKnownCnt + "/5試合 ／ 未発表 " + bUnannCnt + "試合（先発データ＆接戦度を反映済）",
-            items: mbItems,
-            solidCount: 2,
-            gameType: "mini_b",
-            metrics: evaluatePlanMetrics(mbItems, selectedBudget, "mini_b")
-          });
-        }
-        if (analyzed.length >= 10) {
-          var tmItems = analyzed.map(function(x) { return x.c1x2; });
-          configs.push({
-            id: "toto_main",
-            shortName: "④ toto 本戦（参考）",
-            title: "④ ［番外参考］toto 本戦（全" + analyzed.length + "枠｜1等:全的中 / 2等:1枠外れ / 3等:2枠外れ）",
-            subInfo: "※的中確率が低いためおすすめ判定からは除外しています（少額で夢を買う場合の参考データ）",
-            items: tmItems,
-            solidCount: 3,
-            gameType: "toto_main",
-            metrics: evaluatePlanMetrics(tmItems, selectedBudget, "toto_main")
-          });
-        }
-
-        var guideBox = document.getElementById("strategy-summary-box");
-        guideBox.innerHTML = buildStrategyGuideHtml(configs, analyzed);
-
-        document.querySelectorAll(".quick-budget-btn").forEach(function(qBtn) {
-          qBtn.addEventListener("click", function() {
-            var target = qBtn.getAttribute("data-target-budget");
-            var targetBtn = document.getElementById("btn-budget-" + target);
-            if (targetBtn) targetBtn.click();
-          });
-        });
-
-        var recPool = configs.filter(function(p) { return p.gameType !== "toto_main"; });
-        var byEv = recPool.slice().sort(function(a, b) { return b.metrics.evRatioPct - a.metrics.evRatioPct; });
-        var bestEvId = byEv.length > 0 ? byEv[0].id : "";
-
-        var byProb = recPool.slice().sort(function(a, b) { return b.metrics.hitProb1stPct - a.metrics.hitProb1stPct; });
-        var bestProbId = byProb.length > 0 ? byProb[0].id : "";
-        var secondEvId = byEv.length > 1 ? byEv[1].id : "";
-
-        var plansHtml = configs.map(function(cfg) {
-          if (cfg.gameType === "toto_main") {
-            return buildPlanCard(cfg, selectedBudget, "bonus_ref");
-          }
-          var role = "";
-          if (cfg.id === bestEvId && cfg.id === bestProbId) {
-            role = "best_both";
-          } else if (cfg.id === bestEvId) {
-            role = "best_ev";
-          } else if (cfg.id === bestProbId) {
-            role = "best_prob";
-          } else if (bestEvId === bestProbId && cfg.id === secondEvId && cfg.metrics.evRatioPct >= 65) {
-            role = "second_rec";
-          } else if (cfg.metrics.evRatioPct < 65) {
-            role = "skip";
-          }
-          return buildPlanCard(cfg, selectedBudget, role);
-        }).join("");
-
-        document.getElementById("plans-list").innerHTML =
-          plansHtml || '<div class="empty-msg">提案を生成できる試合数がありません</div>';
-
-        document.querySelectorAll(".register-plan-btn").forEach(function(rBtn) {
-          rBtn.addEventListener("click", function() {
-            var gType = rBtn.getAttribute("data-reg-game");
-            registerAiPlanToMyBets(gType, selectedBudget);
-          });
-        });
+            '<div style="font-size:13px; font-weight:bold; color:#f8fafc; margin:10px 0 6px;">🔥 認定された「絶対鉄板（Sランク）」の答え合わせ</div>' +
+            sListHtml +
+          '</div>';
       }
 
       function renderRound(roundKey) {
@@ -2315,8 +1340,7 @@
         var actuals = getEffectiveActualResults(roundKey, rObj.actual_results);
 
         document.getElementById("round-title-badge").textContent = rObj.title || roundKey;
-        document.getElementById("last-updated-text").innerHTML =
-          "最終取得: " + (appData.last_updated || "-") + '<span class="reload-status-pill">✓ 最新データ直結済</span>';
+        document.getElementById("last-updated-text").innerHTML = "最終取得: " + (appData.last_updated || "-");
 
         var ctxList = analyzeMatchContextList(matches, appData.last_updated || "");
 
@@ -2326,86 +1350,109 @@
           return {
             f: m.f, h: m.h, a: m.a, v: m.v || [34, 32, 34], hLam: hLam, aLam: aLam,
             ctx: ctx,
-            analysis: m.analysis || "",
-            c1x2: calc1x2DynamicDC(hLam, aLam, m.v, ctx),
-            gH: calcGoalTop2(hLam, ctx, true),
-            gA: calcGoalTop2(aLam, ctx, false)
+            c1x2: calc1x2DynamicDC(hLam, aLam, m.v, ctx, m.h + " vs " + m.a, m.f),
+            gH: calcGoalTop2(hLam, ctx, true, m.h + "(H)", m.f + "H"),
+            gA: calcGoalTop2(aLam, ctx, false, m.a + "(A)", m.f + "A")
           };
         });
         lastAnalyzedCache = analyzed;
 
-        var all1x2 = analyzed.map(function(x) { return x.c1x2; });
-        var mainSolidSet = selectSuperSolidIndices(all1x2, 3, false);
+        var configs = [];
+        if (analyzed.length >= 5) {
+          var maItems = analyzed.slice(0, 5).map(function(x) { return x.c1x2; });
+          configs.push({
+            id: "mini_a",
+            shortName: "① mini toto A組（1〜5枠）",
+            title: "① mini toto A組（第1〜5枠）",
+            items: maItems,
+            gameType: "mini_a",
+            metrics: evaluatePlanMetrics(maItems, selectedMode, "mini_a")
+          });
+        }
+        if (analyzed.length >= 10) {
+          var mbItems = analyzed.slice(5, 10).map(function(x) { return x.c1x2; });
+          configs.push({
+            id: "mini_b",
+            shortName: "② mini toto B組（6〜10枠）",
+            title: "② mini toto B組（第6〜10枠）",
+            items: mbItems,
+            gameType: "mini_b",
+            metrics: evaluatePlanMetrics(mbItems, selectedMode, "mini_b")
+          });
+        }
+        if (analyzed.length >= 3) {
+          var g3Items = [];
+          analyzed.slice(0, 3).forEach(function(x) { g3Items.push(x.gH); g3Items.push(x.gA); });
+          configs.push({
+            id: "goal3",
+            shortName: "③ toto GOAL3（1〜3試合）",
+            title: "③ toto GOAL3（第1〜3枠の6チーム得点）",
+            items: g3Items,
+            gameType: "goal3",
+            metrics: evaluatePlanMetrics(g3Items, selectedMode, "goal3")
+          });
+        }
+        if (analyzed.length >= 10) {
+          var all1x2 = analyzed.map(function(x) { return x.c1x2; });
+          configs.push({
+            id: "toto_main",
+            shortName: "④ toto 本戦（全" + analyzed.length + "枠）",
+            title: "④ toto 本戦（全" + analyzed.length + "枠・参考）",
+            items: all1x2,
+            gameType: "toto_main",
+            metrics: evaluatePlanMetrics(all1x2, selectedMode, "toto_main")
+          });
+        }
 
-        var aKnown = analyzed.slice(0, 5).filter(function(x) { return x.ctx.isLineupAnnounced; }).length;
-        var bKnown = analyzed.slice(5, 10).filter(function(x) { return x.ctx.isLineupAnnounced; }).length;
+        var recCandidates = configs.filter(function(c) {
+          return c.gameType !== "toto_main" && !c.metrics.isSkipRecommended;
+        }).sort(function(a, b) { return b.metrics.recScore - a.metrics.recScore; });
+        var bestId = recCandidates.length > 0 ? recCandidates[0].id : "";
 
-        document.getElementById("lbl-toto-main").textContent =
-          "［参考］toto 本戦（全" + analyzed.length + "枠｜1等:全的中 / 2等:1枠外れ / 3等:2枠外れ）";
-        document.getElementById("val-toto-main").innerHTML = formatTwoLines(all1x2, 3, 3);
+        /* 1. 最上部：全4くじ種の公式マークシート早見表 */
+        document.getElementById("marksheet-summary-grid").innerHTML = configs.map(function(cfg) {
+          var role = cfg.id === bestId ? "best" : "";
+          return buildMarksheetCardHtml(cfg, role);
+        }).join("");
 
-        document.getElementById("lbl-mini-a").textContent =
-          "mini toto A組（1〜5枠｜スタメン反映済 " + aKnown + "/5試合）";
-        document.getElementById("val-mini-a").innerHTML = formatTwoLines(all1x2.slice(0, 5), 2, 2);
+        /* 2. 下部：細かい情報（確率・想定配当・期待値・テキスト買い目） */
+        document.getElementById("plans-detail-list").innerHTML = configs.map(function(cfg) {
+          return buildDetailPlanCard(cfg);
+        }).join("");
 
-        document.getElementById("lbl-mini-b").textContent =
-          analyzed.length >= 10
-            ? "mini toto B組（6〜10枠｜スタメン反映済 " + bKnown + "/5試合）"
-            : "mini toto B組（6〜10枠｜1等のみ）";
-        document.getElementById("val-mini-b").innerHTML = analyzed.length >= 10 ? formatTwoLines(all1x2.slice(5, 10), 2, 2) : "-";
-
-        var g3Items = [];
-        analyzed.slice(0, 3).forEach(function(x) { g3Items.push(x.gH); g3Items.push(x.gA); });
-        document.getElementById("val-goal3").innerHTML = formatTwoLines(g3Items, 2, 2);
-
-        document.getElementById("matches-list").innerHTML = analyzed.map(function(x, idx) {
-          var isSolid = mainSolidSet.indexOf(idx) !== -1;
-          var ctx = x.ctx;
-          var g3Tag = x.f <= 3 ? '<span class="goal3-tag">GOAL3</span>' : '';
-          var solidTag = isSolid ? '<span class="solid-tag">🔥 鉄板本命</span>' : '';
-
-          var dayLabel = ctx.isSecondCalendarDay ? "2日目" : "初日";
-          var stateTag = "";
-          if (ctx.matchState === "live") {
-            stateTag = '<span class="live-tag">🏃 試合中(' + (ctx.koStr || dayLabel) + ')</span>';
-          } else if (ctx.matchState === "finished") {
-            stateTag = '<span class="fin-tag">🏁 試合終了(' + (ctx.koStr || dayLabel) + ')</span>';
-          } else {
-            stateTag = '<span class="day1-tag">' + dayLabel + (ctx.koStr ? ' ' + ctx.koStr : '') + '</span>';
-          }
-
-          var lineupTag = "";
-          if (ctx.isLineupAnnounced) {
-            var hSign = ctx.hPct > 0 ? "+" + ctx.hPct + "%" : (ctx.hPct < 0 ? ctx.hPct + "%" : "±0%");
-            var aSign = ctx.aPct > 0 ? "+" + ctx.aPct + "%" : (ctx.aPct < 0 ? ctx.aPct + "%" : "±0%");
-            lineupTag = '<span class="lineup-ok-tag">✓ スタメン反映済 (H:' + hSign + ' / A:' + aSign + ')</span>';
-          } else if (ctx.isUnannouncedRisk) {
-            lineupTag = '<span class="day2-tag">⚠️ 2日目(スタメン未発表)</span>';
-          } else {
-            lineupTag = '<span class="day2-tag">⏳ スタメン発表待ち</span>';
-          }
-
-          var pStr = "[1]" + x.c1x2.raw["1"] + "% [0]" + x.c1x2.raw["0"] + "% [2]" + x.c1x2.raw["2"] + "%";
-          var vStr = Math.round(x.v[0]) + "% / " + Math.round(x.v[1]) + "% / " + Math.round(x.v[2]) + "%";
-          var lineupMetricTxt = ctx.isLineupAnnounced
-            ? " ｜ 先発補正: H(" + (ctx.hPct >= 0 ? "+" + ctx.hPct : ctx.hPct) + "%) / A(" + (ctx.aPct >= 0 ? "+" + ctx.aPct : ctx.aPct) + "%)"
-            : " ｜ 先発補正: 未発表リスク考慮";
-
+        /* 3. 最下部：全13試合のランク・AI勝率（折りたたみ収納） */
+        var compactMatchesHtml = analyzed.map(function(x) {
+          var r = x.c1x2.rank;
+          var rBadge = r === "S"
+            ? '<span class="f-rank-tag s">🔥 S:鉄板(1点)</span>'
+            : (r === "A" ? '<span class="f-rank-tag a">⚡ A:準鉄板(2点)</span>' : '<span class="f-rank-tag b">🌪️ B:混戦(3点)</span>');
+          var pickDisp = r === "S" ? x.c1x2.top1 : (r === "A" ? (x.c1x2.top1 + "/" + x.c1x2.top2) : "1/0/2");
           return (
-            '<div class="match-card' + (isSolid ? ' solid-card' : '') + '">' +
-              '<div class="match-top">' +
-                '<div class="match-teams"><span>第' + x.f + '枠</span>' + solidTag + stateTag + lineupTag + g3Tag + '<span>：' + x.h + ' vs ' + x.a + '</span></div>' +
-                '<div class="match-rec">本命：' + x.c1x2.top1 + '（' + x.c1x2.p1 + '%） ／ 対抗：' + x.c1x2.top2 + '（' + x.c1x2.p2 + '%）</div>' +
+            '<div class="compact-match-row">' +
+              '<div><strong>第' + x.f + '枠</strong>：' + x.h + ' vs ' + x.a + '</div>' +
+              '<div style="display:flex; align-items:center; gap:8px;">' +
+                rBadge +
+                '<span>推奨: <strong>[' + pickDisp + ']</strong>（本命:' + x.c1x2.p1 + '% / 対抗:' + x.c1x2.p2 + '%）</span>' +
               '</div>' +
-              '<div class="match-metrics">予測λ: ' + x.hLam.toFixed(2) + ' - ' + x.aLam.toFixed(2) + ' ｜ AI勝率: ' + pStr + ' ｜ 投票率: ' + vStr + lineupMetricTxt + '</div>' +
-              '<div class="match-analysis">📊 ' + x.analysis + '</div>' +
             '</div>'
           );
-        }).join("") || '<div class="empty-msg">試合データがありません</div>';
+        }).join("");
 
-        try { renderPlansSection(analyzed); } catch (e1) { console.error(e1); }
-        try { renderResultsTabSection(analyzed, actuals); } catch (e2) { console.error(e2); }
-        try { renderReviewTabSection(analyzed, actuals); } catch (e3) { console.error(e3); }
+        document.getElementById("matches-detail-area").innerHTML =
+          '<details class="clean-details">' +
+            '<summary>⚽ 全' + analyzed.length + '試合のS/A/Bランク＆AI勝率データを見る</summary>' +
+            '<div class="details-body">' + compactMatchesHtml + '</div>' +
+          '</details>';
+
+        document.querySelectorAll(".register-plan-btn").forEach(function(rBtn) {
+          rBtn.addEventListener("click", function() {
+            var gType = rBtn.getAttribute("data-reg-game");
+            registerAiPlanToMyBets(gType, selectedMode);
+          });
+        });
+
+        try { renderResultsTabSection(analyzed, actuals); } catch (e1) { console.error(e1); }
+        try { renderReviewTabSection(analyzed, actuals); } catch (e2) { console.error(e2); }
       }
 
       function parseUserPickInput(rawStr, expectedFrames) {
@@ -2443,7 +1490,7 @@
             list.push({
               id: "bet_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
               gameType: gType,
-              label: memo || "カスタム購入",
+              label: memo || "手動登録",
               picks: parsed.picks,
               cost: parsed.cost
             });
@@ -2457,7 +1504,7 @@
         document.querySelectorAll(".preset-btn").forEach(function(pBtn) {
           pBtn.addEventListener("click", function() {
             var gType = pBtn.getAttribute("data-preset");
-            registerAiPlanToMyBets(gType, selectedBudget);
+            registerAiPlanToMyBets(gType, selectedMode);
           });
         });
 
@@ -2498,13 +1545,6 @@
       document.getElementById("round-select").addEventListener("change", function(e) {
         renderRound(e.target.value);
       });
-      document.getElementById("toggle-solid-btn").addEventListener("click", function() {
-        highlightSolid = !highlightSolid;
-        var btn = document.getElementById("toggle-solid-btn");
-        btn.textContent = highlightSolid ? "🔥 鉄板強調: ON" : "🔥 鉄板強調: OFF";
-        btn.classList.toggle("off", !highlightSolid);
-        if (currentRoundKey) renderRound(currentRoundKey);
-      });
       document.querySelectorAll(".tab-btn").forEach(function(btn) {
         btn.addEventListener("click", function() {
           document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
@@ -2517,7 +1557,8 @@
         btn.addEventListener("click", function() {
           document.querySelectorAll(".budget-btn").forEach(function(b) { b.classList.remove("active"); });
           btn.classList.add("active");
-          selectedBudget = parseInt(btn.getAttribute("data-budget"), 10) || 500;
+          var bAttr = btn.getAttribute("data-budget");
+          selectedMode = (bAttr === "smart") ? "smart" : (parseInt(bAttr, 10) || 500);
           if (currentRoundKey) renderRound(currentRoundKey);
         });
       });
