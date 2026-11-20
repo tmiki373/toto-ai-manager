@@ -70,7 +70,7 @@
     /* 最上部：当日購入コントロールバー */
     .top-control-bar {
       background: #111827; border: 1px solid #334155; border-radius: 12px;
-      padding: 10px 14px; margin-bottom: 14px;
+      padding: 10px 14px; margin-bottom: 12px;
       display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
     }
     .budget-switch {
@@ -90,13 +90,21 @@
     }
     .official-link-btn:hover { background: #047857; }
 
+    /* 全見送り時の警告バナー */
+    .global-alert-banner {
+      background: linear-gradient(90deg, rgba(120, 53, 15, 0.55) 0%, #111827 100%);
+      border: 1.5px solid #f59e0b; border-radius: 10px;
+      padding: 10px 14px; margin-bottom: 12px;
+      font-size: 12.5px; color: #fef3c7; line-height: 1.5;
+    }
+
     /* マークシート見出し */
     .sheet-section-header {
       display: flex; justify-content: space-between; align-items: center;
       flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
     }
     .sheet-section-title { font-size: 15.5px; font-weight: 900; color: #4ade80; }
-    .sheet-legend { display: flex; gap: 6px; align-items: center; font-size: 11px; color: #cbd5e1; }
+    .sheet-legend { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; font-size: 11px; color: #cbd5e1; }
 
     /* マークシート2列グリッド */
     .marksheet-grid {
@@ -124,19 +132,20 @@
     }
     .ms-status-bar {
       display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 6px; margin-bottom: 8px; font-size: 11.5px;
+      flex-wrap: wrap; gap: 6px; margin-bottom: 6px; font-size: 11.5px;
     }
     .ms-pill { padding: 2px 8px; border-radius: 5px; font-weight: bold; font-size: 11px; }
     .ms-pill.rec { background: #059669; color: #fff; }
     .ms-pill.ok { background: #1e3a8a; color: #93c5fd; }
     .ms-pill.skip { background: #78350f; color: #fde68a; }
     .ms-pill.ref { background: #1f2937; color: #9ca3af; }
+    .ms-skip-reason { font-size: 11px; color: #fde68a; margin-bottom: 6px; }
+    .ms-budget-note { font-size: 10.5px; color: #93c5fd; margin-bottom: 6px; }
 
     .sheet-sub-label {
       font-size: 11px; font-weight: bold; color: #38bdf8;
-      margin: 8px 0 4px; display: flex; justify-content: space-between;
+      margin: 4px 0; display: flex; justify-content: space-between;
     }
-    .sheet-sub-label:first-of-type { margin-top: 2px; }
 
     /* 公式投票画面そのままのマークシートテーブル */
     .ms-table {
@@ -153,13 +162,14 @@
       padding: 4px 3px; border-bottom: 1px solid #1e293b; text-align: center;
     }
     .ms-table tr:last-child td { border-bottom: none; }
-    .ms-table td.col-frame { font-weight: bold; color: #94a3b8; width: 30px; font-size: 11px; }
+    .ms-table td.col-frame { font-weight: bold; color: #94a3b8; width: 32px; font-size: 11px; }
     .ms-table td.col-match {
       text-align: left; padding-left: 6px; color: #e2e8f0; font-weight: bold;
       font-size: 11.5px; white-space: nowrap;
     }
+    .unann-mini { color: #fde047; font-size: 10px; font-weight: normal; margin-left: 4px; }
 
-    /* 公式toto風の塗りつぶし楕円 */
+    /* 公式toto風の塗りつぶし楕円（赤＝絶対鉄板S、緑＝通常1点、青＝2点W、黄＝3点） */
     .oval {
       display: inline-flex; align-items: center; justify-content: center;
       width: 28px; height: 21px; border-radius: 999px;
@@ -170,19 +180,47 @@
       background: #dc2626; border-color: #fca5a5; color: #ffffff;
       box-shadow: 0 0 6px rgba(239, 68, 68, 0.55);
     }
+    .oval.on-1 { background: #065f46; border-color: #34d399; color: #ffffff; }
     .oval.on-a { background: #0284c7; border-color: #7dd3fc; color: #ffffff; }
     .oval.on-b { background: #d97706; border-color: #fde68a; color: #ffffff; }
 
-    .ms-footer {
+    /* 追加シート（押さえシングル）の明確な全枠表示 */
+    .extra-sheet-box {
+      background: #0f172a; border: 1px dashed #334155; border-radius: 7px;
+      padding: 7px 9px; margin-top: 6px; font-size: 11.5px; color: #cbd5e1;
+    }
+    .extra-sheet-row {
       display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 6px; padding: 4px 0; border-bottom: 1px solid #1e293b;
+    }
+    .extra-sheet-row:last-child { border-bottom: none; }
+    .extra-picks-str {
+      font-size: 13px; font-weight: 900; color: #f8fafc; letter-spacing: 1px;
+    }
+    .extra-picks-hl {
+      color: #fbbf24; background: rgba(251, 191, 36, 0.18);
+      padding: 0 4px; border-radius: 3px;
+    }
+
+    .ms-footer {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
       margin-top: 8px; padding-top: 7px; border-top: 1px dashed #334155;
       font-size: 11.5px; color: #94a3b8;
     }
+    .ms-footer-actions { display: flex; align-items: center; gap: 6px; }
+    .copy-picks-btn {
+      background: #1e293b; color: #e2e8f0; border: 1px solid #475569;
+      padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
+    }
+    .copy-picks-btn:hover { background: #334155; }
+    .copy-picks-btn.copied { background: #065f46; border-color: #10b981; color: #d1fae5; }
     .register-plan-btn {
       background: #2563eb; color: #fff; border: none;
       padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;
     }
     .register-plan-btn:hover { background: #1d4ed8; }
+    .register-plan-btn.muted { background: #334155; color: #cbd5e1; }
+    .register-plan-btn.muted:hover { background: #475569; }
 
     /* 区切り見出し（ここから下は細かい情報） */
     .detail-divider {
@@ -195,6 +233,10 @@
     .plan-card {
       background: #111827; border: 1px solid #334155; border-radius: 12px;
       padding: 14px 16px; margin-bottom: 12px;
+    }
+    .plan-header-row {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 6px; margin-bottom: 4px;
     }
     .plan-title { font-size: 14.5px; font-weight: bold; color: #f8fafc; }
     .simple-metrics {
@@ -209,8 +251,10 @@
     .ticket-box { background: #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; }
     .ticket-label { font-size: 11px; color: #fbbf24; font-weight: bold; margin-bottom: 3px; }
     .ticket-line { font-size: 13.5px; font-weight: bold; color: #f8fafc; letter-spacing: 1px; }
-    .super-solid { display: inline-block; background: #dc2626; color: #fff; font-weight: 900; padding: 0 6px; border-radius: 4px; }
-    .w-pair { display: inline-block; color: #fbbf24; background: rgba(251, 191, 36, 0.18); padding: 0 5px; border-radius: 4px; border: 1px solid rgba(251, 191, 36, 0.4); }
+    .tok-s { display: inline-block; background: #dc2626; color: #fff; font-weight: 900; padding: 0 6px; border-radius: 4px; }
+    .tok-1 { display: inline-block; background: #065f46; color: #d1fae5; font-weight: bold; padding: 0 6px; border-radius: 4px; }
+    .tok-a { display: inline-block; color: #7dd3fc; background: rgba(2, 132, 199, 0.25); padding: 0 5px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.5); }
+    .tok-b { display: inline-block; color: #fde68a; background: rgba(217, 119, 6, 0.25); padding: 0 5px; border-radius: 4px; border: 1px solid rgba(251, 191, 36, 0.5); }
 
     .f-rank-tag { display: inline-block; font-size: 10.5px; font-weight: bold; padding: 1px 6px; border-radius: 4px; }
     .f-rank-tag.s { background: #dc2626; color: #fff; }
@@ -241,7 +285,7 @@
     .res-hit-token { display: inline-block; background: #065f46; color: #6ee7b7; border: 1px solid #10b981; font-weight: 900; padding: 1px 7px; border-radius: 5px; }
     .res-miss-token { display: inline-block; background: #450a0a; color: #fca5a5; border: 1px solid #ef4444; padding: 1px 7px; border-radius: 5px; opacity: 0.85; }
     .res-wait-token { display: inline-block; background: #1e293b; color: #94a3b8; border: 1px solid #475569; padding: 1px 7px; border-radius: 5px; }
-    .tier-badge { display: inline-block; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 5px; }
+    .tier-badge { display: inline-block; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 5px; white-space: nowrap; }
     .tier-badge.t1 { background: #b45309; color: #fef3c7; border: 1px solid #f59e0b; }
     .tier-badge.t2 { background: #1e3a8a; color: #dbeafe; border: 1px solid #60a5fa; }
     .tier-badge.t3 { background: #065f46; color: #d1fae5; border: 1px solid #34d399; }
@@ -261,9 +305,10 @@
     .my-ticket-item.win-item { border: 2px solid #10b981; }
     .del-ticket-btn { background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 2px 7px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-    .tier-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .tier-table th { text-align: left; color: #94a3b8; padding: 6px; border-bottom: 1px solid #1e293b; }
-    .tier-table td { padding: 7px 6px; border-bottom: 1px solid #1e293b; }
+    .table-scroll-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tier-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 12px; }
+    .tier-table th { text-align: left; color: #94a3b8; padding: 6px; border-bottom: 1px solid #1e293b; white-space: nowrap; }
+    .tier-table td { padding: 7px 6px; border-bottom: 1px solid #1e293b; vertical-align: top; }
 
     .hidden { display: none !important; }
     .empty-msg { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 18px; text-align: center; color: #94a3b8; font-size: 13.5px; }
@@ -301,9 +346,8 @@
       <button class="tab-btn" data-tab="tab3">📈 ③ 振り返り</button>
     </div>
 
-    <!-- タブ1: 提案・マークシート（最上部に即購入用シート、下部に細かい情報） -->
+    <!-- タブ1: 提案・マークシート -->
     <div id="tab1" class="tab-content">
-      <!-- 1. 最上部：予算モード切替＆公式サイトリンク -->
       <div class="top-control-bar">
         <div class="budget-switch">
           <button id="btn-budget-smart" class="budget-btn active" data-budget="smart">⚡ AI強弱マルチ</button>
@@ -315,18 +359,19 @@
         <a href="https://www.toto-dream.com/" target="_blank" rel="noopener noreferrer" class="official-link-btn">🌐 toto公式サイトを開く ↗</a>
       </div>
 
-      <!-- 2. 公式マークシート早見表（mini toto A/B・GOAL3・toto本戦の4種を即マーク可能に） -->
+      <div id="global-alert-area"></div>
+
       <div class="sheet-section-header">
         <div class="sheet-section-title">📝 公式マークシート早見表（色付きマスをそのままタップして購入）</div>
         <div class="sheet-legend">
-          <span class="oval on-s" style="width:auto; padding:0 6px; font-size:10px;">赤＝1点固定</span>
+          <span class="oval on-s" style="width:auto; padding:0 6px; font-size:10px;">赤＝絶対鉄板(S)</span>
+          <span class="oval on-1" style="width:auto; padding:0 6px; font-size:10px;">緑＝通常1点</span>
           <span class="oval on-a" style="width:auto; padding:0 6px; font-size:10px;">青＝2点W</span>
-          <span class="oval on-b" style="width:auto; padding:0 6px; font-size:10px;">黄＝3点全押</span>
+          <span class="oval on-b" style="width:auto; padding:0 6px; font-size:10px;">黄＝3点</span>
         </div>
       </div>
       <div id="marksheet-summary-grid" class="marksheet-grid"></div>
 
-      <!-- 3. ここから下は細かい情報 -->
       <div class="detail-divider">📊 ここから下は細かい情報（当選確率・想定配当・期待値・全試合データ）</div>
       <div id="plans-detail-list"></div>
       <div id="matches-detail-area"></div>
@@ -341,10 +386,10 @@
         </div>
         <div class="my-bet-form">
           <select id="my-bet-type" class="my-bet-select">
-            <option value="mini_a">mini toto A組（5枠）</option>
-            <option value="mini_b">mini toto B組（5枠）</option>
-            <option value="goal3">toto GOAL3（6枠）</option>
-            <option value="toto_main">toto 本戦（13枠）</option>
+            <option value="mini_a" id="opt-mini-a">mini toto A組（5枠: 1/0/2）</option>
+            <option value="mini_b" id="opt-mini-b">mini toto B組（5枠: 1/0/2）</option>
+            <option value="goal3" id="opt-goal3">toto GOAL3（6枠: 0/1/2/3+）</option>
+            <option value="toto_main" id="opt-toto-main">toto 本戦（13枠: 1/0/2）</option>
           </select>
           <input type="text" id="my-bet-picks" class="my-bet-input" placeholder="例: 1 - 1/0 - 2 - 1/0/2 - 1" />
           <input type="text" id="my-bet-label" class="my-bet-memo" placeholder="メモ（任意）" />
@@ -352,10 +397,10 @@
         </div>
         <div class="preset-bar">
           <span style="font-size:11px; color:#94a3b8; font-weight:bold;">⚡ 現在のマークシートをワンタップ登録：</span>
-          <button type="button" class="preset-btn" data-preset="mini_a">＋ mini A組</button>
-          <button type="button" class="preset-btn" data-preset="mini_b">＋ mini B組</button>
-          <button type="button" class="preset-btn" data-preset="goal3">＋ GOAL3</button>
-          <button type="button" class="preset-btn" data-preset="toto_main">＋ toto本戦</button>
+          <button type="button" class="preset-btn" data-preset="mini_a" id="preset-mini-a">＋ mini A組</button>
+          <button type="button" class="preset-btn" data-preset="mini_b" id="preset-mini-b">＋ mini B組</button>
+          <button type="button" class="preset-btn" data-preset="goal3" id="preset-goal3">＋ GOAL3</button>
+          <button type="button" class="preset-btn" data-preset="toto_main" id="preset-toto-main">＋ toto本戦</button>
         </div>
         <div id="my-bets-result-list"></div>
       </div>
@@ -370,16 +415,18 @@
   </div>
 
   <!-- EMBEDDED_DATA_START -->
-  <script id="embedded-toto-data">window.__EMBEDDED_TOTO_DATA__ = {"current_round": "第1673回 (開催: 11月21日(土) / 公式スケジュール準拠)", "last_updated": "2026-11-20 12:52 JST", "model_params": {"home_adv": 1.12}, "club_stats": {"FC東京": {"div": "J1", "l_avg": 1.475, "atk": 2.459, "def_v": 0.667, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.091, "trend": "[J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗", "rk": 1}, "柏": {"div": "J1", "l_avg": 1.475, "atk": 2.26, "def_v": 1.315, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗", "rk": 2}, "広島": {"div": "J1", "l_avg": 1.475, "atk": 2.347, "def_v": 0.784, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗", "rk": 3}, "町田": {"div": "J1", "l_avg": 1.475, "atk": 2.101, "def_v": 0.828, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗", "rk": 4}, "神戸": {"div": "J1", "l_avg": 1.475, "atk": 1.655, "def_v": 1.064, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗", "rk": 5}, "鹿島": {"div": "J1", "l_avg": 1.475, "atk": 1.979, "def_v": 1.644, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗", "rk": 6}, "横浜FM": {"div": "J1", "l_avg": 1.475, "atk": 1.519, "def_v": 1.134, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗", "rk": 7}, "川崎F": {"div": "J1", "l_avg": 1.475, "atk": 1.937, "def_v": 1.63, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗", "rk": 8}, "浦和": {"div": "J1", "l_avg": 1.475, "atk": 1.64, "def_v": 1.916, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗", "rk": 9}, "岡山": {"div": "J1", "l_avg": 1.475, "atk": 1.187, "def_v": 1.581, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗", "rk": 10}, "C大阪": {"div": "J1", "l_avg": 1.475, "atk": 1.19, "def_v": 1.751, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.973, "trend": "[J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗", "rk": 11}, "京都": {"div": "J1", "l_avg": 1.475, "atk": 1.386, "def_v": 1.603, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗", "rk": 12}, "名古屋": {"div": "J1", "l_avg": 1.475, "atk": 1.131, "def_v": 1.64, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.973, "trend": "[J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗", "rk": 13}, "東京V": {"div": "J1", "l_avg": 1.475, "atk": 0.985, "def_v": 1.546, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗", "rk": 14}, "清水": {"div": "J1", "l_avg": 1.475, "atk": 0.826, "def_v": 1.687, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.915, "trend": "[J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗", "rk": 15}, "長崎": {"div": "J1", "l_avg": 1.475, "atk": 1.24, "def_v": 1.585, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗", "rk": 16}, "千葉": {"div": "J1", "l_avg": 1.475, "atk": 1.253, "def_v": 1.608, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗", "rk": 17}, "G大阪": {"div": "J1", "l_avg": 1.475, "atk": 1.239, "def_v": 1.626, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.988, "trend": "[J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗", "rk": 18}, "水戸": {"div": "J1", "l_avg": 1.475, "atk": 0.964, "def_v": 1.812, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.9, "trend": "[J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗", "rk": 19}, "福岡": {"div": "J1", "l_avg": 1.475, "atk": 1.085, "def_v": 1.74, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.915, "trend": "[J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗", "rk": 20}, "仙台": {"div": "J2", "l_avg": 1.3, "atk": 1.898, "def_v": 0.899, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.988, "trend": "[J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗", "rk": 1}, "大宮": {"div": "J2", "l_avg": 1.3, "atk": 1.957, "def_v": 1.042, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.091, "trend": "[J2 2位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗", "rk": 2}, "宮崎": {"div": "J2", "l_avg": 1.3, "atk": 1.815, "def_v": 0.991, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.12, "trend": "[J2 3位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗", "rk": 3}, "新潟": {"div": "J2", "l_avg": 1.3, "atk": 1.488, "def_v": 1.429, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J2 4位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗", "rk": 4}, "横浜FC": {"div": "J2", "l_avg": 1.3, "atk": 1.925, "def_v": 1.059, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J2 5位・優勝/昇格圏・直近5戦10/15pt] 勝点31/9勝4分4敗", "rk": 5}, "富山": {"div": "J2", "l_avg": 1.3, "atk": 1.865, "def_v": 1.02, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J2 6位・優勝/昇格圏・直近5戦9/15pt] 勝点31/9勝4分4敗", "rk": 6}, "磐田": {"div": "J2", "l_avg": 1.3, "atk": 1.289, "def_v": 1.026, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.061, "trend": "[J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗", "rk": 7}, "湘南": {"div": "J2", "l_avg": 1.3, "atk": 1.121, "def_v": 0.954, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J2 8位・直近5戦7/15pt] 勝点26/6勝8分3敗", "rk": 8}, "札幌": {"div": "J2", "l_avg": 1.3, "atk": 1.39, "def_v": 1.205, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.076, "trend": "[J2 9位・直近5戦12/15pt] 勝点26/8勝2分7敗", "rk": 9}, "いわき": {"div": "J2", "l_avg": 1.3, "atk": 1.601, "def_v": 1.369, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J2 10位・直近5戦8/15pt] 勝点24/7勝3分7敗", "rk": 10}, "鳥栖": {"div": "J2", "l_avg": 1.3, "atk": 1.122, "def_v": 1.185, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗", "rk": 11}, "大分": {"div": "J2", "l_avg": 1.3, "atk": 1.189, "def_v": 1.214, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J2 12位・直近5戦4/15pt] 勝点22/5勝7分5敗", "rk": 12}, "秋田": {"div": "J2", "l_avg": 1.3, "atk": 1.106, "def_v": 1.296, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J2 13位・直近5戦7/15pt] 勝点20/5勝5分7敗", "rk": 13}, "徳島": {"div": "J2", "l_avg": 1.3, "atk": 0.959, "def_v": 1.162, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.988, "trend": "[J2 14位・直近5戦6/15pt] 勝点20/6勝2分9敗", "rk": 14}, "藤枝": {"div": "J2", "l_avg": 1.3, "atk": 1.089, "def_v": 1.268, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗", "rk": 15}, "山形": {"div": "J2", "l_avg": 1.3, "atk": 0.959, "def_v": 1.114, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.988, "trend": "[J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗", "rk": 16}, "栃木C": {"div": "J2", "l_avg": 1.3, "atk": 1.552, "def_v": 1.741, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.944, "trend": "[J2 17位・残留争い・直近5戦3/15pt] 勝点15/4勝3分10敗", "rk": 17}, "八戸": {"div": "J2", "l_avg": 1.3, "atk": 0.864, "def_v": 1.591, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.915, "trend": "[J2 18位・残留争い・直近5戦1/15pt] 勝点15/4勝3分10敗", "rk": 18}, "今治": {"div": "J2", "l_avg": 1.3, "atk": 1.002, "def_v": 1.88, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.915, "trend": "[J2 19位・残留争い・直近5戦1/15pt] 勝点12/3勝3分11敗", "rk": 19}, "甲府": {"div": "J2", "l_avg": 1.3, "atk": 0.816, "def_v": 1.928, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.929, "trend": "[J2 20位・残留争い・直近5戦2/15pt] 勝点12/3勝3分11敗", "rk": 20}, "岐阜": {"div": "J3", "l_avg": 1.376, "atk": 1.793, "def_v": 0.897, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J3 1位・優勝/昇格圏・直近5戦10/15pt] 勝点32/10勝2分5敗", "rk": 1}, "奈良クラブ奈良": {"div": "J3", "l_avg": 1.376, "atk": 1.98, "def_v": 1.21, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J3 2位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗", "rk": 2}, "SC相模原相模原": {"div": "J3", "l_avg": 1.376, "atk": 1.633, "def_v": 0.944, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J3 3位・優勝/昇格圏・直近5戦10/15pt] 勝点31/9勝4分4敗", "rk": 3}, "山口": {"div": "J3", "l_avg": 1.376, "atk": 1.464, "def_v": 0.866, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.017, "trend": "[J3 4位・優勝/昇格圏・直近5戦8/15pt] 勝点31/9勝4分4敗", "rk": 4}, "鹿児島": {"div": "J3", "l_avg": 1.376, "atk": 1.708, "def_v": 1.258, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.929, "trend": "[J3 5位・優勝/昇格圏・直近5戦2/15pt] 勝点31/9勝4分4敗", "rk": 5}, "FC大阪FC大阪": {"div": "J3", "l_avg": 1.376, "atk": 1.735, "def_v": 0.987, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J3 6位・優勝/昇格圏・直近5戦10/15pt] 勝点30/8勝6分3敗", "rk": 6}, "愛媛": {"div": "J3", "l_avg": 1.376, "atk": 1.723, "def_v": 1.509, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.944, "trend": "[J3 7位・直近5戦3/15pt] 勝点29/9勝2分6敗", "rk": 7}, "金沢": {"div": "J3", "l_avg": 1.376, "atk": 1.803, "def_v": 1.305, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.076, "trend": "[J3 8位・直近5戦12/15pt] 勝点26/8勝2分7敗", "rk": 8}, "長野": {"div": "J3", "l_avg": 1.376, "atk": 1.385, "def_v": 1.238, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J3 9位・直近5戦9/15pt] 勝点26/8勝2分7敗", "rk": 9}, "琉球": {"div": "J3", "l_avg": 1.376, "atk": 1.479, "def_v": 1.378, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J3 10位・直近5戦9/15pt] 勝点26/8勝2分7敗", "rk": 10}, "熊本": {"div": "J3", "l_avg": 1.376, "atk": 1.213, "def_v": 0.984, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 11位・直近5戦4/15pt] 勝点24/6勝6分5敗", "rk": 11}, "栃木SC": {"div": "J3", "l_avg": 1.376, "atk": 1.056, "def_v": 1.001, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.061, "trend": "[J3 12位・直近5戦11/15pt] 勝点24/6勝6分5敗", "rk": 12}, "北九州": {"div": "J3", "l_avg": 1.376, "atk": 1.471, "def_v": 1.525, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.032, "trend": "[J3 13位・直近5戦9/15pt] 勝点22/6勝4分7敗", "rk": 13}, "福島ユナイテッドFC福島": {"div": "J3", "l_avg": 1.376, "atk": 1.815, "def_v": 1.794, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.047, "trend": "[J3 14位・直近5戦10/15pt] 勝点21/6勝3分8敗", "rk": 14}, "松本": {"div": "J3", "l_avg": 1.376, "atk": 0.964, "def_v": 1.142, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 15位・直近5戦4/15pt] 勝点18/4勝6分7敗", "rk": 15}, "レイラック滋賀FC滋賀": {"div": "J3", "l_avg": 1.376, "atk": 1.19, "def_v": 1.676, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 16位・直近5戦4/15pt] 勝点18/5勝3分9敗", "rk": 16}, "鳥取": {"div": "J3", "l_avg": 1.376, "atk": 1.139, "def_v": 1.662, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 17位・残留争い・直近5戦4/15pt] 勝点18/5勝3分9敗", "rk": 17}, "讃岐": {"div": "J3", "l_avg": 1.376, "atk": 1.156, "def_v": 1.547, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.003, "trend": "[J3 18位・残留争い・直近5戦7/15pt] 勝点15/4勝3分10敗", "rk": 18}, "群馬": {"div": "J3", "l_avg": 1.376, "atk": 1.028, "def_v": 1.922, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.944, "trend": "[J3 19位・残留争い・直近5戦3/15pt] 勝点13/4勝1分12敗", "rk": 19}, "高知": {"div": "J3", "l_avg": 1.376, "atk": 0.742, "def_v": 2.027, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 0.959, "trend": "[J3 20位・残留争い・直近5戦4/15pt] 勝点9/2勝3分12敗", "rk": 20}}, "rounds": {"第1672回 (開催: 11月14日(土)・11月15日(日) / 公式スケジュール準拠)": {"title": "第1672回 | 開催日: 11月14日(土)・11月15日(日) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "町田", "a": "神戸", "v": [79.0, 12.2, 8.7], "h_xg": 1.47, "h_xga": 0.74, "a_xg": 0.74, "a_xga": 1.47, "analysis": "[11月15日(日) 14:00 | 天候:雨(7.6mm) | ✓スタメン発表済(14:00KO | H:基本布陣先発(+1%) / A:基本布陣先発(+1%))] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:神戸 [J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗"}, {"f": 2, "grp": "A", "h": "C大阪", "a": "浦和", "v": [35.7, 24.3, 40.0], "h_xg": 1.47, "h_xga": 1.57, "a_xg": 1.57, "a_xga": 1.47, "analysis": "[11月15日(日) 15:00 | 天候:雨(30.5mm) | ✓スタメン発表済(15:00KO | H:先発一部入替(-1%) / A:主力先発揃い(+2%))] H:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗 / A:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗"}, {"f": 3, "grp": "A", "h": "鹿島", "a": "横浜FM", "v": [40.2, 25.4, 34.4], "h_xg": 1.47, "h_xga": 1.34, "a_xg": 1.34, "a_xga": 1.47, "analysis": "[11月15日(日) 15:00 | 天候:雨(15.4mm) | ✓スタメン発表済(15:00KO | H:標準先発(±0%) / A:標準先発(±0%))] H:鹿島 [J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 4, "grp": "A", "h": "柏", "a": "川崎F", "v": [59.6, 19.4, 21.0], "h_xg": 2.45, "h_xga": 1.38, "a_xg": 1.38, "a_xga": 2.45, "analysis": "[11月15日(日) 17:00 | 天候:雨(10.4mm) | ✓スタメン発表済(17:00KO | H:主力先発揃い(+2%) / A:基本布陣先発(+1%))] H:柏 [J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗 / A:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗"}, {"f": 5, "grp": "A", "h": "新潟", "a": "宮崎", "v": [27.9, 23.6, 48.5], "h_xg": 1.28, "h_xga": 1.77, "a_xg": 1.77, "a_xga": 1.28, "analysis": "[11月14日(土) 14:00 | 天候:晴/曇 / 遠征949km | ✓スタメン発表済(14:00KO | H:基本布陣先発(+1%) / A:主力先発揃い(+5%))] H:新潟 [J2 4位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗 / A:宮崎 [J2 3位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗"}, {"f": 6, "grp": "B", "h": "大分", "a": "栃木C", "v": [47.9, 26.0, 26.1], "h_xg": 1.5, "h_xga": 1.03, "a_xg": 1.03, "a_xga": 1.5, "analysis": "[11月14日(土) 14:00 | 天候:雨(6.5mm) / 遠征810km | ✓スタメン発表済(14:00KO | H:先発一部入替(-2%) / A:先発一部入替(-2%))] H:大分 [J2 12位・直近5戦4/15pt] 勝点22/5勝7分5敗 / A:栃木C [J2 17位・残留争い・直近5戦3/15pt] 勝点15/4勝3分10敗"}, {"f": 7, "grp": "B", "h": "札幌", "a": "鳥栖", "v": [48.1, 29.4, 22.5], "h_xg": 1.26, "h_xga": 0.76, "a_xg": 0.76, "a_xga": 1.26, "analysis": "[11月15日(日) 13:00 | 天候:雨(7.3mm) / 遠征1431km | ✓スタメン発表済(13:00KO | H:主力先発揃い(+3%) / A:基本布陣先発(+1%))] H:札幌 [J2 9位・直近5戦12/15pt] 勝点26/8勝2分7敗 / A:鳥栖 [J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗"}, {"f": 8, "grp": "B", "h": "仙台", "a": "秋田", "v": [66.2, 21.9, 11.9], "h_xg": 1.82, "h_xga": 0.61, "a_xg": 0.61, "a_xga": 1.82, "analysis": "[11月15日(日) 13:05 | 天候:雨(14.3mm) | ✓スタメン発表済(13:05KO | H:標準先発(±0%) / A:標準先発(±0%))] H:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗 / A:秋田 [J2 13位・直近5戦7/15pt] 勝点20/5勝5分7敗"}, {"f": 9, "grp": "B", "h": "今治", "a": "磐田", "v": [18.5, 26.3, 55.2], "h_xg": 0.74, "h_xga": 1.5, "a_xg": 1.5, "a_xga": 0.74, "analysis": "[11月15日(日) 14:00 | 天候:雨(20.1mm) | ✓スタメン発表済(14:00KO | H:先発一部入替(-3%) / A:主力先発揃い(+2%))] H:今治 [J2 19位・残留争い・直近5戦1/15pt] 勝点12/3勝3分11敗 / A:磐田 [J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗"}, {"f": 10, "grp": "B", "h": "富山", "a": "徳島", "v": [62.0, 24.4, 13.6], "h_xg": 1.62, "h_xga": 0.6, "a_xg": 0.6, "a_xga": 1.62, "analysis": "[11月15日(日) 14:00 | 天候:雨(19.2mm) | ✓スタメン発表済(14:00KO | H:基本布陣先発(+1%) / A:標準先発(±0%))] H:富山 [J2 6位・優勝/昇格圏・直近5戦9/15pt] 勝点31/9勝4分4敗 / A:徳島 [J2 14位・直近5戦6/15pt] 勝点20/6勝2分9敗"}, {"f": 11, "grp": "C", "h": "八戸", "a": "いわき", "v": [79.0, 12.2, 8.7], "h_xg": 0.85, "h_xga": 1.57, "a_xg": 1.57, "a_xga": 0.85, "analysis": "[11月15日(日) 13:00 | 天候:雨(11.6mm) | ✓スタメン発表済(13:00KO | H:先発一部入替(-3%) / A:基本布陣先発(+1%))] H:八戸 [J2 18位・残留争い・直近5戦1/15pt] 勝点15/4勝3分10敗 / A:いわき [J2 10位・直近5戦8/15pt] 勝点24/7勝3分7敗"}, {"f": 12, "grp": "C", "h": "藤枝", "a": "甲府", "v": [62.4, 23.0, 14.6], "h_xg": 1.77, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 1.77, "analysis": "[11月14日(土) 14:00 | 天候:晴/曇 | ✓スタメン発表済(14:00KO | H:先発一部入替(-2%) / A:先発一部入替(-3%))] H:藤枝 [J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗 / A:甲府 [J2 20位・残留争い・直近5戦2/15pt] 勝点12/3勝3分11敗"}, {"f": 13, "grp": "C", "h": "大宮", "a": "山形", "v": [66.2, 20.9, 12.9], "h_xg": 1.95, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 1.95, "analysis": "[11月14日(土) 14:00 | 天候:晴/曇 | ✓スタメン発表済(14:00KO | H:主力先発揃い(+4%) / A:標準先発(±0%))] H:大宮 [J2 2位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗 / A:山形 [J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗"}], "actual_results": {"1": {"hs": 1, "as": 1, "res": "0"}, "2": {"hs": 1, "as": 1, "res": "0"}, "3": {"hs": 3, "as": 2, "res": "1"}, "4": {"hs": 5, "as": 4, "res": "1"}, "5": {"hs": 1, "as": 3, "res": "2"}, "6": {"hs": 1, "as": 6, "res": "2"}, "7": {"hs": 1, "as": 2, "res": "2"}, "8": {"hs": 4, "as": 0, "res": "1"}, "9": {"hs": 0, "as": 2, "res": "2"}, "10": {"hs": 2, "as": 3, "res": "2"}, "11": {"hs": 2, "as": 2, "res": "0"}, "12": {"hs": 1, "as": 0, "res": "1"}, "13": {"hs": 2, "as": 1, "res": "1"}}}, "第1673回 (開催: 11月21日(土) / 公式スケジュール準拠)": {"title": "第1673回 | 開催日: 11月21日(土) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "町田", "a": "長崎", "v": [78.6, 14.5, 6.9], "h_xg": 2.53, "h_xga": 0.59, "a_xg": 0.59, "a_xga": 2.53, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征935km | ⏳スタメン未発表(14:00KO)] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗"}, {"f": 2, "grp": "A", "h": "広島", "a": "横浜FM", "v": [67.5, 20.2, 12.3], "h_xg": 2.02, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 2.02, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征663km | ⏳スタメン未発表(14:00KO)] H:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 3, "grp": "A", "h": "京都", "a": "浦和", "v": [46.3, 21.9, 31.8], "h_xg": 2.02, "h_xga": 1.64, "a_xg": 1.64, "a_xga": 2.02, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:京都 [J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗 / A:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗"}, {"f": 4, "grp": "A", "h": "川崎F", "a": "福岡", "v": [69.5, 17.2, 13.3], "h_xg": 2.56, "h_xga": 1.01, "a_xg": 1.01, "a_xga": 2.56, "analysis": "[11月21日(土) 15:00 | 天候:晴/曇 / 遠征869km | ⏳スタメン未発表(15:00KO)] H:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗 / A:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗"}, {"f": 5, "grp": "A", "h": "G大阪", "a": "岡山", "v": [43.7, 25.7, 30.6], "h_xg": 1.49, "h_xga": 1.2, "a_xg": 1.2, "a_xga": 1.49, "analysis": "[11月21日(土) 16:00 | 天候:晴/曇 | ⏳スタメン未発表(16:00KO)] H:G大阪 [J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗 / A:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗"}, {"f": 6, "grp": "B", "h": "東京V", "a": "名古屋", "v": [39.3, 28.2, 32.5], "h_xg": 1.23, "h_xga": 1.09, "a_xg": 1.09, "a_xga": 1.23, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗 / A:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗"}, {"f": 7, "grp": "B", "h": "C大阪", "a": "FC東京", "v": [6.3, 13.4, 80.3], "h_xg": 0.6, "h_xga": 2.69, "a_xg": 2.69, "a_xga": 0.6, "analysis": "[11月21日(土) 15:00 | 天候:晴/曇 | ⏳スタメン未発表(15:00KO)] H:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗 / A:FC東京 [J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗"}, {"f": 8, "grp": "B", "h": "秋田", "a": "山形", "v": [37.1, 34.3, 28.6], "h_xg": 0.91, "h_xga": 0.76, "a_xg": 0.76, "a_xga": 0.91, "analysis": "[11月21日(土) 14:00 | 天候:雨(10.6mm) | ⏳スタメン未発表(14:00KO)] H:秋田 [J2 13位・直近5戦7/15pt] 勝点20/5勝5分7敗 / A:山形 [J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗"}, {"f": 9, "grp": "B", "h": "宮崎", "a": "いわき", "v": [61.9, 20.5, 17.6], "h_xg": 2.14, "h_xga": 1.03, "a_xg": 1.03, "a_xga": 2.14, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征1021km | ⏳スタメン未発表(14:00KO)] H:宮崎 [J2 3位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗 / A:いわき [J2 10位・直近5戦8/15pt] 勝点24/7勝3分7敗"}, {"f": 10, "grp": "B", "h": "甲府", "a": "八戸", "v": [35.6, 28.8, 35.6], "h_xg": 1.12, "h_xga": 1.12, "a_xg": 1.12, "a_xga": 1.12, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 / 遠征601km | ⏳スタメン未発表(14:00KO)] H:甲府 [J2 20位・残留争い・直近5戦2/15pt] 勝点12/3勝3分11敗 / A:八戸 [J2 18位・残留争い・直近5戦1/15pt] 勝点15/4勝3分10敗"}, {"f": 11, "grp": "C", "h": "富山", "a": "大分", "v": [25.9, 22.7, 51.4], "h_xg": 1.68, "h_xga": 0.7, "a_xg": 0.7, "a_xga": 1.68, "analysis": "[11月21日(土) 14:00 | 天候:雨(26.7mm) / 遠征633km | ⏳スタメン未発表(14:00KO)] H:富山 [J2 6位・優勝/昇格圏・直近5戦9/15pt] 勝点31/9勝4分4敗 / A:大分 [J2 12位・直近5戦4/15pt] 勝点22/5勝7分5敗"}, {"f": 12, "grp": "C", "h": "鳥栖", "a": "仙台", "v": [22.2, 29.4, 48.4], "h_xg": 0.75, "h_xga": 1.26, "a_xg": 1.26, "a_xga": 0.75, "analysis": "[11月21日(土) 14:00 | 天候:雨(5.0mm) / 遠征1082km | ⏳スタメン未発表(14:00KO)] H:鳥栖 [J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗 / A:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗"}, {"f": 13, "grp": "C", "h": "磐田", "a": "大宮", "v": [30.8, 26.4, 42.8], "h_xg": 1.16, "h_xga": 1.42, "a_xg": 1.42, "a_xga": 1.16, "analysis": "[11月21日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:磐田 [J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗 / A:大宮 [J2 2位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗"}], "actual_results": {}}, "第1674回 (開催: 11月25日(水) / 公式スケジュール準拠)": {"title": "第1674回 | 開催日: 11月25日(水) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "千葉", "a": "名古屋", "v": [47.0, 25.4, 27.6], "h_xg": 1.56, "h_xga": 1.13, "a_xg": 1.13, "a_xga": 1.56, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:千葉 [J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗 / A:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗"}, {"f": 2, "grp": "A", "h": "岡山", "a": "清水", "v": [53.9, 26.0, 20.1], "h_xg": 1.52, "h_xga": 0.81, "a_xg": 0.81, "a_xga": 1.52, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗 / A:清水 [J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗"}, {"f": 3, "grp": "A", "h": "長崎", "a": "川崎F", "v": [33.7, 23.2, 43.1], "h_xg": 1.53, "h_xga": 1.76, "a_xg": 1.76, "a_xga": 1.53, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 / 遠征953km | ⏳スタメン未発表(19:00KO)] H:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗 / A:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗"}, {"f": 4, "grp": "A", "h": "水戸", "a": "東京V", "v": [36.1, 28.8, 35.1], "h_xg": 1.13, "h_xga": 1.11, "a_xg": 1.11, "a_xga": 1.13, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:水戸 [J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗 / A:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗"}, {"f": 5, "grp": "A", "h": "福岡", "a": "横浜FM", "v": [23.2, 26.0, 50.8], "h_xg": 0.93, "h_xga": 1.52, "a_xg": 1.52, "a_xga": 0.93, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 / 遠征864km | ⏳スタメン未発表(19:00KO)] H:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 6, "grp": "B", "h": "FC東京", "a": "広島", "v": [49.3, 26.6, 24.1], "h_xg": 1.46, "h_xga": 0.93, "a_xg": 0.93, "a_xga": 1.46, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 / 遠征658km | ⏳スタメン未発表(19:00KO)] H:FC東京 [J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗 / A:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗"}, {"f": 7, "grp": "B", "h": "浦和", "a": "C大阪", "v": [53.9, 21.1, 25.0], "h_xg": 2.18, "h_xga": 1.42, "a_xg": 1.42, "a_xga": 2.18, "analysis": "[11月25日(水) 19:30 | 天候:晴/曇 | ⏳スタメン未発表(19:30KO)] H:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗 / A:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗"}, {"f": 8, "grp": "B", "h": "札幌", "a": "藤枝", "v": [52.8, 26.1, 21.1], "h_xg": 1.52, "h_xga": 0.85, "a_xg": 0.85, "a_xga": 1.52, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 / 遠征946km | ⏳スタメン未発表(19:00KO)] H:札幌 [J2 9位・直近5戦12/15pt] 勝点26/8勝2分7敗 / A:藤枝 [J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗"}, {"f": 9, "grp": "B", "h": "山形", "a": "磐田", "v": [28.4, 35.2, 36.4], "h_xg": 0.73, "h_xga": 0.87, "a_xg": 0.87, "a_xga": 0.73, "analysis": "[11月25日(水) 19:00 | 天候:雨(4.9mm) | ⏳スタメン未発表(19:00KO)] H:山形 [J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗 / A:磐田 [J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗"}, {"f": 10, "grp": "B", "h": "鳥栖", "a": "大分", "v": [39.6, 29.3, 31.1], "h_xg": 1.17, "h_xga": 1.0, "a_xg": 1.0, "a_xga": 1.17, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:鳥栖 [J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗 / A:大分 [J2 12位・直近5戦4/15pt] 勝点22/5勝7分5敗"}, {"f": 11, "grp": "C", "h": "いわき", "a": "富山", "v": [30.2, 23.2, 46.6], "h_xg": 1.41, "h_xga": 1.81, "a_xg": 1.81, "a_xga": 1.41, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:いわき [J2 10位・直近5戦8/15pt] 勝点24/7勝3分7敗 / A:富山 [J2 6位・優勝/昇格圏・直近5戦9/15pt] 勝点31/9勝4分4敗"}, {"f": 12, "grp": "C", "h": "横浜FC", "a": "仙台", "v": [39.1, 24.9, 36.0], "h_xg": 1.49, "h_xga": 1.42, "a_xg": 1.42, "a_xga": 1.49, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:横浜FC [J2 5位・優勝/昇格圏・直近5戦10/15pt] 勝点31/9勝4分4敗 / A:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗"}, {"f": 13, "grp": "C", "h": "大宮", "a": "徳島", "v": [66.4, 20.8, 12.8], "h_xg": 1.96, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 1.96, "analysis": "[11月25日(水) 19:00 | 天候:晴/曇 | ⏳スタメン未発表(19:00KO)] H:大宮 [J2 2位・優勝/昇格圏・直近5戦13/15pt] 勝点33/9勝6分2敗 / A:徳島 [J2 14位・直近5戦6/15pt] 勝点20/6勝2分9敗"}], "actual_results": {}}, "第1675回 (開催: 11月28日(土)・11月29日(日) / 公式スケジュール準拠)": {"title": "第1675回 | 開催日: 11月28日(土)・11月29日(日) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "京都", "a": "C大阪", "v": [52.1, 23.1, 24.8], "h_xg": 1.84, "h_xga": 1.19, "a_xg": 1.19, "a_xga": 1.84, "analysis": "[11月28日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:京都 [J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗 / A:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗"}, {"f": 2, "grp": "A", "h": "柏", "a": "広島", "v": [28.5, 23.2, 48.3], "h_xg": 1.35, "h_xga": 1.83, "a_xg": 1.83, "a_xga": 1.35, "analysis": "[11月28日(土) 16:00 | 天候:晴/曇 / 遠征702km | ⏳スタメン未発表(16:00KO)] H:柏 [J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗 / A:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗"}, {"f": 3, "grp": "A", "h": "横浜FM", "a": "FC東京", "v": [16.3, 23.5, 60.2], "h_xg": 0.77, "h_xga": 1.74, "a_xg": 1.74, "a_xga": 0.77, "analysis": "[11月29日(日) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗 / A:FC東京 [J1 1位・優勝/昇格圏・直近5戦13/15pt] 勝点33/10勝3分1敗"}, {"f": 4, "grp": "A", "h": "水戸", "a": "長崎", "v": [33.2, 27.4, 39.4], "h_xg": 1.16, "h_xga": 1.29, "a_xg": 1.29, "a_xga": 1.16, "analysis": "[11月29日(日) 14:00 | 天候:晴/曇 / 遠征1044km | ⏳スタメン未発表(14:00KO)] H:水戸 [J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗 / A:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗"}, {"f": 5, "grp": "A", "h": "名古屋", "a": "福岡", "v": [47.1, 26.2, 26.7], "h_xg": 1.49, "h_xga": 1.05, "a_xg": 1.05, "a_xga": 1.49, "analysis": "[11月29日(日) 15:00 | 天候:晴/曇 / 遠征638km | ⏳スタメン未発表(15:00KO)] H:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗 / A:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗"}, {"f": 6, "grp": "B", "h": "清水", "a": "浦和", "v": [26.4, 26.2, 47.4], "h_xg": 1.03, "h_xga": 1.48, "a_xg": 1.48, "a_xga": 1.03, "analysis": "[11月28日(土) 14:00 | 天候:雨(7.8mm) | ⏳スタメン未発表(14:00KO)] H:清水 [J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗 / A:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗"}, {"f": 7, "grp": "B", "h": "鹿島", "a": "岡山", "v": [61.0, 21.1, 17.9], "h_xg": 2.04, "h_xga": 0.99, "a_xg": 0.99, "a_xga": 2.04, "analysis": "[11月28日(土) 15:00 | 天候:雨(2.4mm) / 遠征626km | ⏳スタメン未発表(15:00KO)] H:鹿島 [J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗 / A:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗"}, {"f": 8, "grp": "B", "h": "神戸", "a": "千葉", "v": [61.5, 23.3, 15.2], "h_xg": 1.74, "h_xga": 0.72, "a_xg": 0.72, "a_xga": 1.74, "analysis": "[11月28日(土) 15:00 | 天候:雨(23.4mm) | ⏳スタメン未発表(15:00KO)] H:神戸 [J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗 / A:千葉 [J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗"}, {"f": 9, "grp": "B", "h": "町田", "a": "東京V", "v": [76.3, 17.1, 6.6], "h_xg": 2.12, "h_xga": 0.44, "a_xg": 0.44, "a_xga": 2.12, "analysis": "[11月29日(日) 16:00 | 天候:雨(2.4mm) | ⏳スタメン未発表(16:00KO)] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗"}, {"f": 10, "grp": "B", "h": "川崎F", "a": "G大阪", "v": [59.2, 21.3, 19.5], "h_xg": 2.06, "h_xga": 1.08, "a_xg": 1.08, "a_xga": 2.06, "analysis": "[11月29日(日) 15:00 | 天候:雨(5.4mm) | ⏳スタメン未発表(15:00KO)] H:川崎F [J1 8位・直近5戦9/15pt] 勝点22/6勝4分4敗 / A:G大阪 [J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗"}, {"f": 11, "grp": "C", "h": "八戸", "a": "藤枝", "v": [28.6, 32.5, 38.9], "h_xg": 0.81, "h_xga": 1.0, "a_xg": 1.0, "a_xga": 0.81, "analysis": "[11月29日(日) 13:00 | 天候:雨(2.2mm) / 遠征690km | ⏳スタメン未発表(13:00KO)] H:八戸 [J2 18位・残留争い・直近5戦1/15pt] 勝点15/4勝3分10敗 / A:藤枝 [J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗"}, {"f": 12, "grp": "C", "h": "宮崎", "a": "鳥栖", "v": [62.1, 22.3, 15.6], "h_xg": 1.85, "h_xga": 0.79, "a_xg": 0.79, "a_xga": 1.85, "analysis": "[11月29日(日) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:宮崎 [J2 3位・優勝/昇格圏・直近5戦15/15pt] 勝点32/9勝5分3敗 / A:鳥栖 [J2 11位・直近5戦9/15pt] 勝点23/7勝2分8敗"}, {"f": 13, "grp": "C", "h": "仙台", "a": "山形", "v": [63.1, 24.8, 12.1], "h_xg": 1.57, "h_xga": 0.52, "a_xg": 0.52, "a_xga": 1.57, "analysis": "[11月29日(日) 14:00 | 天候:雨(2.0mm) | ⏳スタメン未発表(14:00KO)] H:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗 / A:山形 [J2 16位・直近5戦6/15pt] 勝点19/6勝1分10敗"}], "actual_results": {}}, "第1676回 (開催: 12月5日(土)・12月6日(日) / 公式スケジュール準拠)": {"title": "第1676回 | 開催日: 12月5日(土)・12月6日(日) | 締切: 公式スケジュール準拠 (公式指定全13試合)", "goal3_frames": [1, 2, 3], "matches": [{"f": 1, "grp": "A", "h": "千葉", "a": "鹿島", "v": [30.8, 22.1, 47.1], "h_xg": 1.56, "h_xga": 1.98, "a_xg": 1.98, "a_xga": 1.56, "analysis": "[12月5日(土) 13:00 | 天候:晴/曇 | ⏳スタメン未発表(13:00KO)] H:千葉 [J1 17位・残留争い・直近5戦8/15pt] 勝点13/3勝4分7敗 / A:鹿島 [J1 6位・直近5戦7/15pt] 勝点23/7勝2分5敗"}, {"f": 2, "grp": "A", "h": "浦和", "a": "名古屋", "v": [52.7, 21.8, 25.5], "h_xg": 2.04, "h_xga": 1.35, "a_xg": 1.35, "a_xga": 2.04, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:浦和 [J1 9位・直近5戦10/15pt] 勝点22/7勝1分6敗 / A:名古屋 [J1 13位・直近5戦5/15pt] 勝点14/4勝2分8敗"}, {"f": 3, "grp": "A", "h": "東京V", "a": "京都", "v": [33.3, 26.8, 39.9], "h_xg": 1.2, "h_xga": 1.34, "a_xg": 1.34, "a_xga": 1.2, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:東京V [J1 14位・直近5戦10/15pt] 勝点14/3勝5分6敗 / A:京都 [J1 12位・直近5戦8/15pt] 勝点16/4勝4分6敗"}, {"f": 4, "grp": "A", "h": "C大阪", "a": "水戸", "v": [50.8, 24.8, 24.4], "h_xg": 1.64, "h_xga": 1.05, "a_xg": 1.05, "a_xga": 1.64, "analysis": "[12月5日(土) 15:00 | 天候:晴/曇 | ⏳スタメン未発表(15:00KO)] H:C大阪 [J1 11位・直近5戦5/15pt] 勝点17/4勝5分5敗 / A:水戸 [J1 19位・残留争い・直近5戦0/15pt] 勝点9/2勝3分9敗"}, {"f": 5, "grp": "A", "h": "長崎", "a": "清水", "v": [57.2, 25.2, 17.6], "h_xg": 1.59, "h_xga": 0.75, "a_xg": 0.75, "a_xga": 1.59, "analysis": "[12月5日(土) 15:00 | 天候:晴/曇 / 遠征832km | ⏳スタメン未発表(15:00KO)] H:長崎 [J1 16位・直近5戦4/15pt] 勝点13/3勝4分7敗 / A:清水 [J1 15位・直近5戦1/15pt] 勝点14/4勝2分8敗"}, {"f": 6, "grp": "B", "h": "広島", "a": "神戸", "v": [62.6, 21.9, 15.5], "h_xg": 1.9, "h_xga": 0.81, "a_xg": 0.81, "a_xga": 1.9, "analysis": "[12月6日(日) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:広島 [J1 3位・優勝/昇格圏・直近5戦10/15pt] 勝点30/9勝3分2敗 / A:神戸 [J1 5位・直近5戦8/15pt] 勝点27/8勝3分3敗"}, {"f": 7, "grp": "B", "h": "G大阪", "a": "横浜FM", "v": [26.4, 25.7, 47.9], "h_xg": 1.07, "h_xga": 1.54, "a_xg": 1.54, "a_xga": 1.07, "analysis": "[12月6日(日) 15:00 | 天候:晴/曇 | ⏳スタメン未発表(15:00KO)] H:G大阪 [J1 18位・残留争い・直近5戦6/15pt] 勝点12/2勝6分6敗 / A:横浜FM [J1 7位・直近5戦7/15pt] 勝点22/5勝7分2敗"}, {"f": 8, "grp": "B", "h": "柏", "a": "福岡", "v": [79.1, 13.1, 7.8], "h_xg": 2.99, "h_xga": 0.82, "a_xg": 0.82, "a_xga": 2.99, "analysis": "[12月6日(日) 16:00 | 天候:晴/曇 / 遠征904km | ⏳スタメン未発表(16:00KO)] H:柏 [J1 2位・優勝/昇格圏・直近5戦10/15pt] 勝点31/10勝1分3敗 / A:福岡 [J1 20位・残留争い・直近5戦1/15pt] 勝点8/2勝2分10敗"}, {"f": 9, "grp": "B", "h": "町田", "a": "岡山", "v": [78.7, 14.5, 6.8], "h_xg": 2.52, "h_xga": 0.58, "a_xg": 0.58, "a_xga": 2.52, "analysis": "[12月6日(日) 16:00 | 天候:晴/曇 / 遠征512km | ⏳スタメン未発表(16:00KO)] H:町田 [J1 4位・直近5戦9/15pt] 勝点29/8勝5分1敗 / A:岡山 [J1 10位・直近5戦4/15pt] 勝点17/5勝2分7敗"}, {"f": 10, "grp": "B", "h": "札幌", "a": "新潟", "v": [48.8, 24.0, 27.2], "h_xg": 1.71, "h_xga": 1.21, "a_xg": 1.21, "a_xga": 1.71, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 / 遠征604km | ⏳スタメン未発表(14:00KO)] H:札幌 [J2 9位・直近5戦12/15pt] 勝点26/8勝2分7敗 / A:新潟 [J2 4位・優勝/昇格圏・直近5戦9/15pt] 勝点32/10勝2分5敗"}, {"f": 11, "grp": "C", "h": "藤枝", "a": "秋田", "v": [42.5, 29.1, 28.4], "h_xg": 1.22, "h_xga": 0.94, "a_xg": 0.94, "a_xga": 1.22, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 / 遠征564km | ⏳スタメン未発表(14:00KO)] H:藤枝 [J2 15位・直近5戦4/15pt] 勝点19/4勝7分6敗 / A:秋田 [J2 13位・直近5戦7/15pt] 勝点20/5勝5分7敗"}, {"f": 12, "grp": "C", "h": "徳島", "a": "磐田", "v": [28.7, 31.5, 39.8], "h_xg": 0.85, "h_xga": 1.06, "a_xg": 1.06, "a_xga": 0.85, "analysis": "[12月5日(土) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:徳島 [J2 14位・直近5戦6/15pt] 勝点20/6勝2分9敗 / A:磐田 [J2 7位・直近5戦11/15pt] 勝点26/7勝5分5敗"}, {"f": 13, "grp": "C", "h": "仙台", "a": "湘南", "v": [57.5, 25.5, 17.0], "h_xg": 1.56, "h_xga": 0.71, "a_xg": 0.71, "a_xga": 1.56, "analysis": "[12月6日(日) 14:00 | 天候:晴/曇 | ⏳スタメン未発表(14:00KO)] H:仙台 [J2 1位・優勝/昇格圏・直近5戦6/15pt] 勝点33/10勝3分4敗 / A:湘南 [J2 8位・直近5戦7/15pt] 勝点26/6勝8分3敗"}], "actual_results": {}}}};</script>
+  <script id="embedded-toto-data">window.__EMBEDDED_TOTO_DATA__ = null;</script>
   <!-- EMBEDDED_DATA_END -->
 
   <script>
     (function() {
-      var EXPECTED_HASH = "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60";
+      var EXPECTED_HASH = "__INJECTED_PIN_HASH__";
       var appData = window.__EMBEDDED_TOTO_DATA__ || null;
       var currentRoundKey = "";
+      var currentRoundObj = null;
       var selectedMode = "smart";
       var lastAnalyzedCache = [];
+      var lastConfigsMap = {};
 
       var FALLBACK_ACTUAL_RESULTS = {
         "1672": {
@@ -403,6 +450,69 @@
         window.location.replace(window.location.pathname + "?r=" + Date.now());
       };
 
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function formatPickCode(code, isGoal3) {
+        return (isGoal3 && String(code) === "3") ? "3+" : String(code);
+      }
+
+      function formatPickChoices(choices, isGoal3) {
+        return (choices || []).map(function(c) { return formatPickCode(c, isGoal3); }).join("/");
+      }
+
+      function updateManualInputPlaceholder() {
+        var sel = document.getElementById("my-bet-type");
+        var inp = document.getElementById("my-bet-picks");
+        if (!sel || !inp) return;
+        var v = sel.value;
+        if (v === "goal3") {
+          inp.placeholder = "6枠入力 例: 1 - 0/1 - 2 - 1/2 - 3+ - 0/1";
+        } else if (v === "toto_main") {
+          inp.placeholder = "13枠入力 例: 1-1/0-2-1-0-1/2-1-0/2-2-1-1/0-1-2";
+        } else {
+          inp.placeholder = "5枠入力 例: 1 - 1/0 - 2 - 1/0/2 - 1";
+        }
+      }
+
+      function copyTextToClipboard(text, btnEl) {
+        function markCopied() {
+          if (!btnEl) return;
+          var orig = btnEl.textContent;
+          btnEl.textContent = "✓ コピー済";
+          btnEl.classList.add("copied");
+          setTimeout(function() {
+            btnEl.textContent = orig;
+            btnEl.classList.remove("copied");
+          }, 1500);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(markCopied).catch(function() {
+            fallbackCopy(text, markCopied);
+          });
+        } else {
+          fallbackCopy(text, markCopied);
+        }
+      }
+
+      function fallbackCopy(text, onDone) {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (e) {}
+        document.body.removeChild(ta);
+        if (onDone) onDone();
+      }
+
       function sha256Hex(str) {
         var enc = new TextEncoder().encode(str);
         return crypto.subtle.digest("SHA-256", enc).then(function(buf) {
@@ -418,8 +528,20 @@
         loadAllData();
       }
 
+      function tryPinUnlock() {
+        var val = document.getElementById("pin-input").value || "";
+        sha256Hex(val).then(function(h) {
+          if (h === EXPECTED_HASH) {
+            localStorage.setItem("toto_auth_ok", h);
+            unlockApp();
+          } else {
+            document.getElementById("pin-err").textContent = "PINが正しくありません";
+          }
+        });
+      }
+
       function initAuth() {
-        if (EXPECTED_HASH === "369ee7f5fa956a81ceac1073da074b7d523d9264e3780e606e06d717830b8d60" || EXPECTED_HASH === "") {
+        if (EXPECTED_HASH === "__INJECTED_PIN_HASH__" || EXPECTED_HASH === "") {
           unlockApp();
           return;
         }
@@ -428,16 +550,9 @@
           return;
         }
         document.getElementById("pin-overlay").classList.remove("hidden");
-        document.getElementById("pin-submit").addEventListener("click", function() {
-          var val = document.getElementById("pin-input").value || "";
-          sha256Hex(val).then(function(h) {
-            if (h === EXPECTED_HASH) {
-              localStorage.setItem("toto_auth_ok", h);
-              unlockApp();
-            } else {
-              document.getElementById("pin-err").textContent = "PINが正しくありません";
-            }
-          });
+        document.getElementById("pin-submit").addEventListener("click", tryPinUnlock);
+        document.getElementById("pin-input").addEventListener("keydown", function(e) {
+          if (e.key === "Enter") tryPinUnlock();
         });
       }
 
@@ -453,8 +568,21 @@
       }
 
       function getRoundIdNumber(roundKey) {
-        var m = (roundKey || "").match(/第(\d{4})回/);
+        var m = (roundKey || "").match(/第(\d+)回/);
         return m ? m[1] : (roundKey || "default");
+      }
+
+      function parseValidScore(val) {
+        if (val === null || val === undefined || val === "") return null;
+        var n = parseInt(val, 10);
+        if (isNaN(n) || n < 0) return null;
+        return n;
+      }
+
+      function isCancelledResult(code) {
+        if (code === null || code === undefined) return false;
+        var s = String(code).trim();
+        return s === "*" || s === "中止" || s === "延期" || s === "CANCEL";
       }
 
       function getEffectiveActualResults(roundKey, rawActuals) {
@@ -469,7 +597,7 @@
         if (rawActuals && typeof rawActuals === "object") {
           Object.keys(rawActuals).forEach(function(k) {
             var v = rawActuals[k];
-            if (v && typeof v === "object" && v.res !== undefined) {
+            if (v && typeof v === "object" && v.res !== undefined && v.res !== null && v.res !== "") {
               merged[k] = v;
             }
           });
@@ -477,11 +605,37 @@
         return merged;
       }
 
+      function getGoal3Matches(analyzed, rObj) {
+        var frames = (rObj && Array.isArray(rObj.goal3_frames) && rObj.goal3_frames.length === 3)
+          ? rObj.goal3_frames.map(function(n) { return parseInt(n, 10); })
+          : [1, 2, 3];
+        var picked = [];
+        frames.forEach(function(fId) {
+          var found = analyzed.find(function(x) { return parseInt(x.f, 10) === fId; });
+          if (found) picked.push(found);
+        });
+        return picked.length === 3 ? picked : analyzed.slice(0, 3);
+      }
+
+      function isGameAvailable(gameType, analyzedLen) {
+        if (gameType === "goal3") return analyzedLen >= 3;
+        if (gameType === "mini_a") return analyzedLen >= 5;
+        if (gameType === "mini_b") return analyzedLen >= 10;
+        if (gameType === "toto_main") return analyzedLen >= 13;
+        return false;
+      }
+
+      /* ローカルストレージ破損・不正データ耐性付き読み込み */
       function loadMyBets(roundKey) {
         var rid = getRoundIdNumber(roundKey);
         try {
           var raw = localStorage.getItem("toto_my_bets_" + rid);
-          return raw ? JSON.parse(raw) : [];
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return [];
+          return parsed.filter(function(b) {
+            return b && typeof b === "object" && typeof b.gameType === "string" && Array.isArray(b.picks) && b.picks.length > 0;
+          });
         } catch (e) { return []; }
       }
 
@@ -492,19 +646,49 @@
         } catch (e) {}
       }
 
+      /* 重複判定用シリアライズ（各枠内の並び順差 1/0 と 0/1 を同一視） */
+      function serializePicks(picks) {
+        return (picks || []).map(function(ch) { return ch.slice().sort().join("/"); }).join("-");
+      }
+
+      function safeParseXg(val) {
+        var n = parseFloat(val);
+        if (isNaN(n) || n <= 0) return 1.3;
+        return Math.max(0.2, Math.min(4.0, n));
+      }
+
+      /* 確率配列を合計1.0に正規化した上で、合計100%の整数配列へ厳密に丸める（最大剰余法） */
+      function roundProbsTo100(rawList) {
+        var sum = rawList.reduce(function(a, b) { return a + Math.max(0, b); }, 0) || 1;
+        var norm = rawList.map(function(v) { return Math.max(0, v) / sum; });
+        var floors = norm.map(function(v) { return Math.floor(v * 100); });
+        var rem = 100 - floors.reduce(function(a, b) { return a + b; }, 0);
+        var order = norm.map(function(v, idx) {
+          return { idx: idx, frac: (v * 100) - Math.floor(v * 100) };
+        }).sort(function(a, b) { return b.frac - a.frac; });
+        for (var i = 0; i < rem && i < order.length; i++) {
+          floors[order[i].idx] += 1;
+        }
+        return floors;
+      }
+
+      /*
+       * 開催日時（年またぎ対応）・スタメン発表状態・先発補正の厳密パース
+       * ※last_updatedが欠損している場合は時刻ベースの自動「判明済」判定を行わない（誤認定防止）
+       */
       function analyzeMatchContextList(matches, lastUpdatedStr) {
-        var refDate = new Date();
+        var dataRefDate = null;
         if (lastUpdatedStr) {
-          var mUp = lastUpdatedStr.match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
+          var mUp = lastUpdatedStr.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})[\sT]+(\d{1,2}):(\d{2})/);
           if (mUp) {
-            var parsedUp = new Date(
+            dataRefDate = new Date(
               parseInt(mUp[1], 10), parseInt(mUp[2], 10) - 1, parseInt(mUp[3], 10),
               parseInt(mUp[4], 10), parseInt(mUp[5], 10)
             );
-            if (parsedUp > refDate) refDate = parsedUp;
           }
         }
-        var refYear = refDate.getFullYear();
+        var refYear = dataRefDate ? dataRefDate.getFullYear() : new Date().getFullYear();
+        var refMon = dataRefDate ? (dataRefDate.getMonth() + 1) : (new Date().getMonth() + 1);
 
         var rawDates = matches.map(function(m) {
           var txt = m.analysis || "";
@@ -535,63 +719,92 @@
           var koStr = koMatch ? koMatch[1] : "";
 
           var hPct = 0, aPct = 0;
-          var hm = txt.match(/H:([^/\]]*?\(([+-±]?\d+)%\))/);
-          if (hm) hPct = parseInt(hm[2].replace("±", ""), 10) || 0;
-          var am = txt.match(/A:([^/\])\]]*?\(([+-±]?\d+)%\))/);
-          if (am) aPct = parseInt(am[2].replace("±", ""), 10) || 0;
+          var hasAnnouncedMarker = (txt.indexOf("スタメン発表済") !== -1);
+          var hasUnannouncedMarker = (txt.indexOf("スタメン未発表") !== -1);
 
-          var hasAnnouncedText = (txt.indexOf("スタメン発表済") !== -1) || (hm !== null) || (am !== null);
-          var hasUnannouncedText = (txt.indexOf("スタメン未発表") !== -1);
+          if (hasAnnouncedMarker) {
+            var luBlock = txt.match(/スタメン発表済\(([^\]\r\n]+)\)/);
+            var scope = luBlock ? luBlock[1] : txt;
+            var hm = scope.match(/H:[^/\r\n]*?\(([+\-＋－±]?\d+)%\)/);
+            if (hm) {
+              var hNorm = hm[1].replace("＋", "+").replace("－", "-").replace("±", "");
+              hPct = parseInt(hNorm, 10) || 0;
+            }
+            var am = scope.match(/A:[^/\r\n]*?\(([+\-＋－±]?\d+)%\)/);
+            if (am) {
+              var aNorm = am[1].replace("＋", "+").replace("－", "-").replace("±", "");
+              aPct = parseInt(aNorm, 10) || 0;
+            }
+          }
 
           var timeBasedAnnounced = false;
-          if (dInfo) {
+          if (dataRefDate && dInfo) {
             var koH = 14, koM = 0;
             if (koStr) {
               var parts = koStr.split(":");
               koH = parseInt(parts[0], 10); koM = parseInt(parts[1], 10);
             }
-            var koDate = new Date(refYear, dInfo.mon - 1, dInfo.day, koH, koM);
-            var diffMinutes = (refDate.getTime() - koDate.getTime()) / 60000;
+            var matchYear = refYear;
+            if (refMon === 12 && dInfo.mon === 1) matchYear = refYear + 1;
+            else if (refMon === 1 && dInfo.mon === 12) matchYear = refYear - 1;
+
+            var koDate = new Date(matchYear, dInfo.mon - 1, dInfo.day, koH, koM);
+            var diffMinutes = (dataRefDate.getTime() - koDate.getTime()) / 60000;
             if (diffMinutes >= -130) timeBasedAnnounced = true;
           }
 
-          var isLineupAnnounced = hasAnnouncedText || (!hasUnannouncedText && timeBasedAnnounced);
-          var isUnannouncedRisk = isSecondCalendarDay && !isLineupAnnounced;
+          var isLineupAnnounced = hasAnnouncedMarker || (!hasUnannouncedMarker && timeBasedAnnounced);
 
           return {
             dateTag: dInfo ? dInfo.tag : "",
             koStr: koStr,
             isSecondCalendarDay: isSecondCalendarDay,
             isLineupAnnounced: isLineupAnnounced,
-            isUnannouncedRisk: isUnannouncedRisk,
             hPct: hPct,
             aPct: aPct
           };
         });
       }
 
-      function poissonProbs(lam) {
+      /* 1x2計算用：0〜6得点の正確なポアソン分布 */
+      function poissonExactDist(lam, maxGoals) {
+        var dist = [];
+        var p = Math.exp(-lam);
+        dist.push(p);
+        for (var k = 1; k <= maxGoals; k++) {
+          p = p * lam / k;
+          dist.push(p);
+        }
+        return dist;
+      }
+
+      /* GOAL3用：0, 1, 2, 3点以上の4区分確率（合計1.0保証） */
+      function poissonGoal3Probs(lam) {
         var p0 = Math.exp(-lam);
         var p1 = lam * p0;
         var p2 = (lam * lam / 2) * p0;
-        var p3 = Math.max(0.01, 1 - (p0 + p1 + p2));
-        return [p0, p1, p2, p3];
+        var p3 = Math.max(0.001, 1 - (p0 + p1 + p2));
+        var s = p0 + p1 + p2 + p3;
+        return [p0 / s, p1 / s, p2 / s, p3 / s];
       }
 
+      /* 1x2 勝敗予測 ＋ 合意基準による厳密な S / A / B ランク判定 */
       function calc1x2DynamicDC(hLam, aLam, mktV, ctx, labelTxt, fNum) {
         var effHLam = hLam, effALam = aLam;
-        if (ctx && ctx.isLineupAnnounced && (ctx.hPct !== 0 || ctx.aPct !== 0)) {
+        var isAnnounced = !!(ctx && ctx.isLineupAnnounced);
+        if (isAnnounced && (ctx.hPct !== 0 || ctx.aPct !== 0)) {
           effHLam = Math.max(0.25, Math.min(3.50, hLam * (1 + (ctx.hPct * 0.008))));
           effALam = Math.max(0.25, Math.min(3.50, aLam * (1 + (ctx.aPct * 0.008))));
         }
 
         var totLam = effHLam + effALam;
         var rho = Math.max(-0.16, Math.min(-0.06, -0.12 + (totLam - 2.4) * 0.03));
-        var hp = poissonProbs(effHLam), ap = poissonProbs(effALam);
+        var hp = poissonExactDist(effHLam, 6);
+        var ap = poissonExactDist(effALam, 6);
         var p1 = 0, p0 = 0, p2 = 0;
 
-        for (var i = 0; i < 4; i++) {
-          for (var j = 0; j < 4; j++) {
+        for (var i = 0; i <= 6; i++) {
+          for (var j = 0; j <= 6; j++) {
             var p = hp[i] * ap[j];
             if (i === 0 && j === 0) p *= Math.max(0.1, 1 - effHLam * effALam * rho);
             else if (i === 1 && j === 0) p *= Math.max(0.1, 1 + effALam * rho);
@@ -605,7 +818,7 @@
         var tot = p1 + p0 + p2 || 1;
         var aiProbMap = { "1": p1 / tot, "0": p0 / tot, "2": p2 / tot };
 
-        if (ctx && ctx.isUnannouncedRisk) {
+        if (!isAnnounced) {
           aiProbMap["1"] = aiProbMap["1"] * 0.94 + 0.02;
           aiProbMap["0"] = aiProbMap["0"] * 0.94 + 0.025;
           aiProbMap["2"] = aiProbMap["2"] * 0.94 + 0.015;
@@ -613,43 +826,45 @@
           aiProbMap["1"] /= s2; aiProbMap["0"] /= s2; aiProbMap["2"] /= s2;
         }
 
+        var v0 = (mktV && mktV.length >= 3) ? (parseFloat(mktV[0]) || 0) : 0;
+        var v1 = (mktV && mktV.length >= 3) ? (parseFloat(mktV[1]) || 0) : 0;
+        var v2 = (mktV && mktV.length >= 3) ? (parseFloat(mktV[2]) || 0) : 0;
+        var mktSum = v0 + v1 + v2;
+
         var mktProbMap;
-        if (mktV && mktV.length >= 3 && (mktV[0] + mktV[1] + mktV[2]) > 0) {
-          var ms = mktV[0] + mktV[1] + mktV[2];
-          mktProbMap = {
-            "1": Math.max(0.05, mktV[0] / ms),
-            "0": Math.max(0.05, mktV[1] / ms),
-            "2": Math.max(0.05, mktV[2] / ms)
-          };
+        if (mktSum > 0) {
+          var m1 = Math.max(0.05, v0 / mktSum);
+          var m0 = Math.max(0.05, v1 / mktSum);
+          var m2 = Math.max(0.05, v2 / mktSum);
+          var mTot = m1 + m0 + m2;
+          mktProbMap = { "1": m1 / mTot, "0": m0 / mTot, "2": m2 / mTot };
         } else {
           var b1 = Math.pow(aiProbMap["1"], 1.18), b0 = Math.pow(aiProbMap["0"], 0.92), b2 = Math.pow(aiProbMap["2"], 1.18);
           var bs = b1 + b0 + b2;
           mktProbMap = { "1": b1 / bs, "0": b0 / bs, "2": b2 / bs };
         }
 
+        var rounded = roundProbsTo100([aiProbMap["1"], aiProbMap["0"], aiProbMap["2"]]);
+        var pctMap = { "1": rounded[0], "0": rounded[1], "2": rounded[2] };
         var arr = [
-          { code: "1", prob: Math.round(aiProbMap["1"] * 100) },
-          { code: "0", prob: Math.round(aiProbMap["0"] * 100) },
-          { code: "2", prob: Math.round(aiProbMap["2"] * 100) }
-        ].sort(function(a, b) { return b.prob - a.prob; });
+          { code: "1", prob: rounded[0], raw: aiProbMap["1"] },
+          { code: "0", prob: rounded[1], raw: aiProbMap["0"] },
+          { code: "2", prob: rounded[2], raw: aiProbMap["2"] }
+        ].sort(function(a, b) { return b.raw - a.raw; });
 
-        var favLineupBoost = 0;
-        if (ctx && ctx.isLineupAnnounced) {
-          if (arr[0].code === "1") favLineupBoost = ctx.hPct - ctx.aPct;
-          else if (arr[0].code === "2") favLineupBoost = ctx.aPct - ctx.hPct;
+        var favTeamPct = 0;
+        if (isAnnounced) {
+          if (arr[0].code === "1") favTeamPct = ctx.hPct;
+          else if (arr[0].code === "2") favTeamPct = ctx.aPct;
         }
 
         var prob1 = arr[0].prob, prob2 = arr[1].prob, prob3 = arr[2].prob;
         var diff = prob1 - prob2;
-        var isUnann = !!(ctx && ctx.isUnannouncedRisk);
 
         var rank = "B";
-        var canBeSolid = (!isUnann || (prob1 >= 65 && diff >= 35)) && (favLineupBoost >= 0);
-        if (canBeSolid && prob1 >= 55 && diff >= 25) {
+        if (isAnnounced && favTeamPct >= 0 && prob1 >= 55 && diff >= 25) {
           rank = "S";
-        } else if ((prob1 + prob2) >= 79 && diff >= 7 && !isUnann) {
-          rank = "A";
-        } else if ((prob1 + prob2) >= 83 && diff >= 10) {
+        } else if (isAnnounced && (prob1 + prob2) >= 82) {
           rank = "A";
         } else {
           rank = "B";
@@ -660,23 +875,31 @@
           label: labelTxt || "",
           top1: arr[0].code, top2: arr[1].code, top3: arr[2].code,
           p1: prob1, p2: prob2, p3: prob3, diff: diff,
+          pctMap: pctMap,
           rank: rank,
           isDay2: !!(ctx && ctx.isSecondCalendarDay),
-          isLineupAnnounced: !!(ctx && ctx.isLineupAnnounced),
-          isUnannouncedRisk: isUnann,
-          favLineupBoost: favLineupBoost,
+          isLineupAnnounced: isAnnounced,
           aiMap: aiProbMap, mktMap: mktProbMap
         };
       }
 
+      /* GOAL3 予測 ＋ 合意基準による厳密な S / A / B ランク判定 */
       function calcGoalTop2(lam, ctx, isHome, teamName, fNum) {
         var effLam = lam;
-        if (ctx && ctx.isLineupAnnounced) {
-          var pct = isHome ? ctx.hPct : ctx.aPct;
-          effLam = Math.max(0.25, Math.min(3.50, lam * (1 + (pct * 0.008))));
+        var teamPct = 0;
+        var isAnnounced = !!(ctx && ctx.isLineupAnnounced);
+        if (isAnnounced) {
+          teamPct = isHome ? ctx.hPct : ctx.aPct;
+          effLam = Math.max(0.25, Math.min(3.50, lam * (1 + (teamPct * 0.008))));
         }
-        var ps = poissonProbs(effLam);
-        var aiMap = { "0": ps[0], "1": ps[1], "2": ps[2], "3": ps[3] };
+        var rawG = poissonGoal3Probs(effLam);
+        if (!isAnnounced) {
+          rawG = rawG.map(function(v) { return v * 0.94 + 0.015; });
+          var gSum = rawG.reduce(function(a, b) { return a + b; }, 0);
+          rawG = rawG.map(function(v) { return v / gSum; });
+        }
+
+        var aiMap = { "0": rawG[0], "1": rawG[1], "2": rawG[2], "3": rawG[3] };
         var mktBase = { "0": 0.24, "1": 0.36, "2": 0.25, "3": 0.15 };
         var mktMap = {
           "0": aiMap["0"] * 0.65 + mktBase["0"] * 0.35,
@@ -685,58 +908,75 @@
           "3": aiMap["3"] * 0.65 + mktBase["3"] * 0.35
         };
 
+        var rounded = roundProbsTo100(rawG);
+        var pctMap = { "0": rounded[0], "1": rounded[1], "2": rounded[2], "3": rounded[3] };
         var arr = [
-          { code: "0", prob: Math.round(ps[0] * 100) },
-          { code: "1", prob: Math.round(ps[1] * 100) },
-          { code: "2", prob: Math.round(ps[2] * 100) },
-          { code: "3", prob: Math.round(ps[3] * 100) }
-        ].sort(function(a, b) { return b.prob - a.prob; });
+          { code: "0", prob: rounded[0], raw: rawG[0] },
+          { code: "1", prob: rounded[1], raw: rawG[1] },
+          { code: "2", prob: rounded[2], raw: rawG[2] },
+          { code: "3", prob: rounded[3], raw: rawG[3] }
+        ].sort(function(a, b) { return b.raw - a.raw; });
 
         var prob1 = arr[0].prob, prob2 = arr[1].prob, prob3 = arr[2].prob;
         var diff = prob1 - prob2;
-        var isUnann = !!(ctx && ctx.isUnannouncedRisk);
 
         var rank = "B";
-        if (!isUnann) {
-          if (arr[0].code === "3" && prob1 >= 40 && diff >= 12) rank = "S";
-          else if (prob1 >= 42 && diff >= 15) rank = "S";
-          else if (prob1 >= 39 && diff >= 14) rank = "S";
-        }
-        if (rank !== "S") {
-          if ((prob1 + prob2) >= 67) rank = "A";
-          else rank = "B";
+        if (isAnnounced && teamPct >= 0) {
+          if (arr[0].code === "3" && effLam >= 2.20 && prob1 >= 40 && diff >= 12) {
+            rank = "S";
+          } else if (prob1 >= 42 && diff >= 15) {
+            rank = "S";
+          } else if ((prob1 + prob2) >= 70) {
+            rank = "A";
+          }
+        } else if (isAnnounced && (prob1 + prob2) >= 70) {
+          rank = "A";
         }
 
         return {
           fNum: fNum,
           label: teamName || "",
+          effLam: effLam,
           top1: arr[0].code, top2: arr[1].code, top3: arr[2].code,
           p1: prob1, p2: prob2, p3: prob3, diff: diff,
+          pctMap: pctMap,
           rank: rank,
           isDay2: !!(ctx && ctx.isSecondCalendarDay),
-          isLineupAnnounced: !!(ctx && ctx.isLineupAnnounced),
-          isUnannouncedRisk: isUnann,
-          favLineupBoost: 0,
+          isLineupAnnounced: isAnnounced,
           aiMap: aiMap, mktMap: mktMap
         };
       }
 
-      function selectBestCoverIndices(items, count) {
+      /* 非鉄板枠の2番手カバー優先度順（対抗シングル用） */
+      function selectNonSolidCoverIndices(items, count) {
         return items
           .map(function(it, idx) {
-            var unannouncedBonus = it.isUnannouncedRisk ? 8 : 0;
-            var sPenalty = it.rank === "S" ? -50 : 0;
-            return { idx: idx, coverScore: (it.p2 * 2 - it.diff) + unannouncedBonus + sPenalty };
+            var unannouncedBonus = !it.isLineupAnnounced ? 10 : 0;
+            return { idx: idx, isS: (it.rank === "S"), coverScore: (it.p2 * 2 - it.diff) + unannouncedBonus };
           })
+          .filter(function(x) { return !x.isS; })
           .sort(function(a, b) { return b.coverScore - a.coverScore; })
           .slice(0, count)
           .map(function(x) { return x.idx; });
       }
 
+      /* 非鉄板枠の第3候補波乱ケア優先度順（穴目確率p3が高い枠を優先） */
+      function selectNonSolidUpsetIndices(items) {
+        return items
+          .map(function(it, idx) {
+            var unannouncedBonus = !it.isLineupAnnounced ? 8 : 0;
+            return { idx: idx, isS: (it.rank === "S"), upsetScore: (it.p3 * 2) + unannouncedBonus };
+          })
+          .filter(function(x) { return !x.isS; })
+          .sort(function(a, b) { return b.upsetScore - a.upsetScore; })
+          .map(function(x) { return x.idx; });
+      }
+
+      /* 全押さえ（確率1.0）を厳密に扱える0〜2枠外れDP */
       function runMissDP(probList) {
         var dp0 = 1.0, dp1 = 0.0, dp2 = 0.0;
         for (var i = 0; i < probList.length; i++) {
-          var q = Math.max(0.01, Math.min(0.99, probList[i]));
+          var q = Math.max(0.0, Math.min(1.0, probList[i]));
           var u = 1.0 - q;
           var next0 = dp0 * q;
           var next1 = dp1 * q + dp0 * u;
@@ -746,216 +986,273 @@
         return [dp0, dp1, dp2];
       }
 
+      function expandTicketGroup(picks) {
+        var res = [];
+        function dfs(idx, cur) {
+          if (idx === picks.length) {
+            res.push(cur.slice());
+            return;
+          }
+          var arr = picks[idx];
+          for (var i = 0; i < arr.length; i++) {
+            cur.push(arr[i]);
+            dfs(idx + 1, cur);
+            cur.pop();
+          }
+        }
+        dfs(0, []);
+        return res;
+      }
+
+      function calcComboProduct(counts) {
+        return counts.reduce(function(acc, c) { return acc * c; }, 1);
+      }
+
       function evaluatePlanMetrics(items, modeOrBudget, gameType) {
-        var sCount = items.filter(function(it) { return it.rank === "S"; }).length;
-        var aCount = items.filter(function(it) { return it.rank === "A"; }).length;
+        var isGoal3 = (gameType === "goal3");
+        var trueSCount = items.filter(function(it) { return it.rank === "S"; }).length;
+        var unannInGame = items.filter(function(it) { return !it.isLineupAnnounced; }).length;
+        var unannSuffix = unannInGame > 0 ? ("（内" + unannInGame + "枠スタメン未発表・発表後に再確認）") : "";
 
         var isSkipRecommended = false;
         var skipReason = "";
         if (gameType === "mini_a" || gameType === "mini_b") {
-          if (sCount === 0 && aCount <= 2) {
+          if (trueSCount <= 1) {
             isSkipRecommended = true;
-            skipReason = "鉄板0枠のため見送り推奨（大混戦）";
-          } else if (sCount === 1 && aCount === 0) {
-            isSkipRecommended = true;
-            skipReason = "鉄板1枠のみで残り混戦のため見送り推奨";
+            skipReason = "絶対鉄板が" + trueSCount + "枠のみ（0〜1枠基準）のため見送り推奨" + unannSuffix;
           }
         } else if (gameType === "goal3") {
-          if (sCount <= 1 && (sCount + aCount) <= 3) {
+          if (trueSCount <= 2) {
             isSkipRecommended = true;
-            skipReason = "得点鉄板枠が少なく高コストのため見送り推奨";
+            skipReason = "得点鉄板が" + trueSCount + "枠のみ（0〜2枠基準）のため見送り推奨" + unannSuffix;
           }
         }
 
         var ticketGroups = [];
-        var framePickCounts = [];
+        var seenComboSet = {};
+        var budgetCapNote = "";
 
-        if (modeOrBudget === "smart") {
-          framePickCounts = items.map(function(it) {
+        function registerTicketGroup(label, picks, changedIndices) {
+          var expanded = expandTicketGroup(picks);
+          var novel = expanded.filter(function(combo) {
+            return !seenComboSet[combo.join("-")];
+          });
+          if (novel.length !== expanded.length || novel.length === 0) return 0;
+          novel.forEach(function(combo) { seenComboSet[combo.join("-")] = true; });
+          ticketGroups.push({
+            label: label,
+            picks: picks,
+            changedIndices: changedIndices || [],
+            cost: novel.length * 100
+          });
+          return novel.length * 100;
+        }
+
+        function buildBestSingleMultiCounts(maxCombos, allowExpandA) {
+          var counts = items.map(function(it) {
             if (it.rank === "S") return 1;
             if (it.rank === "A") return 2;
             return 3;
           });
 
-          function calcCombos(counts) {
-            return counts.reduce(function(acc, c) { return acc * c; }, 1);
-          }
-
-          var maxAllowedCombos = (gameType === "toto_main") ? 16 : 12;
-
-          while (calcCombos(framePickCounts) > maxAllowedCombos) {
+          while (calcComboProduct(counts) > maxCombos) {
             var bestBIdx = -1, minP3 = 999;
-            framePickCounts.forEach(function(cnt, idx) {
+            counts.forEach(function(cnt, idx) {
               if (cnt === 3 && items[idx].p3 < minP3) { minP3 = items[idx].p3; bestBIdx = idx; }
             });
-            if (bestBIdx !== -1) framePickCounts[bestBIdx] = 2;
+            if (bestBIdx !== -1) counts[bestBIdx] = 2;
             else break;
           }
 
-          while (calcCombos(framePickCounts) > maxAllowedCombos) {
+          while (calcComboProduct(counts) > maxCombos) {
             var bestAIdx = -1, maxScore = -999;
-            framePickCounts.forEach(function(cnt, idx) {
+            counts.forEach(function(cnt, idx) {
               var sc = items[idx].p1 * 1.5 + items[idx].diff;
               if (cnt === 2 && sc > maxScore) { maxScore = sc; bestAIdx = idx; }
             });
-            if (bestAIdx !== -1) framePickCounts[bestAIdx] = 1;
+            if (bestAIdx !== -1) counts[bestAIdx] = 1;
             else break;
           }
 
-          if (calcCombos(framePickCounts) === 1 && items.length >= 5) {
-            var cOrder = selectBestCoverIndices(items, 1);
-            if (cOrder.length > 0) framePickCounts[cOrder[0]] = 2;
+          while (true) {
+            var curProdB = calcComboProduct(counts);
+            var restoreBIdx = -1, maxBP3 = -1;
+            counts.forEach(function(cnt, idx) {
+              if (cnt === 2 && items[idx].rank === "B" && (curProdB / 2) * 3 <= maxCombos) {
+                if (items[idx].p3 > maxBP3) { maxBP3 = items[idx].p3; restoreBIdx = idx; }
+              }
+            });
+            if (restoreBIdx !== -1) counts[restoreBIdx] = 3;
+            else break;
           }
 
+          if (allowExpandA) {
+            while (true) {
+              var curProdA = calcComboProduct(counts);
+              var upIdx = -1, maxAP3 = -1;
+              counts.forEach(function(cnt, idx) {
+                if (cnt === 2 && items[idx].rank !== "S" && (curProdA / 2) * 3 <= maxCombos) {
+                  if (items[idx].p3 > maxAP3) { maxAP3 = items[idx].p3; upIdx = idx; }
+                }
+              });
+              if (upIdx !== -1) counts[upIdx] = 3;
+              else break;
+            }
+          }
+
+          return counts;
+        }
+
+        if (modeOrBudget === "smart") {
+          var maxSmartCombos = (gameType === "toto_main") ? 16 : 12;
+          var smartCounts = buildBestSingleMultiCounts(maxSmartCombos, false);
           var smartPicks = items.map(function(it, idx) {
-            var c = framePickCounts[idx];
+            var c = smartCounts[idx];
             if (c === 1) return [it.top1];
             if (c === 2) return [it.top1, it.top2];
             return [it.top1, it.top2, it.top3];
           });
-          var smartCost = calcCombos(framePickCounts) * 100;
-
-          var sCntNow = framePickCounts.filter(function(c) { return c === 1; }).length;
-          var aCntNow = framePickCounts.filter(function(c) { return c === 2; }).length;
-          var bCntNow = framePickCounts.filter(function(c) { return c === 3; }).length;
-
-          ticketGroups.push({
-            label: "強弱マルチ1枚完結（1点×" + sCntNow + " / 2点W×" + aCntNow + " / 3点×" + bCntNow + "）",
-            picks: smartPicks,
-            cost: smartCost
-          });
+          var s1 = smartCounts.filter(function(c) { return c === 1; }).length;
+          var s2 = smartCounts.filter(function(c) { return c === 2; }).length;
+          var s3 = smartCounts.filter(function(c) { return c === 3; }).length;
+          registerTicketGroup(
+            "強弱マルチ1枚完結（1点×" + s1 + " / 2点W×" + s2 + " / 3点×" + s3 + "）",
+            smartPicks,
+            []
+          );
         } else {
           var budget = parseInt(modeOrBudget, 10) || 500;
-          var coverOrder = selectBestCoverIndices(items, items.length);
-          var wCount = (budget === 500) ? 2 : ((budget === 1000 || budget === 1500) ? 3 : 4);
-          var wSet = coverOrder.slice(0, wCount);
-          framePickCounts = items.map(function(_, idx) { return wSet.indexOf(idx) !== -1 ? 2 : 1; });
-
+          var maxBudgetCombos = Math.floor(budget / 100);
+          var mainCounts = buildBestSingleMultiCounts(maxBudgetCombos, true);
           var mainPicks = items.map(function(it, idx) {
-            return wSet.indexOf(idx) !== -1 ? [it.top1, it.top2] : [it.top1];
+            var c = mainCounts[idx];
+            if (c === 1) return [it.top1];
+            if (c === 2) return [it.top1, it.top2];
+            return [it.top1, it.top2, it.top3];
           });
-          ticketGroups.push({
-            label: "シート1：メインWマルチ",
-            picks: mainPicks,
-            cost: Math.pow(2, wSet.length) * 100
-          });
+          var spent = registerTicketGroup(
+            "シート1：メインマルチ（絶対鉄板" + trueSCount + "枠固定）",
+            mainPicks,
+            []
+          );
 
-          if (budget === 500 && coverOrder.length >= 3) {
-            var m3 = coverOrder[2];
-            ticketGroups.push({
-              label: "シート2：押さえシングル（第" + (m3 + 1) + "枠変更）",
-              picks: items.map(function(it, i) { return i === m3 ? [it.top2] : [it.top1]; }),
-              cost: 100
-            });
-          } else if (budget === 1000 && coverOrder.length >= 5) {
-            [coverOrder[3], coverOrder[4]].forEach(function(mIdx, k) {
-              ticketGroups.push({
-                label: "シート" + (k + 2) + "：押さえシングル（第" + (mIdx + 1) + "枠変更）",
-                picks: items.map(function(it, i) { return i === mIdx ? [it.top2] : [it.top1]; }),
-                cost: 100
-              });
-            });
-          } else if (budget === 1500 && coverOrder.length >= 4) {
-            var fix4 = coverOrder[3];
-            var subW2 = coverOrder.slice(0, 2);
-            ticketGroups.push({
-              label: "シート2：サブWマルチ（第" + (fix4 + 1) + "枠固定）",
-              picks: items.map(function(it, i) {
-                if (i === fix4) return [it.top2];
-                return subW2.indexOf(i) !== -1 ? [it.top1, it.top2] : [it.top1];
-              }),
-              cost: 400
-            });
-            for (var s = 0; s < 3; s++) {
-              var bIdx = coverOrder[s];
-              ticketGroups.push({
-                label: "シート" + (s + 3) + "：波乱ケアシングル",
-                picks: items.map(function(it, i) { return i === bIdx ? [it.top3] : [it.top1]; }),
-                cost: 100
-              });
+          var remainBudget = budget - spent;
+          var nonSolidCoverOrder = selectNonSolidCoverIndices(items, items.length);
+          var nonSolidUpsetOrder = selectNonSolidUpsetIndices(items);
+
+          for (var u = 0; u < nonSolidCoverOrder.length && remainBudget >= 100; u++) {
+            var uIdx = nonSolidCoverOrder[u];
+            if (mainCounts[uIdx] === 1) {
+              var uPicks = items.map(function(it, i) { return i === uIdx ? [it.top2] : [it.top1]; });
+              remainBudget -= registerTicketGroup(
+                "押さえシングル（枠" + items[uIdx].fNum + " 対抗[" + formatPickCode(items[uIdx].top2, isGoal3) + "]）",
+                uPicks,
+                [uIdx]
+              );
             }
-          } else if (budget === 2000 && coverOrder.length >= 5) {
-            var fix5 = coverOrder[4];
-            var subW2b = coverOrder.slice(0, 2);
-            ticketGroups.push({
-              label: "シート2：サブWマルチ（第" + (fix5 + 1) + "枠固定）",
-              picks: items.map(function(it, i) {
-                if (i === fix5) return [it.top2];
-                return subW2b.indexOf(i) !== -1 ? [it.top1, it.top2] : [it.top1];
-              }),
-              cost: 400
-            });
+          }
+          for (var b = 0; b < nonSolidUpsetOrder.length && remainBudget >= 100; b++) {
+            var bIdx = nonSolidUpsetOrder[b];
+            if (mainCounts[bIdx] <= 2) {
+              var bPicks = items.map(function(it, i) { return i === bIdx ? [it.top3] : [it.top1]; });
+              remainBudget -= registerTicketGroup(
+                "波乱ケアシングル（枠" + items[bIdx].fNum + " 穴目[" + formatPickCode(items[bIdx].top3, isGoal3) + "]）",
+                bPicks,
+                [bIdx]
+              );
+            }
+          }
+
+          if (remainBudget > 0) {
+            budgetCapNote = "※絶対鉄板" + trueSCount + "枠を固定保護しているため、予算" + formatYen(budget) + "以内の最小有効口数に最適化済";
           }
         }
 
-        var allTickets = [];
-        ticketGroups.forEach(function(grp) {
-          function expand(idx, current) {
-            if (idx === grp.picks.length) {
-              allTickets.push(current.slice());
-              return;
-            }
-            var choices = grp.picks[idx];
-            for (var c = 0; c < choices.length; c++) {
-              current.push(choices[c]);
-              expand(idx + 1, current);
-              current.pop();
-            }
-          }
-          expand(0, []);
-        });
-
-        var totalCost = allTickets.length * 100;
+        var uniqueTickets = Object.keys(seenComboSet).map(function(k) { return k.split("-"); });
+        var totalCost = uniqueTickets.length * 100;
         var sumProb1st = 0;
-        var pay1List = [];
-        var weightedReturn = 0;
+        var pay1List = [], pay2List = [], pay3List = [];
+        var weightedReturn1 = 0, weightedPay2 = 0, weightedPay3 = 0;
 
-        allTickets.forEach(function(combo) {
+        uniqueTickets.forEach(function(combo) {
           var pAi = 1.0;
           var mktProbs = [];
           for (var i = 0; i < combo.length; i++) {
             var code = combo[i];
-            pAi *= Math.max(0.02, items[i].aiMap[code] || 0.12);
-            mktProbs.push(Math.max(0.02, items[i].mktMap[code] || 0.12));
+            pAi *= (items[i].aiMap[code] || 0.001);
+            mktProbs.push(Math.max(0.01, items[i].mktMap[code] || 0.05));
           }
           sumProb1st += pAi;
           var mktDp = runMissDP(mktProbs);
-          var p1 = 2500;
-          if (gameType === "toto_main") p1 = Math.max(500000, Math.min(100000000, 40.0 / Math.max(1e-8, mktDp[0])));
-          else if (gameType === "goal3") p1 = Math.max(3000, Math.min(250000, 30.0 / Math.max(1e-6, mktDp[0])));
-          else p1 = Math.max(2000, Math.min(120000, 50.0 / Math.max(1e-6, mktDp[0])));
+          var p1 = 2500, p2 = 0, p3 = 0;
+          if (gameType === "toto_main") {
+            p1 = Math.max(500000, Math.min(100000000, 40.0 / Math.max(1e-8, mktDp[0])));
+            p2 = Math.max(20000, Math.min(1200000, 12.0 / Math.max(1e-6, mktDp[1])));
+            p3 = Math.max(2000, Math.min(80000, 11.0 / Math.max(1e-5, mktDp[2])));
+          } else if (gameType === "goal3") {
+            p1 = Math.max(3000, Math.min(250000, 30.0 / Math.max(1e-6, mktDp[0])));
+            p2 = Math.max(600, Math.min(20000, 20.0 / Math.max(1e-5, mktDp[1])));
+          } else {
+            p1 = Math.max(2000, Math.min(120000, 50.0 / Math.max(1e-6, mktDp[0])));
+          }
           pay1List.push(p1);
-          weightedReturn += pAi * p1;
+          if (p2 > 0) pay2List.push(p2);
+          if (p3 > 0) pay3List.push(p3);
+          weightedReturn1 += pAi * p1;
+          weightedPay2 += pAi * p2;
+          weightedPay3 += pAi * p3;
         });
 
+        sumProb1st = Math.min(1.0, sumProb1st);
+
         var effQ = items.map(function(it, idx) {
-          var choices = ticketGroups[0].picks[idx];
+          var choices = ticketGroups.length > 0 ? ticketGroups[0].picks[idx] : [it.top1];
           var sumP = 0;
-          choices.forEach(function(ch) { sumP += (it.aiMap[ch] || 0.15); });
-          return Math.min(0.97, sumP);
+          choices.forEach(function(ch) { sumP += (it.aiMap[ch] || 0); });
+          return Math.min(1.0, sumP);
         });
+        var baseDp = runMissDP(effQ);
+        if (ticketGroups.length > 1) {
+          var boostRatio = sumProb1st / Math.max(1e-9, baseDp[0]);
+          if (boostRatio > 1.001) {
+            var adjustable = effQ.filter(function(q) { return q < 0.999; }).length;
+            if (adjustable > 0) {
+              var perFrameBoost = Math.pow(boostRatio, 1.0 / adjustable);
+              effQ = effQ.map(function(q) { return q < 0.999 ? Math.min(0.995, q * perFrameBoost) : 1.0; });
+            }
+          }
+        }
         var portDp = runMissDP(effQ);
-        var prob2nd = portDp[1];
+
+        var prob2nd = Math.min(portDp[1], Math.max(0.0, 1.0 - sumProb1st));
+        var prob3rd = Math.min(portDp[2], Math.max(0.0, 1.0 - sumProb1st - prob2nd));
+        var avgPay2 = sumProb1st > 0 ? (weightedPay2 / sumProb1st) : (pay2List[0] || 0);
+        var avgPay3 = sumProb1st > 0 ? (weightedPay3 / sumProb1st) : (pay3List[0] || 0);
 
         pay1List.sort(function(a, b) { return a - b; });
         var minPay = pay1List[0] || 2500;
         var maxPay = pay1List[pay1List.length - 1] || 30000;
 
-        var evRatio = Math.round(((weightedReturn + (gameType === "goal3" ? prob2nd * 2200 : 0)) / Math.max(100, totalCost)) * 100);
-        var recScore = (sumProb1st * 100 * 2.2) + (sCount * 12) + (evRatio * 0.25) - (isSkipRecommended ? 80 : 0);
+        var totalExpectedReturn = weightedReturn1
+          + ((gameType === "goal3" || gameType === "toto_main") ? (prob2nd * avgPay2) : 0)
+          + (gameType === "toto_main" ? (prob3rd * avgPay3) : 0);
+        var evRatio = Math.round((totalExpectedReturn / Math.max(100, totalCost)) * 100);
+        var recScore = (sumProb1st * 100 * 2.2) + (trueSCount * 12) + (evRatio * 0.25) - (isSkipRecommended ? 80 : 0);
 
         return {
           cost: totalCost,
-          ticketCount: allTickets.length,
+          ticketCount: uniqueTickets.length,
           ticketGroups: ticketGroups,
-          sCount: sCount,
+          sCount: trueSCount,
           hitProb1stPct: sumProb1st * 100,
           hitProb2ndPct: prob2nd * 100,
+          hitProb3rdPct: prob3rd * 100,
           minPay: minPay,
           maxPay: maxPay,
           evRatioPct: evRatio,
           isSkipRecommended: isSkipRecommended,
           skipReason: skipReason,
+          budgetCapNote: budgetCapNote,
           recScore: recScore
         };
       }
@@ -964,24 +1261,24 @@
       function renderSingleMarksheetTable(items, picks, isGoal3) {
         var options = isGoal3 ? ["0", "1", "2", "3"] : ["1", "0", "2"];
         var thCols = options.map(function(opt) {
-          return '<th>' + (isGoal3 && opt === "3" ? "3+" : opt) + '</th>';
+          return '<th>' + formatPickCode(opt, isGoal3) + '</th>';
         }).join("");
 
         var rowsHtml = items.map(function(it, idx) {
           var selectedList = picks[idx] || [];
           var cnt = selectedList.length;
-          var onClass = cnt === 1 ? "on-s" : (cnt === 2 ? "on-a" : "on-b");
+          var onClass = (cnt === 1) ? (it.rank === "S" ? "on-s" : "on-1") : (cnt === 2 ? "on-a" : "on-b");
+          var unannTag = !it.isLineupAnnounced ? '<span class="unann-mini">⏳未発表</span>' : '';
 
           var cellsHtml = options.map(function(opt) {
             var isMarked = selectedList.indexOf(opt) !== -1;
-            var dispTxt = (isGoal3 && opt === "3") ? "3+" : opt;
-            return '<td><span class="oval' + (isMarked ? (' ' + onClass) : '') + '">' + dispTxt + '</span></td>';
+            return '<td><span class="oval' + (isMarked ? (' ' + onClass) : '') + '">' + formatPickCode(opt, isGoal3) + '</span></td>';
           }).join("");
 
           return (
             '<tr>' +
-              '<td class="col-frame">' + it.fNum + '</td>' +
-              '<td class="col-match">' + it.label + '</td>' +
+              '<td class="col-frame">' + escapeHtml(it.fNum) + '</td>' +
+              '<td class="col-match">' + escapeHtml(it.label) + unannTag + '</td>' +
               cellsHtml +
             '</tr>'
           );
@@ -995,74 +1292,132 @@
         );
       }
 
-      /* 最上部配置：公式マークシートカード（複数口ある場合は全シートを表示） */
+      /* 最上部配置：公式マークシートカード */
       function buildMarksheetCardHtml(cfg, roleTag) {
         var m = cfg.metrics;
+        if (!m || !m.ticketGroups || m.ticketGroups.length === 0) return "";
         var isGoal3 = (cfg.gameType === "goal3");
 
         var cardClass = "ms-card";
         var statusPill = "";
+        var btnClass = "register-plan-btn";
         if (cfg.gameType === "toto_main") {
-          statusPill = '<span class="ms-pill ref">🎲 参考（低確率）</span>';
+          statusPill = '<span class="ms-pill ref">🎲 参考（絶対鉄板' + m.sCount + '枠）</span>';
+          btnClass += " muted";
         } else if (m.isSkipRecommended) {
           cardClass += " skip";
-          statusPill = '<span class="ms-pill skip">⚠️ 見送り推奨（鉄板' + m.sCount + '枠）</span>';
+          statusPill = '<span class="ms-pill skip">⚠️ 見送り推奨（絶対鉄板' + m.sCount + '枠）</span>';
+          btnClass += " muted";
         } else if (roleTag === "best") {
           cardClass += " rec";
-          statusPill = '<span class="ms-pill rec">👑 今節イチオシ（鉄板' + m.sCount + '枠）</span>';
+          statusPill = '<span class="ms-pill rec">👑 今節イチオシ（絶対鉄板' + m.sCount + '枠）</span>';
         } else {
-          statusPill = '<span class="ms-pill ok">🎯 購入候補（鉄板' + m.sCount + '枠）</span>';
+          statusPill = '<span class="ms-pill ok">🎯 購入候補（絶対鉄板' + m.sCount + '枠）</span>';
         }
 
-        /* 強弱マルチは1シート、固定予算で複数口に分かれる場合はシート1・シート2...をすべて描画 */
-        var sheetsHtml = m.ticketGroups.map(function(grp, gIdx) {
-          var headerHtml = m.ticketGroups.length > 1
-            ? '<div class="sheet-sub-label"><span>' + grp.label + '</span><span>' + formatYen(grp.cost) + '</span></div>'
-            : '';
-          return headerHtml + renderSingleMarksheetTable(cfg.items, grp.picks, isGoal3);
-        }).join("");
+        var skipReasonHtml = m.isSkipRecommended
+          ? '<div class="ms-skip-reason">💡 ' + escapeHtml(m.skipReason) + '</div>'
+          : '';
+        var noteHtml = m.budgetCapNote ? '<div class="ms-budget-note">' + escapeHtml(m.budgetCapNote) + '</div>' : '';
+
+        var mainGrp = m.ticketGroups[0];
+        var mainHeader = m.ticketGroups.length > 1
+          ? '<div class="sheet-sub-label"><span>' + escapeHtml(mainGrp.label) + '</span><span>' + formatYen(mainGrp.cost) + '</span></div>'
+          : '';
+        var mainTableHtml = mainHeader + renderSingleMarksheetTable(cfg.items, mainGrp.picks, isGoal3);
+
+        var extraHtml = "";
+        if (m.ticketGroups.length > 1) {
+          var extraRows = m.ticketGroups.slice(1).map(function(grp, idx) {
+            var formattedLine = grp.picks.map(function(ch, pIdx) {
+              var txt = formatPickChoices(ch, isGoal3);
+              return grp.changedIndices.indexOf(pIdx) !== -1
+                ? '<span class="extra-picks-hl">' + txt + '</span>'
+                : txt;
+            }).join(" - ");
+            return (
+              '<div class="extra-sheet-row">' +
+                '<div>' +
+                  '<div style="font-size:10.5px; color:#94a3b8;">追加' + (idx + 1) + '：' + escapeHtml(grp.label) + '</div>' +
+                  '<div class="extra-picks-str">' + formattedLine + '</div>' +
+                '</div>' +
+                '<div style="color:#fbbf24; font-weight:bold;">' + formatYen(grp.cost) + '</div>' +
+              '</div>'
+            );
+          }).join("");
+          extraHtml =
+            '<div class="extra-sheet-box">' +
+              '<div style="font-size:10.5px; color:#38bdf8; font-weight:bold; margin-bottom:3px;">◆ 追加シングル（そのままマークする全枠の数字）</div>' +
+              extraRows +
+            '</div>';
+        }
+
+        var footerProbTxt = cfg.gameType === "toto_main"
+          ? "1〜3等合算: 約" + Math.min(100, m.hitProb1stPct + m.hitProb2ndPct + m.hitProb3rdPct).toFixed(2) + "%"
+          : (cfg.gameType === "goal3"
+              ? "1等: " + m.hitProb1stPct.toFixed(1) + "%（2等含 " + Math.min(100, m.hitProb1stPct + m.hitProb2ndPct).toFixed(1) + "%）"
+              : "1等確率: 約" + m.hitProb1stPct.toFixed(1) + "%");
 
         return (
           '<div class="' + cardClass + '">' +
             '<div>' +
               '<div class="ms-top">' +
-                '<div class="ms-title">' + cfg.shortName + '</div>' +
+                '<div class="ms-title">' + escapeHtml(cfg.shortName) + '</div>' +
                 '<span class="ms-cost">合計 ' + formatYen(m.cost) + '（' + m.ticketCount + '口）</span>' +
               '</div>' +
               '<div class="ms-status-bar">' +
                 statusPill +
                 '<span style="color:#cbd5e1;">1等目安: <strong style="color:#fbbf24;">' + formatYen(m.minPay) + '〜</strong></span>' +
               '</div>' +
-              sheetsHtml +
+              skipReasonHtml +
+              noteHtml +
+              mainTableHtml +
+              extraHtml +
             '</div>' +
             '<div class="ms-footer">' +
-              '<span>1等確率: 約' + m.hitProb1stPct.toFixed(1) + '%</span>' +
-              '<button type="button" class="register-plan-btn" data-reg-game="' + cfg.gameType + '">📌 購入済に登録</button>' +
+              '<span>' + footerProbTxt + '</span>' +
+              '<div class="ms-footer-actions">' +
+                '<button type="button" class="copy-picks-btn" data-copy-game="' + cfg.gameType + '">📋 コピー</button>' +
+                '<button type="button" class="' + btnClass + '" data-reg-game="' + cfg.gameType + '">📌 購入済に登録</button>' +
+              '</div>' +
             '</div>' +
           '</div>'
         );
       }
 
-      /* 下部：細かい情報（確率・想定配当・期待値・テキスト内訳） */
+      /* 下部：細かい情報 */
       function buildDetailPlanCard(cfg) {
         var m = cfg.metrics;
-        var probTxt = cfg.gameType === "goal3"
-          ? '1等: <strong>' + m.hitProb1stPct.toFixed(1) + '%</strong>（2等含め <strong>' + (m.hitProb1stPct + m.hitProb2ndPct).toFixed(1) + '%</strong>）'
-          : '1等: <strong>' + m.hitProb1stPct.toFixed(2) + '%</strong>（' + formatFreqText(m.hitProb1stPct) + '）';
+        if (!m || !m.ticketGroups || m.ticketGroups.length === 0) return "";
+        var isGoal3 = (cfg.gameType === "goal3");
+
+        var probTxt = "";
+        if (isGoal3) {
+          probTxt = '1等: <strong>' + m.hitProb1stPct.toFixed(1) + '%</strong>（2等含め <strong>' + Math.min(100, m.hitProb1stPct + m.hitProb2ndPct).toFixed(1) + '%</strong>）';
+        } else if (cfg.gameType === "toto_main") {
+          probTxt = '1等: <strong>' + m.hitProb1stPct.toFixed(3) + '%</strong>（1〜3等合算 <strong>' + Math.min(100, m.hitProb1stPct + m.hitProb2ndPct + m.hitProb3rdPct).toFixed(2) + '%</strong>）';
+        } else {
+          probTxt = '1等: <strong>' + m.hitProb1stPct.toFixed(1) + '%</strong>（' + formatFreqText(m.hitProb1stPct) + '）';
+        }
+
+        var skipBadge = m.isSkipRecommended
+          ? '<span class="ms-pill skip">⚠️ ' + escapeHtml(m.skipReason) + '</span>'
+          : '';
 
         var linesHtml = m.ticketGroups.map(function(grp) {
           var lineStr = grp.picks.map(function(ch, idx) {
-            if (ch.length === 1 && cfg.items[idx].rank === "S") {
-              return '<span class="super-solid">' + ch[0] + '</span>';
+            var disp = formatPickChoices(ch, isGoal3);
+            if (ch.length === 1) {
+              return cfg.items[idx].rank === "S"
+                ? '<span class="tok-s">' + disp + '</span>'
+                : '<span class="tok-1">' + disp + '</span>';
             }
-            if (ch.length >= 2) {
-              return '<span class="w-pair">' + ch.join("/") + '</span>';
-            }
-            return ch[0];
+            if (ch.length === 2) return '<span class="tok-a">' + disp + '</span>';
+            return '<span class="tok-b">' + disp + '</span>';
           }).join(" － ");
           return (
             '<div class="ticket-box">' +
-              '<div class="ticket-label">◆ ' + grp.label + '（' + formatYen(grp.cost) + '）</div>' +
+              '<div class="ticket-label">◆ ' + escapeHtml(grp.label) + '（' + formatYen(grp.cost) + '）</div>' +
               '<div class="ticket-line">' + lineStr + '</div>' +
             '</div>'
           );
@@ -1070,9 +1425,12 @@
 
         return (
           '<div class="plan-card">' +
-            '<div class="plan-title">' + cfg.title + '（計 ' + formatYen(m.cost) + ' / ' + m.ticketCount + '口）</div>' +
+            '<div class="plan-header-row">' +
+              '<div class="plan-title">' + escapeHtml(cfg.title) + '（計 ' + formatYen(m.cost) + ' / ' + m.ticketCount + '口）</div>' +
+              skipBadge +
+            '</div>' +
             '<div class="simple-metrics">' +
-              '<span>🔥 絶対鉄板: <strong>' + m.sCount + '枠</strong></span>' +
+              '<span>🔥 絶対鉄板(S): <strong>' + m.sCount + '枠</strong></span>' +
               '<span>🎯 当選確率: ' + probTxt + '</span>' +
               '<span>💴 想定1等配当: <span class="gold">約' + formatYen(m.minPay) + '〜' + formatYen(m.maxPay) + '</span></span>' +
               '<span>📈 期待値: <span class="green">' + m.evRatioPct + '%</span></span>' +
@@ -1082,20 +1440,22 @@
         );
       }
 
+      /* 結果照合判定（中止・延期試合は公式ルール通り全的中扱い） */
       function judgeTicketAgainstActuals(picksArray, actualCodes, gameType) {
+        var isGoal3 = (gameType === "goal3");
         var totalFrames = picksArray.length;
         var hitCount = 0, knownCount = 0;
 
         var tokenHtmlList = picksArray.map(function(frameChoices, idx) {
           var act = actualCodes[idx];
-          var txt = frameChoices.join("/");
+          var txt = formatPickChoices(frameChoices, isGoal3);
           if (act === null || act === undefined || act === "") {
             return '<span class="res-wait-token">' + txt + '</span>';
           }
           knownCount++;
-          if (frameChoices.indexOf(String(act)) !== -1) {
+          if (isCancelledResult(act) || frameChoices.indexOf(String(act)) !== -1) {
             hitCount++;
-            return '<span class="res-hit-token">' + txt + '</span>';
+            return '<span class="res-hit-token">' + txt + (isCancelledResult(act) ? '(中止)' : '') + '</span>';
           }
           return '<span class="res-miss-token">' + txt + '</span>';
         });
@@ -1104,7 +1464,9 @@
         var statusBadge = "";
         var isWin = false;
 
-        if (knownCount < totalFrames) {
+        if (knownCount === 0) {
+          statusBadge = '<span class="tier-badge miss">⏳ 結果待ち</span>';
+        } else if (knownCount < totalFrames) {
           statusBadge = '<span class="tier-badge miss">⏳ 進行中（' + hitCount + '/' + knownCount + '的中）</span>';
         } else if (gameType === "mini_a" || gameType === "mini_b") {
           if (missCount === 0) { statusBadge = '<span class="tier-badge t1">🎉 🥇 1等当選！（5/5全的中）</span>'; isWin = true; }
@@ -1129,17 +1491,24 @@
         };
       }
 
-      function buildActualCodeArrays(analyzed, actuals) {
+      function buildActualCodeArrays(analyzed, actuals, rObj) {
         var mainCodes = analyzed.map(function(x) {
           var a = actuals[String(x.f)];
-          return a && a.res !== undefined ? String(a.res) : null;
+          return (a && a.res !== undefined && a.res !== null && a.res !== "") ? String(a.res) : null;
         });
+        var g3Matches = getGoal3Matches(analyzed, rObj);
         var goal3Codes = [];
-        analyzed.slice(0, 3).forEach(function(x) {
+        g3Matches.forEach(function(x) {
           var a = actuals[String(x.f)];
-          if (a && a.hs !== undefined && a.as !== undefined) {
-            goal3Codes.push(String(Math.min(3, parseInt(a.hs, 10))));
-            goal3Codes.push(String(Math.min(3, parseInt(a.as, 10))));
+          if (a && isCancelledResult(a.res)) {
+            goal3Codes.push("*"); goal3Codes.push("*");
+            return;
+          }
+          var hs = a ? parseValidScore(a.hs) : null;
+          var as = a ? parseValidScore(a.as) : null;
+          if (hs !== null && as !== null) {
+            goal3Codes.push(String(Math.min(3, hs)));
+            goal3Codes.push(String(Math.min(3, as)));
           } else {
             goal3Codes.push(null); goal3Codes.push(null);
           }
@@ -1153,13 +1522,18 @@
       }
 
       function registerAiPlanToMyBets(gameType, modeOrBudget) {
-        if (!lastAnalyzedCache || lastAnalyzedCache.length === 0) return;
+        if (!lastAnalyzedCache || !isGameAvailable(gameType, lastAnalyzedCache.length)) {
+          alert("この開催回では対象外のくじ種です。");
+          return;
+        }
         var items = [];
-        if (gameType === "goal3" && lastAnalyzedCache.length >= 3) {
-          lastAnalyzedCache.slice(0, 3).forEach(function(x) { items.push(x.gH); items.push(x.gA); });
-        } else if (gameType === "mini_a" && lastAnalyzedCache.length >= 5) {
+        if (gameType === "goal3") {
+          getGoal3Matches(lastAnalyzedCache, currentRoundObj).forEach(function(x) {
+            items.push(x.gH); items.push(x.gA);
+          });
+        } else if (gameType === "mini_a") {
           items = lastAnalyzedCache.slice(0, 5).map(function(x) { return x.c1x2; });
-        } else if (gameType === "mini_b" && lastAnalyzedCache.length >= 10) {
+        } else if (gameType === "mini_b") {
           items = lastAnalyzedCache.slice(5, 10).map(function(x) { return x.c1x2; });
         } else if (gameType === "toto_main") {
           items = lastAnalyzedCache.map(function(x) { return x.c1x2; });
@@ -1169,17 +1543,34 @@
         var m = evaluatePlanMetrics(items, modeOrBudget, gameType);
         var currentBets = loadMyBets(currentRoundKey);
         var modeName = modeOrBudget === "smart" ? "AI強弱マルチ" : (modeOrBudget + "円プラン");
-        m.ticketGroups.forEach(function(grp) {
+
+        var existingSigs = {};
+        currentBets.forEach(function(b) {
+          existingSigs[b.gameType + "|" + serializePicks(b.picks)] = true;
+        });
+
+        var addedCount = 0;
+        var baseTs = Date.now();
+        m.ticketGroups.forEach(function(grp, gIdx) {
+          var sig = gameType + "|" + serializePicks(grp.picks);
+          if (existingSigs[sig]) return;
+          existingSigs[sig] = true;
+          addedCount++;
           currentBets.push({
-            id: "bet_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
+            id: "bet_" + baseTs + "_" + gIdx + "_" + Math.floor(Math.random() * 10000),
             gameType: gameType,
-            label: modeName,
+            label: modeName + (m.ticketGroups.length > 1 ? "｜" + grp.label : ""),
             picks: grp.picks,
             cost: grp.cost
           });
         });
-        saveMyBets(currentRoundKey, currentBets);
-        if (currentRoundKey) renderRound(currentRoundKey);
+
+        if (addedCount === 0) {
+          alert("同じ買い目がすでに購入リストへ登録済みです。");
+        } else {
+          saveMyBets(currentRoundKey, currentBets);
+          if (currentRoundKey) renderRound(currentRoundKey);
+        }
 
         document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
         document.querySelectorAll(".tab-content").forEach(function(c) { c.classList.add("hidden"); });
@@ -1188,8 +1579,34 @@
         document.getElementById("tab2").classList.remove("hidden");
       }
 
-      function renderResultsTabSection(analyzed, actuals) {
-        var actualArrays = buildActualCodeArrays(analyzed, actuals);
+      function renderResultsTabSection(analyzed, actuals, rObj) {
+        var len = analyzed.length;
+        var hasMiniA = isGameAvailable("mini_a", len);
+        var hasMiniB = isGameAvailable("mini_b", len);
+        var hasGoal3 = isGameAvailable("goal3", len);
+        var hasTotoMain = isGameAvailable("toto_main", len);
+
+        var toggleMap = [
+          ["preset-mini-a", "opt-mini-a", hasMiniA],
+          ["preset-mini-b", "opt-mini-b", hasMiniB],
+          ["preset-goal3", "opt-goal3", hasGoal3],
+          ["preset-toto-main", "opt-toto-main", hasTotoMain]
+        ];
+        toggleMap.forEach(function(row) {
+          var btn = document.getElementById(row[0]);
+          var opt = document.getElementById(row[1]);
+          if (btn) btn.classList.toggle("hidden", !row[2]);
+          if (opt) opt.disabled = !row[2];
+        });
+
+        var betTypeSel = document.getElementById("my-bet-type");
+        if (betTypeSel && !isGameAvailable(betTypeSel.value, len)) {
+          if (hasMiniA) betTypeSel.value = "mini_a";
+          else if (hasGoal3) betTypeSel.value = "goal3";
+        }
+        updateManualInputPlaceholder();
+
+        var actualArrays = buildActualCodeArrays(analyzed, actuals, rObj);
         var listEl = document.getElementById("my-bets-result-list");
         var myBets = loadMyBets(currentRoundKey);
         var gameNames = { mini_a: "mini toto A組", mini_b: "mini toto B組", goal3: "toto GOAL3", toto_main: "toto 本戦" };
@@ -1198,54 +1615,63 @@
           listEl.innerHTML = '<div style="font-size:12px; color:#94a3b8;">まだ登録された買い目がありません。「📌 購入済に登録」ボタンまたは上の入力欄から追加できます。</div>';
         } else {
           var totalCost = 0;
+          var winCount = 0;
           var rowsHtml = myBets.map(function(bet) {
             totalCost += (bet.cost || 100);
             var j = judgeTicketAgainstActuals(bet.picks, actualArrays[bet.gameType] || [], bet.gameType);
+            if (j.isWin) winCount++;
             return (
               '<div class="my-ticket-item' + (j.isWin ? ' win-item' : '') + '">' +
                 '<div>' +
-                  '<div style="font-size:11.5px; color:#fbbf24; font-weight:bold;">[' + (gameNames[bet.gameType] || bet.gameType) + '] ' + (bet.label || "") + '（' + formatYen(bet.cost || 100) + '）</div>' +
+                  '<div style="font-size:11.5px; color:#fbbf24; font-weight:bold;">[' + escapeHtml(gameNames[bet.gameType] || bet.gameType) + '] ' + escapeHtml(bet.label || "") + '（' + formatYen(bet.cost || 100) + '）</div>' +
                   '<div style="font-size:14px; font-weight:bold; margin-top:2px;">' + j.lineHtml + '</div>' +
                 '</div>' +
                 '<div style="display:flex; align-items:center; gap:6px;">' +
                   j.statusBadge +
-                  '<button type="button" class="del-ticket-btn" data-del-id="' + bet.id + '">削除</button>' +
+                  '<button type="button" class="del-ticket-btn" data-del-id="' + escapeHtml(bet.id) + '">削除</button>' +
                 '</div>' +
               '</div>'
             );
           }).join("");
-          listEl.innerHTML = '<div style="font-size:12px; color:#6ee7b7; font-weight:bold; margin-bottom:6px;">✓ 登録済み（計 ' + formatYen(totalCost) + '）</div>' + rowsHtml;
+          var winSummary = winCount > 0 ? (' ／ 🎉 当選: ' + winCount + '件') : '';
+          listEl.innerHTML = '<div style="font-size:12px; color:#6ee7b7; font-weight:bold; margin-bottom:6px;">✓ 登録済み（計 ' + formatYen(totalCost) + winSummary + '）</div>' + rowsHtml;
           listEl.querySelectorAll(".del-ticket-btn").forEach(function(btn) {
             btn.addEventListener("click", function() {
               var id = btn.getAttribute("data-del-id");
               saveMyBets(currentRoundKey, loadMyBets(currentRoundKey).filter(function(b) { return b.id !== id; }));
-              renderResultsTabSection(analyzed, actuals);
+              renderResultsTabSection(analyzed, actuals, rObj);
             });
           });
         }
 
-        if (Object.keys(actuals).length === 0) {
+        var finishedMatches = analyzed.filter(function(x) {
+          var a = actuals[String(x.f)];
+          return a && a.res !== undefined && a.res !== null && a.res !== "";
+        });
+
+        if (finishedMatches.length === 0) {
           document.getElementById("results-list").innerHTML = '<div class="empty-msg">試合終了後に確定結果とプラン別の答え合わせが表示されます。</div>';
           return;
         }
 
         var g3Items = [];
-        analyzed.slice(0, 3).forEach(function(x) { g3Items.push(x.gH); g3Items.push(x.gA); });
-        var maItems = analyzed.slice(0, 5).map(function(x) { return x.c1x2; });
-        var mbItems = analyzed.slice(5, 10).map(function(x) { return x.c1x2; });
-        var tmItems = analyzed.map(function(x) { return x.c1x2; });
+        if (hasGoal3) getGoal3Matches(analyzed, rObj).forEach(function(x) { g3Items.push(x.gH); g3Items.push(x.gA); });
+        var maItems = hasMiniA ? analyzed.slice(0, 5).map(function(x) { return x.c1x2; }) : [];
+        var mbItems = hasMiniB ? analyzed.slice(5, 10).map(function(x) { return x.c1x2; }) : [];
+        var tmItems = hasTotoMain ? analyzed.map(function(x) { return x.c1x2; }) : [];
 
         var modes = ["smart", 500, 1000, 1500, 2000];
         var gameRowsCfg = [
           { label: "mini toto A組（1〜5枠）", gameType: "mini_a", items: maItems, act: actualArrays.mini_a },
           { label: "mini toto B組（6〜10枠）", gameType: "mini_b", items: mbItems, act: actualArrays.mini_b },
-          { label: "toto GOAL3（第1〜3枠）", gameType: "goal3", items: g3Items, act: actualArrays.goal3 },
+          { label: "toto GOAL3（指定3試合）", gameType: "goal3", items: g3Items, act: actualArrays.goal3 },
           { label: "toto 本戦（全13枠）", gameType: "toto_main", items: tmItems, act: actualArrays.toto_main }
         ];
 
         var tableRows = gameRowsCfg.map(function(gCfg) {
           if (!gCfg.items || gCfg.items.length === 0) return "";
-          var actStr = gCfg.act.map(function(c) { return c !== null ? c : "?"; }).join("-");
+          var isG3 = (gCfg.gameType === "goal3");
+          var actStr = gCfg.act.map(function(c) { return c !== null ? formatPickCode(c, isG3) : "?"; }).join("-");
           var cells = modes.map(function(md) {
             var m = evaluatePlanMetrics(gCfg.items, md, gCfg.gameType);
             var bestJ = null, bestHit = -1;
@@ -1253,25 +1679,31 @@
               var jr = judgeTicketAgainstActuals(grp.picks, gCfg.act, gCfg.gameType);
               if (jr.hitCount > bestHit) { bestHit = jr.hitCount; bestJ = jr; }
             });
+            var skipTag = m.isSkipRecommended ? ' <span style="color:#fde047;">(見送り)</span>' : '';
             return (
               '<td>' +
                 '<div>' + (bestJ ? bestJ.statusBadge : "-") + '</div>' +
-                '<div style="font-size:11px; color:#94a3b8; margin-top:2px;">' + formatYen(m.cost) + '（' + (bestJ ? bestJ.hitCount + '/' + bestJ.totalFrames + '枠' : '-') + '）</div>' +
+                '<div style="font-size:11px; color:#94a3b8; margin-top:2px;">' + formatYen(m.cost) + '（' + (bestJ ? bestJ.hitCount + '/' + bestJ.totalFrames + '枠' : '-') + '）' + skipTag + '</div>' +
               '</td>'
             );
           }).join("");
           return '<tr><td><strong style="color:#38bdf8;">' + gCfg.label + '</strong><br/><span style="font-size:11px; color:#94a3b8;">確定出目: ' + actStr + '</span></td>' + cells + '</tr>';
         }).join("");
 
-        var matchScoreRows = analyzed.map(function(x) {
+        var matchScoreRows = finishedMatches.map(function(x) {
           var a = actuals[String(x.f)];
-          if (!a) return "";
-          var ok1 = String(a.res) === x.c1x2.top1;
+          var isCan = isCancelledResult(a.res);
+          var ok1 = isCan || String(a.res) === x.c1x2.top1;
           var ok2 = ok1 || String(a.res) === x.c1x2.top2;
-          var mark = ok1 ? '<span style="color:#4ade80; font-weight:bold;">✅ 本命的中</span>' : (ok2 ? '<span style="color:#38bdf8; font-weight:bold;">☑️ 2点W的中</span>' : '<span style="color:#f87171;">❌ 波乱外れ</span>');
+          var mark = isCan
+            ? '<span style="color:#fbbf24; font-weight:bold;">⚠️ 中止（全的中扱）</span>'
+            : (ok1 ? '<span style="color:#4ade80; font-weight:bold;">✅ 本命的中</span>' : (ok2 ? '<span style="color:#38bdf8; font-weight:bold;">☑️ 2点W的中</span>' : '<span style="color:#f87171;">❌ 波乱外れ</span>'));
+          var hsDisp = parseValidScore(a.hs);
+          var asDisp = parseValidScore(a.as);
+          var scoreDisp = isCan ? '中止' : ((hsDisp !== null && asDisp !== null) ? (hsDisp + ' - ' + asDisp) : '確定');
           return (
             '<div class="compact-match-row">' +
-              '<div><strong>第' + x.f + '枠</strong>：' + x.h + ' <strong>' + a.hs + ' - ' + a.as + '</strong> ' + x.a + ' （結果: <strong>[' + a.res + ']</strong>）</div>' +
+              '<div><strong>第' + x.f + '枠</strong>：' + escapeHtml(x.h) + ' <strong>' + scoreDisp + '</strong> ' + escapeHtml(x.a) + ' （結果: <strong>[' + escapeHtml(a.res) + ']</strong>）</div>' +
               '<div>AI予想: [' + x.c1x2.top1 + '/' + x.c1x2.top2 + '] ｜ ' + mark + '</div>' +
             '</div>'
           );
@@ -1280,18 +1712,21 @@
         document.getElementById("results-list").innerHTML =
           '<div class="plan-card">' +
             '<div class="plan-title" style="margin-bottom:8px;">📊 くじ種・買い方モード別の的中結果一覧</div>' +
-            '<table class="tier-table">' +
-              '<thead><tr><th>くじ種（確定出目）</th><th>⚡ AI強弱マルチ</th><th>500円</th><th>1,000円</th><th>1,500円</th><th>2,000円</th></tr></thead>' +
-              '<tbody>' + tableRows + '</tbody>' +
-            '</table>' +
+            '<div class="table-scroll-wrap">' +
+              '<table class="tier-table">' +
+                '<thead><tr><th>くじ種（確定出目）</th><th>⚡ AI強弱マルチ</th><th>500円</th><th>1,000円</th><th>1,500円</th><th>2,000円</th></tr></thead>' +
+                '<tbody>' + tableRows + '</tbody>' +
+              '</table>' +
+            '</div>' +
           '</div>' +
           '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:8px;">⚽ 各試合の確定スコア＆的中一覧（全' + Object.keys(actuals).length + '試合）</div>' +
+            '<div class="plan-title" style="margin-bottom:8px;">⚽ 各試合の確定スコア＆的中一覧（確定 ' + finishedMatches.length + '試合）</div>' +
             matchScoreRows +
           '</div>';
       }
 
-      function renderReviewTabSection(analyzed, actuals) {
+      /* タブ3: 振り返り（1x2絶対鉄板＋GOAL3絶対鉄板の両方を集計＆検証） */
+      function renderReviewTabSection(analyzed, actuals, rObj) {
         var revEl = document.getElementById("review-list");
         if (!revEl) return;
 
@@ -1300,7 +1735,7 @@
 
         analyzed.forEach(function(x) {
           var a = actuals[String(x.f)];
-          if (!a || a.res === undefined) return;
+          if (!a || a.res === undefined || a.res === null || a.res === "" || isCancelledResult(a.res)) return;
           totalFin++;
           var r = String(a.res);
           if (r === x.c1x2.top1) hit1++;
@@ -1311,24 +1746,73 @@
           }
         });
 
+        var g3SolidRows = [];
+        var g3SHit = 0, g3STotalFin = 0;
+        if (isGameAvailable("goal3", analyzed.length)) {
+          getGoal3Matches(analyzed, rObj).forEach(function(x) {
+            var a = actuals[String(x.f)];
+            var isCan = a && isCancelledResult(a.res);
+            var hs = (a && !isCan) ? parseValidScore(a.hs) : null;
+            var as = (a && !isCan) ? parseValidScore(a.as) : null;
+            [
+              { item: x.gH, score: hs !== null ? String(Math.min(3, hs)) : null },
+              { item: x.gA, score: as !== null ? String(Math.min(3, as)) : null }
+            ].forEach(function(pair) {
+              if (pair.item.rank !== "S") return;
+              if (pair.score !== null) {
+                g3STotalFin++;
+                if (pair.score === pair.item.top1) g3SHit++;
+              }
+              var resTxt = isCan
+                ? '<span style="color:#fbbf24;">⚠️ 中止</span>'
+                : (pair.score !== null
+                    ? ('実得点: [' + formatPickCode(pair.score, true) + '] → ' + (pair.score === pair.item.top1 ? '<strong style="color:#4ade80;">✅ 鉄板1点的中！</strong>' : '<strong style="color:#f87171;">❌ 外れ</strong>'))
+                    : '結果待ち');
+              g3SolidRows.push(
+                '<div class="compact-match-row">' +
+                  '<div><strong>枠' + escapeHtml(pair.item.fNum) + '：' + escapeHtml(pair.item.label) + '</strong>（GOAL3本命: [' + formatPickCode(pair.item.top1, true) + '] 確率' + pair.item.p1 + '%）</div>' +
+                  '<div>' + resTxt + '</div>' +
+                '</div>'
+              );
+            });
+          });
+        }
+
+        var sMetricTxt = sTotal > 0 ? (sHit + ' / ' + sTotal + ' 試合') : '該当なし（0枠）';
+        var g3MetricTxt = g3STotalFin > 0 ? (g3SHit + ' / ' + g3STotalFin + ' 枠') : '該当なし（0枠）';
+        var metricsHtml = totalFin === 0
+          ? '<div style="font-size:12.5px; color:#94a3b8; margin:8px 0;">⏳ 試合終了後に確定結果の的中率が集計されます。</div>'
+          : '<div class="simple-metrics">' +
+              '<span>🔥 1x2鉄板(S)的中: <strong class="green">' + sMetricTxt + '</strong></span>' +
+              '<span>🔥 GOAL3鉄板(S)的中: <strong class="green">' + g3MetricTxt + '</strong></span>' +
+              '<span>🎯 本命(1点)的中: <strong>' + hit1 + ' / ' + totalFin + ' 試合</strong></span>' +
+              '<span>⚡ 2点ダブル内的中: <strong class="gold">' + hit2 + ' / ' + totalFin + ' 試合</strong></span>' +
+            '</div>';
+
         var sListHtml = sMatches.length === 0
-          ? '<div style="font-size:13px; color:#94a3b8;">今節は絶対基準（勝率55%以上＆差25%以上）を満たす鉄板試合がありませんでした。</div>'
+          ? '<div style="font-size:13px; color:#94a3b8;">今節は絶対基準（スタメン判明・勝率55%以上・差25%以上）を満たす1x2鉄板試合がありません。</div>'
           : sMatches.map(function(x) {
               var a = actuals[String(x.f)];
-              var resTxt = a ? ('確定: ' + x.h + ' ' + a.hs + '-' + a.as + ' ' + x.a + ' → ' + (String(a.res) === x.c1x2.top1 ? '<strong style="color:#4ade80;">✅ 鉄板1点的中！</strong>' : '<strong style="color:#f87171;">❌ 波乱外れ</strong>')) : '結果待ち';
-              return '<div class="compact-match-row"><div><strong>第' + x.f + '枠：' + x.h + ' vs ' + x.a + '</strong>（AI本命: [' + x.c1x2.top1 + '] 勝率' + x.c1x2.p1 + '%）</div><div>' + resTxt + '</div></div>';
+              var resTxt = (a && a.res !== undefined && a.res !== null && a.res !== "")
+                ? (isCancelledResult(a.res)
+                    ? '<span style="color:#fbbf24;">⚠️ 中止</span>'
+                    : ('確定: ' + escapeHtml(x.h) + ' ' + (parseValidScore(a.hs) !== null ? a.hs : '?') + '-' + (parseValidScore(a.as) !== null ? a.as : '?') + ' ' + escapeHtml(x.a) + ' → ' + (String(a.res) === x.c1x2.top1 ? '<strong style="color:#4ade80;">✅ 鉄板1点的中！</strong>' : '<strong style="color:#f87171;">❌ 波乱外れ</strong>')))
+                : '結果待ち';
+              return '<div class="compact-match-row"><div><strong>第' + x.f + '枠：' + escapeHtml(x.h) + ' vs ' + escapeHtml(x.a) + '</strong>（AI本命: [' + x.c1x2.top1 + '] 勝率' + x.c1x2.p1 + '%）</div><div>' + resTxt + '</div></div>';
             }).join("");
+
+        var g3SolidHtml = g3SolidRows.length === 0
+          ? '<div style="font-size:13px; color:#94a3b8;">今節は絶対基準を満たすGOAL3鉄板枠がありません。</div>'
+          : g3SolidRows.join("");
 
         revEl.innerHTML =
           '<div class="plan-card">' +
-            '<div class="plan-title" style="margin-bottom:8px;">📊 今節のシンプル振り返り（確定 ' + totalFin + '試合）</div>' +
-            '<div class="simple-metrics">' +
-              '<span>🔥 絶対鉄板(S)的中: <strong class="green">' + sHit + ' / ' + sTotal + ' 試合</strong></span>' +
-              '<span>🎯 本命(1点)的中: <strong>' + hit1 + ' / ' + totalFin + ' 試合</strong></span>' +
-              '<span>⚡ 2点ダブル内的中: <strong class="gold">' + hit2 + ' / ' + totalFin + ' 試合</strong></span>' +
-            '</div>' +
-            '<div style="font-size:13px; font-weight:bold; color:#f8fafc; margin:10px 0 6px;">🔥 認定された「絶対鉄板（Sランク）」の答え合わせ</div>' +
+            '<div class="plan-title" style="margin-bottom:8px;">📊 今節のシンプル振り返り' + (totalFin > 0 ? '（確定 ' + totalFin + '試合）' : '（開催前・進行中）') + '</div>' +
+            metricsHtml +
+            '<div style="font-size:13px; font-weight:bold; color:#f8fafc; margin:12px 0 6px;">🔥 認定された「絶対鉄板（Sランク）」一覧（mini toto / toto）</div>' +
             sListHtml +
+            '<div style="font-size:13px; font-weight:bold; color:#f8fafc; margin:14px 0 6px;">🔥 認定された「絶対鉄板（Sランク）」一覧（toto GOAL3）</div>' +
+            g3SolidHtml +
           '</div>';
       }
 
@@ -1336,16 +1820,21 @@
         if (!appData || !appData.rounds || !appData.rounds[roundKey]) return;
         currentRoundKey = roundKey;
         var rObj = appData.rounds[roundKey];
-        var matches = rObj.matches || [];
+        currentRoundObj = rObj;
+
+        var matches = (rObj.matches || []).slice().sort(function(a, b) {
+          return (parseInt(a.f, 10) || 0) - (parseInt(b.f, 10) || 0);
+        });
         var actuals = getEffectiveActualResults(roundKey, rObj.actual_results);
 
         document.getElementById("round-title-badge").textContent = rObj.title || roundKey;
-        document.getElementById("last-updated-text").innerHTML = "最終取得: " + (appData.last_updated || "-");
+        document.getElementById("last-updated-text").textContent = "最終取得: " + (appData.last_updated || "-");
 
         var ctxList = analyzeMatchContextList(matches, appData.last_updated || "");
 
         var analyzed = matches.map(function(m, idx) {
-          var hLam = parseFloat(m.h_xg || 1.3), aLam = parseFloat(m.a_xg || 1.3);
+          var hLam = safeParseXg(m.h_xg);
+          var aLam = safeParseXg(m.a_xg);
           var ctx = ctxList[idx];
           return {
             f: m.f, h: m.h, a: m.a, v: m.v || [34, 32, 34], hLam: hLam, aLam: aLam,
@@ -1358,7 +1847,8 @@
         lastAnalyzedCache = analyzed;
 
         var configs = [];
-        if (analyzed.length >= 5) {
+        lastConfigsMap = {};
+        if (isGameAvailable("mini_a", analyzed.length)) {
           var maItems = analyzed.slice(0, 5).map(function(x) { return x.c1x2; });
           configs.push({
             id: "mini_a",
@@ -1369,7 +1859,7 @@
             metrics: evaluatePlanMetrics(maItems, selectedMode, "mini_a")
           });
         }
-        if (analyzed.length >= 10) {
+        if (isGameAvailable("mini_b", analyzed.length)) {
           var mbItems = analyzed.slice(5, 10).map(function(x) { return x.c1x2; });
           configs.push({
             id: "mini_b",
@@ -1380,19 +1870,21 @@
             metrics: evaluatePlanMetrics(mbItems, selectedMode, "mini_b")
           });
         }
-        if (analyzed.length >= 3) {
+        var g3Matches = isGameAvailable("goal3", analyzed.length) ? getGoal3Matches(analyzed, rObj) : [];
+        if (g3Matches.length === 3) {
           var g3Items = [];
-          analyzed.slice(0, 3).forEach(function(x) { g3Items.push(x.gH); g3Items.push(x.gA); });
+          g3Matches.forEach(function(x) { g3Items.push(x.gH); g3Items.push(x.gA); });
+          var g3FrameLabel = g3Matches.map(function(x) { return x.f; }).join("・");
           configs.push({
             id: "goal3",
-            shortName: "③ toto GOAL3（1〜3試合）",
-            title: "③ toto GOAL3（第1〜3枠の6チーム得点）",
+            shortName: "③ toto GOAL3（第" + g3FrameLabel + "枠）",
+            title: "③ toto GOAL3（第" + g3FrameLabel + "枠の6チーム得点）",
             items: g3Items,
             gameType: "goal3",
             metrics: evaluatePlanMetrics(g3Items, selectedMode, "goal3")
           });
         }
-        if (analyzed.length >= 10) {
+        if (isGameAvailable("toto_main", analyzed.length)) {
           var all1x2 = analyzed.map(function(x) { return x.c1x2; });
           configs.push({
             id: "toto_main",
@@ -1403,46 +1895,87 @@
             metrics: evaluatePlanMetrics(all1x2, selectedMode, "toto_main")
           });
         }
+        configs.forEach(function(c) { lastConfigsMap[c.gameType] = c; });
 
         var recCandidates = configs.filter(function(c) {
           return c.gameType !== "toto_main" && !c.metrics.isSkipRecommended;
         }).sort(function(a, b) { return b.metrics.recScore - a.metrics.recScore; });
         var bestId = recCandidates.length > 0 ? recCandidates[0].id : "";
 
-        /* 1. 最上部：全4くじ種の公式マークシート早見表 */
+        var unannCount = analyzed.filter(function(x) { return !x.ctx.isLineupAnnounced; }).length;
+        var alertEl = document.getElementById("global-alert-area");
+        if (recCandidates.length === 0) {
+          var reasonMsg = unannCount > 0
+            ? "現在スタメン未発表の試合が " + unannCount + "試合 あるため、絶対鉄板(S)が確定していません。キックオフ直前（スタメン発表後）に「⚡ 再読込」をして再確認してください。"
+            : "今節は絶対基準を満たす鉄板枠が全くじ種で不足しています。損失回避のため見送り（ケン）をおすすめします。";
+          alertEl.innerHTML =
+            '<div class="global-alert-banner"><strong>⚠️ 今節は見送り推奨（購入候補なし）</strong>：' + reasonMsg + '</div>';
+        } else {
+          alertEl.innerHTML = "";
+        }
+
         document.getElementById("marksheet-summary-grid").innerHTML = configs.map(function(cfg) {
           var role = cfg.id === bestId ? "best" : "";
           return buildMarksheetCardHtml(cfg, role);
         }).join("");
 
-        /* 2. 下部：細かい情報（確率・想定配当・期待値・テキスト買い目） */
         document.getElementById("plans-detail-list").innerHTML = configs.map(function(cfg) {
           return buildDetailPlanCard(cfg);
         }).join("");
 
-        /* 3. 最下部：全13試合のランク・AI勝率（折りたたみ収納） */
+        /* 全試合根拠データ（紛らわしい固定推奨表記を廃し、純粋なランク＆AI3択勝率を表示） */
         var compactMatchesHtml = analyzed.map(function(x) {
           var r = x.c1x2.rank;
           var rBadge = r === "S"
-            ? '<span class="f-rank-tag s">🔥 S:鉄板(1点)</span>'
-            : (r === "A" ? '<span class="f-rank-tag a">⚡ A:準鉄板(2点)</span>' : '<span class="f-rank-tag b">🌪️ B:混戦(3点)</span>');
-          var pickDisp = r === "S" ? x.c1x2.top1 : (r === "A" ? (x.c1x2.top1 + "/" + x.c1x2.top2) : "1/0/2");
+            ? '<span class="f-rank-tag s">🔥 S:絶対鉄板</span>'
+            : (r === "A" ? '<span class="f-rank-tag a">⚡ A:準鉄板</span>' : '<span class="f-rank-tag b">🌪️ B:混戦</span>');
+          var stNote = !x.ctx.isLineupAnnounced ? " ⏳スタメン未発表" : " ✓スタメン判明";
           return (
             '<div class="compact-match-row">' +
-              '<div><strong>第' + x.f + '枠</strong>：' + x.h + ' vs ' + x.a + '</div>' +
+              '<div><strong>第' + x.f + '枠</strong>：' + escapeHtml(x.h) + ' vs ' + escapeHtml(x.a) + '<span style="color:' + (!x.ctx.isLineupAnnounced ? '#fde047' : '#6ee7b7') + '; font-size:11px;">' + stNote + '</span></div>' +
               '<div style="display:flex; align-items:center; gap:8px;">' +
                 rBadge +
-                '<span>推奨: <strong>[' + pickDisp + ']</strong>（本命:' + x.c1x2.p1 + '% / 対抗:' + x.c1x2.p2 + '%）</span>' +
+                '<span>AI勝率 [1:' + x.c1x2.pctMap["1"] + '% / 0:' + x.c1x2.pctMap["0"] + '% / 2:' + x.c1x2.pctMap["2"] + '%]</span>' +
               '</div>' +
             '</div>'
           );
         }).join("");
 
+        /* GOAL3 6チームの根拠データ（λ・得点確率・S/A/Bランク） */
+        var g3DetailHtml = "";
+        if (g3Matches.length === 3) {
+          var g3Rows = [];
+          g3Matches.forEach(function(x) {
+            [x.gH, x.gA].forEach(function(gItem) {
+              var gr = gItem.rank;
+              var gBadge = gr === "S"
+                ? '<span class="f-rank-tag s">🔥 S:絶対鉄板</span>'
+                : (gr === "A" ? '<span class="f-rank-tag a">⚡ A:準鉄板</span>' : '<span class="f-rank-tag b">🌪️ B:混戦</span>');
+              var stNote = !gItem.isLineupAnnounced ? " ⏳未発表" : " ✓判明";
+              g3Rows.push(
+                '<div class="compact-match-row">' +
+                  '<div><strong>枠' + escapeHtml(gItem.fNum) + '</strong>：' + escapeHtml(gItem.label) + '（λ=' + gItem.effLam.toFixed(2) + '）<span style="color:' + (!gItem.isLineupAnnounced ? '#fde047' : '#6ee7b7') + '; font-size:11px;">' + stNote + '</span></div>' +
+                  '<div style="display:flex; align-items:center; gap:8px;">' +
+                    gBadge +
+                    '<span>[0:' + gItem.pctMap["0"] + '% / 1:' + gItem.pctMap["1"] + '% / 2:' + gItem.pctMap["2"] + '% / 3+:' + gItem.pctMap["3"] + '%]</span>' +
+                  '</div>' +
+                '</div>'
+              );
+            });
+          });
+          g3DetailHtml =
+            '<details class="clean-details">' +
+              '<summary>🥅 toto GOAL3 対象6チームの期待得点(λ)＆S/A/Bランクデータを見る</summary>' +
+              '<div class="details-body">' + g3Rows.join("") + '</div>' +
+            '</details>';
+        }
+
         document.getElementById("matches-detail-area").innerHTML =
           '<details class="clean-details">' +
             '<summary>⚽ 全' + analyzed.length + '試合のS/A/Bランク＆AI勝率データを見る</summary>' +
             '<div class="details-body">' + compactMatchesHtml + '</div>' +
-          '</details>';
+          '</details>' +
+          g3DetailHtml;
 
         document.querySelectorAll(".register-plan-btn").forEach(function(rBtn) {
           rBtn.addEventListener("click", function() {
@@ -1451,53 +1984,107 @@
           });
         });
 
-        try { renderResultsTabSection(analyzed, actuals); } catch (e1) { console.error(e1); }
-        try { renderReviewTabSection(analyzed, actuals); } catch (e2) { console.error(e2); }
+        document.querySelectorAll(".copy-picks-btn").forEach(function(cBtn) {
+          cBtn.addEventListener("click", function() {
+            var gType = cBtn.getAttribute("data-copy-game");
+            var cfg = lastConfigsMap[gType];
+            if (!cfg || !cfg.metrics || !cfg.metrics.ticketGroups.length) return;
+            var isG3 = (gType === "goal3");
+            var copyLines = [cfg.shortName + "（計 " + formatYen(cfg.metrics.cost) + "）"];
+            cfg.metrics.ticketGroups.forEach(function(grp, idx) {
+              var prefix = cfg.metrics.ticketGroups.length > 1 ? ("シート" + (idx + 1) + ": ") : "";
+              var line = grp.picks.map(function(ch) { return formatPickChoices(ch, isG3); }).join("-");
+              copyLines.push(prefix + line);
+            });
+            copyTextToClipboard(copyLines.join("\n"), cBtn);
+          });
+        });
+
+        try { renderResultsTabSection(analyzed, actuals, rObj); } catch (e1) { console.error(e1); }
+        try { renderReviewTabSection(analyzed, actuals, rObj); } catch (e2) { console.error(e2); }
       }
 
-      function parseUserPickInput(rawStr, expectedFrames) {
-        var clean = (rawStr || "").trim().replace(/[－ー〜~\s,、]+/g, "-").replace(/^-+|-+$/g, "");
-        if (!clean) return null;
-        var parts = clean.indexOf("-") !== -1 ? clean.split("-") : clean.split("");
+      /* 厳格な手動入力バリデーション（全角・3+表記・空白＋ハイフン対応・重複排除・許可数字チェック） */
+      function parseUserPickInput(rawStr, expectedFrames, gameType) {
+        var normalized = (rawStr || "")
+          .replace(/[０-９]/g, function(ch) { return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0); })
+          .replace(/3[+＋]/g, "3")
+          .replace(/／/g, "/")
+          .replace(/\s*\/\s*/g, "/")
+          .trim()
+          .replace(/[-－ー〜~\s,、]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+        if (!normalized) return null;
+
+        var parts = normalized.indexOf("-") !== -1 ? normalized.split("-") : normalized.split("");
         if (parts.length !== expectedFrames) return null;
 
+        var allowed = (gameType === "goal3") ? ["0", "1", "2", "3"] : ["1", "0", "2"];
         var picks = [];
         var combos = 1;
+
         for (var i = 0; i < parts.length; i++) {
-          var sub = parts[i].split("/").map(function(s) { return s.trim(); }).filter(function(s) { return s !== ""; });
-          if (sub.length === 0) return null;
-          picks.push(sub);
-          combos *= sub.length;
+          var rawTokens = parts[i].split("/").map(function(s) { return s.trim(); }).filter(function(s) { return s !== ""; });
+          var uniqueValid = [];
+          for (var j = 0; j < rawTokens.length; j++) {
+            var t = rawTokens[j];
+            if (allowed.indexOf(t) === -1) return null;
+            if (uniqueValid.indexOf(t) === -1) uniqueValid.push(t);
+          }
+          if (uniqueValid.length === 0) return null;
+          picks.push(uniqueValid);
+          combos *= uniqueValid.length;
         }
         return { picks: picks, cost: combos * 100 };
       }
 
+      function handleManualBetAdd() {
+        var gType = document.getElementById("my-bet-type").value;
+        if (!isGameAvailable(gType, lastAnalyzedCache.length)) {
+          alert("この開催回では選択されたくじ種は対象外です。");
+          return;
+        }
+        var rawPicks = document.getElementById("my-bet-picks").value;
+        var memo = document.getElementById("my-bet-label").value.trim();
+        var expLen = (gType === "mini_a" || gType === "mini_b") ? 5 : (gType === "goal3" ? 6 : 13);
+
+        var parsed = parseUserPickInput(rawPicks, expLen, gType);
+        if (!parsed) {
+          var validChars = gType === "goal3" ? "0, 1, 2, 3（3+可）" : "1, 0, 2";
+          alert("入力形式が正しくありません。" + expLen + "枠分を「" + validChars + "」のみを使いハイフン区切り（例: 1-0-1/2-1-2）で入力してください。");
+          return;
+        }
+        var list = loadMyBets(currentRoundKey);
+        var sig = gType + "|" + serializePicks(parsed.picks);
+        var dup = list.some(function(b) { return (b.gameType + "|" + serializePicks(b.picks)) === sig; });
+        if (dup) {
+          alert("同じ買い目がすでに登録されています。");
+          return;
+        }
+        list.push({
+          id: "bet_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
+          gameType: gType,
+          label: memo || "手動登録",
+          picks: parsed.picks,
+          cost: parsed.cost
+        });
+        saveMyBets(currentRoundKey, list);
+        document.getElementById("my-bet-picks").value = "";
+        document.getElementById("my-bet-label").value = "";
+        if (currentRoundKey) renderRound(currentRoundKey);
+      }
+
       function initMyBetEvents() {
         var addBtn = document.getElementById("my-bet-add-btn");
-        if (addBtn) {
-          addBtn.addEventListener("click", function() {
-            var gType = document.getElementById("my-bet-type").value;
-            var rawPicks = document.getElementById("my-bet-picks").value;
-            var memo = document.getElementById("my-bet-label").value.trim();
-            var expLen = (gType === "mini_a" || gType === "mini_b") ? 5 : (gType === "goal3" ? 6 : 13);
+        if (addBtn) addBtn.addEventListener("click", handleManualBetAdd);
 
-            var parsed = parseUserPickInput(rawPicks, expLen);
-            if (!parsed) {
-              alert("枠数が一致しません。" + expLen + "枠分の買い目をハイフン区切り（例: 1-0-1/2-1-2）で入力してください。");
-              return;
-            }
-            var list = loadMyBets(currentRoundKey);
-            list.push({
-              id: "bet_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
-              gameType: gType,
-              label: memo || "手動登録",
-              picks: parsed.picks,
-              cost: parsed.cost
-            });
-            saveMyBets(currentRoundKey, list);
-            document.getElementById("my-bet-picks").value = "";
-            document.getElementById("my-bet-label").value = "";
-            if (currentRoundKey) renderRound(currentRoundKey);
+        var betTypeSel = document.getElementById("my-bet-type");
+        if (betTypeSel) betTypeSel.addEventListener("change", updateManualInputPlaceholder);
+
+        var picksInput = document.getElementById("my-bet-picks");
+        if (picksInput) {
+          picksInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") handleManualBetAdd();
           });
         }
 
@@ -1511,6 +2098,9 @@
         var clearBtn = document.getElementById("clear-my-bets-btn");
         if (clearBtn) {
           clearBtn.addEventListener("click", function() {
+            var current = loadMyBets(currentRoundKey);
+            if (!current || current.length === 0) return;
+            if (!confirm("この開催回の登録済み買い目（" + current.length + "件）をすべて削除しますか？")) return;
             saveMyBets(currentRoundKey, []);
             if (currentRoundKey) renderRound(currentRoundKey);
           });
@@ -1521,7 +2111,13 @@
         appData = data;
         var sel = document.getElementById("round-select");
         sel.innerHTML = "";
-        var keys = Object.keys(data.rounds || {});
+        var keys = Object.keys((data && data.rounds) || {});
+        if (keys.length === 0) {
+          document.getElementById("round-title-badge").textContent = "開催回データなし";
+          document.getElementById("marksheet-summary-grid").innerHTML =
+            '<div class="empty-msg">表示できる開催回データがありません。</div>';
+          return;
+        }
         keys.forEach(function(k) {
           var opt = document.createElement("option");
           opt.value = k; opt.textContent = k;
@@ -1538,8 +2134,16 @@
           return;
         }
         fetch("data.json?t=" + Date.now(), { cache: "no-store" })
-          .then(function(r) { return r.json(); })
-          .then(function(d) { applyData(d); });
+          .then(function(r) {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.json();
+          })
+          .then(function(d) { applyData(d); })
+          .catch(function(err) {
+            document.getElementById("round-title-badge").textContent = "データ読込エラー";
+            document.getElementById("marksheet-summary-grid").innerHTML =
+              '<div class="empty-msg">最新データの取得に失敗しました（' + escapeHtml(err.message) + '）。「⚡ 再読込」を押してください。</div>';
+          });
       }
 
       document.getElementById("round-select").addEventListener("change", function(e) {
