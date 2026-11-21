@@ -61,7 +61,6 @@ TEAM_ALIAS_MAP = {
     "鹿児島ユナイテッドFC": "鹿児島", "FC琉球": "琉球"
 }
 
-# 公式確定済み結果のバックアップ辞書（海外サーバーからのアクセス制限時にも確実に反映）
 VERIFIED_ROUND_RESULTS = {
     "1672": {
         "1": {"hs": 1, "as": 1, "res": "0"},
@@ -128,7 +127,6 @@ def norm_team(name):
 
 
 def extract_two_teams_in_order(text, stats=None):
-    """statsの有無に関わらず全Jクラブ名・略称からホーム・アウェイの2チームを出現順に抽出"""
     nfkc = unicodedata.normalize("NFKC", text or "")
     patterns = []
     for k, v in TEAM_ALIAS_MAP.items():
@@ -222,21 +220,117 @@ def parse_toto_schedule_page(html, stats, today):
                 cand_y = today.year
                 if today.month == 12 and int(m_md.group(1)) == 1:
                     cand_y += 1
+                elif today.month == 1 and int(m_md.group(1)) == 12:
+                    cand_y -= 1
                 match_d = datetime.date(cand_y, int(m_md.group(1)), int(m_md.group(2)))
             except Exception:
                 match_d = today
 
-        ko_str = "14:00"
+        ko_str = ""
         m_ko = re.search(r"\b([012]?\d:[0-5]\d)\b", row_txt)
         if m_ko:
             ko_str = m_ko.group(1).zfill(5)
 
         iso_d = match_d.strftime("%Y-%m-%d")
-        d_str = "{}月{}日({}) {}".format(match_d.month, match_d.day, wds[match_d.weekday()], ko_str)
+        d_str = "{}月{}日({}) {}".format(match_d.month, match_d.day, wds[match_d.weekday()], ko_str or "14:00")
         frame_map[f_idx] = (f_idx, match_d, iso_d, d_str, hn, an, ko_str)
 
     ordered = [frame_map[k] for k in sorted(frame_map.keys())]
     return rid, dead_str, ordered
+
+
+def fetch_jleague_live_schedule_and_lineups(official_games, stats, now_jst):
+    """
+    Jリーグ公式日程ページおよび各試合詳細ページから
+    1) 正確なキックオフ時刻
+    2) 実際のスタメン発表有無（先発メンバー公開済かどうか）
+    を取得する
+    """
+    if not official_games:
+        return {}
+
+    dates = [g[1] for g in official_games]
+    min_d = (min(dates) - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    max_d = (max(dates) + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+
+    target_pairs = {(g[4], g[5]): g for g in official_games}
+    info_map = {}
+
+    search_urls = [
+        "https://www.jleague.jp/j1/match/search-list/?startdate={}&enddate={}&period=custom".format(min_d, max_d),
+        "https://www.jleague.jp/j2/match/search-list/?startdate={}&enddate={}&period=custom".format(min_d, max_d),
+        "https://www.jleague.jp/j3/match/search-list/?startdate={}&enddate={}&period=custom".format(min_d, max_d),
+        "https://www.jleague.jp/leaguecup/match/search-list/?startdate={}&enddate={}&period=custom".format(min_d, max_d)
+    ]
+
+    for url in search_urls:
+        if len(info_map) >= len(target_pairs):
+            break
+        html = fetch_url(url, 12)
+        if not html:
+            continue
+        soup = BeautifulSoup(html, "html.parser")
+        for blk in soup.find_all(["tr", "li", "div", "section"]):
+            row_txt = unicodedata.normalize("NFKC", blk.get_text(" ", strip=True))
+            if len(row_txt) < 6 or len(row_txt) > 300:
+                continue
+            teams = extract_two_teams_in_order(row_txt, stats)
+            if len(teams) != 2:
+                continue
+            pair = (teams[0], teams[1])
+            if pair not in target_pairs or pair in info_map:
+                continue
+
+            ko_m = re.search(r"\b([012]?\d:[0-5]\d)\b", row_txt)
+            ko_found = ko_m.group(1).zfill(5) if ko_m else ""
+
+            detail_url = ""
+            for a_tag in blk.find_all("a", href=True):
+                href = a_tag["href"]
+                if "/match/" in href and ("/live" in href or "/preview" in href or "/j1/" in href or "/j2/" in href or "/j3/" in href):
+                    if href.startswith("http"):
+                        detail_url = href
+                    else:
+                        detail_url = "https://www.jleague.jp" + (href if href.startswith("/") else "/" + href)
+                    break
+
+            is_live_announced = False
+            if any(kw in row_txt for kw in ["試合終了", "前半", "後半", "ハーフタイム"]):
+                is_live_announced = True
+
+            info_map[pair] = {
+                "ko": ko_found,
+                "detail_url": detail_url,
+                "announced": is_live_announced
+            }
+
+    # 試合開始4時間前〜試合中の試合について、試合詳細ページで実際のスタメン公開を確認
+    for pair, info in info_map.items():
+        if info["announced"] or not info["detail_url"]:
+            continue
+        g = target_pairs[pair]
+        m_date = g[1]
+        ko_str = info["ko"] or g[6] or "14:00"
+        try:
+            kh, km = [int(x) for x in ko_str.split(":")]
+        except Exception:
+            kh, km = 14, 0
+        ko_dt = datetime.datetime(
+            m_date.year, m_date.month, m_date.day, kh, km,
+            tzinfo=datetime.timezone(datetime.timedelta(hours=9))
+        )
+        diff_min = (ko_dt - now_jst).total_seconds() / 60.0
+        if -180 <= diff_min <= 240:
+            live_url = re.sub(r"/(preview|ticket|access)/?$", "/live/", info["detail_url"])
+            d_html = fetch_url(live_url, 10)
+            if d_html:
+                d_txt = unicodedata.normalize("NFKC", BeautifulSoup(d_html, "html.parser").get_text(" ", strip=True))
+                has_pos = all(pos in d_txt for pos in ["GK", "DF", "MF", "FW"])
+                has_lineup_kw = any(kw in d_txt for kw in ["先発メンバー", "スタメン", "スターティングメンバー", "先発"])
+                if has_pos and has_lineup_kw:
+                    info["announced"] = True
+
+    return info_map
 
 
 def fetch_card_for_round_id(rid, stats, today):
@@ -334,7 +428,6 @@ def get_official_vote_rates(rid):
 
 
 def extract_score_from_row_text(row_txt, hn, an):
-    """toto公式の『1-1』形式およびJリーグ公式の『1 試合終了 1』形式の両方から確定スコアを抽出"""
     cleaned = unicodedata.normalize("NFKC", row_txt)
     cleaned = re.sub(r"\d{4}[年/-]\d{1,2}[月/-]\d{1,2}日?", " ", cleaned)
     cleaned = re.sub(r"\d{1,2}[月/]\d{1,2}日?", " ", cleaned)
@@ -342,7 +435,6 @@ def extract_score_from_row_text(row_txt, hn, an):
     cleaned = re.sub(r"^(?:第\s*)?0?(?:[1-9]|1[0-3])(?:\s*枠)?\b", " ", cleaned.strip())
     cleaned = re.sub(r"\d+(?:\.\d+)?\s*[%％]", " ", cleaned)
 
-    # パターン1: Jリーグ公式の「1 試合終了 1」形式
     m_jl = re.search(r"(?<![\d.])([0-9])[\s.]*(?:試合終了|終了)[\s.]*([0-9])(?![\d.])", cleaned)
     if m_jl:
         hs = int(m_jl.group(1))
@@ -350,7 +442,6 @@ def extract_score_from_row_text(row_txt, hn, an):
         res = "1" if hs > as_ else ("0" if hs == as_ else "2")
         return {"hs": hs, "as": as_, "res": res}
 
-    # パターン2: toto公式等の「1-1」「3 - 2」形式
     m_sc = re.search(r"(?<![\d.])([0-9])\s*[-－ー〜~対]\s*([0-9])(?![\d.])", cleaned)
     if m_sc:
         hs = int(m_sc.group(1))
@@ -362,10 +453,8 @@ def extract_score_from_row_text(row_txt, hn, an):
 
 
 def fetch_actual_results_for_round(rid, official_games, stats, now_jst, prev_actuals=None):
-    """終了した試合のスコアと1/0/2結果をtoto公式結果ページ・Jリーグ公式日程ページから取得"""
     actuals = dict(prev_actuals) if isinstance(prev_actuals, dict) else {}
 
-    # 検証済み公式結果がある回はベースとしてセット
     if rid in VERIFIED_ROUND_RESULTS:
         for k, v in VERIFIED_ROUND_RESULTS[rid].items():
             actuals.setdefault(k, dict(v))
@@ -374,7 +463,7 @@ def fetch_actual_results_for_round(rid, official_games, stats, now_jst, prev_act
     dates_needed = []
     for g in official_games:
         f_idx, m_date, iso_d, ds, hn, an = g[0], g[1], g[2], g[3], g[4], g[5]
-        ko_str = g[6] if len(g) > 6 else "14:00"
+        ko_str = g[6] if len(g) > 6 and g[6] else "14:00"
         try:
             kh, km = [int(x) for x in ko_str.split(":")]
         except Exception:
@@ -432,7 +521,6 @@ def fetch_actual_results_for_round(rid, official_games, stats, now_jst, prev_act
 
 
 def update_existing_rounds_actual_results(rounds_dict, stats, now_jst):
-    """既存のdata.json内の開催回に対しても確実に試合結果(actual_results)を最新化する"""
     today = now_jst.date()
     for rk, r_obj in rounds_dict.items():
         if not isinstance(r_obj, dict):
@@ -455,7 +543,14 @@ def update_existing_rounds_actual_results(rounds_dict, stats, now_jst):
             m_md = re.search(r"(\d{1,2})月(\d{1,2})日", ana)
             if m_md:
                 try:
-                    m_date = datetime.date(today.year, int(m_md.group(1)), int(m_md.group(2)))
+                    mon = int(m_md.group(1))
+                    day = int(m_md.group(2))
+                    yr = today.year
+                    if today.month == 1 and mon == 12:
+                        yr -= 1
+                    elif today.month == 12 and mon == 1:
+                        yr += 1
+                    m_date = datetime.date(yr, mon, day)
                 except Exception:
                     m_date = today
             ko_str = "14:00"
@@ -563,9 +658,15 @@ def check_weather(home_team, target_date_iso):
     return 1.0, "晴/曇"
 
 
-def evaluate_lineup_status(m_date, ko_str, hs, as_, now_jst):
+def evaluate_lineup_status(m_date, ko_str, hs, as_, now_jst, live_confirmed=False):
+    """
+    Jリーグ公式でのスタメン公開確認(live_confirmed)を最優先し、
+    取得できない場合のみ正確なキックオフ時刻から135分前以内をフォールバック判定する。
+    ※index.html側でH:/A:の%補正を適用するため、ここではh_xgへの二重掛けを行わない(倍率1.0返却)
+    """
+    eff_ko = ko_str or "14:00"
     try:
-        kh, km = [int(x) for x in (ko_str or "14:00").split(":")]
+        kh, km = [int(x) for x in eff_ko.split(":")]
     except Exception:
         kh, km = 14, 0
     ko_dt = datetime.datetime(
@@ -573,29 +674,28 @@ def evaluate_lineup_status(m_date, ko_str, hs, as_, now_jst):
         tzinfo=datetime.timezone(datetime.timedelta(hours=9))
     )
     diff_min = (ko_dt - now_jst).total_seconds() / 60.0
-    if diff_min <= 130:
+
+    if live_confirmed or diff_min <= 135:
         h_fm = hs.get("form_mult", 1.0)
         a_fm = as_.get("form_mult", 1.0)
-        h_pct = int(round((h_fm - 1.0) * 40))
-        a_pct = int(round((a_fm - 1.0) * 40))
-        h_pct = max(-4, min(5, h_pct))
-        a_pct = max(-4, min(5, a_pct))
+        h_pct = max(-4, min(5, int(round((h_fm - 1.0) * 40))))
+        a_pct = max(-4, min(5, int(round((a_fm - 1.0) * 40))))
         h_lbl = "主力先発揃い(+{}%)".format(h_pct) if h_pct >= 2 else ("先発一部入替({}%)".format(h_pct) if h_pct < 0 else "基本布陣先発(+{}%)".format(h_pct) if h_pct > 0 else "標準先発(±0%)")
         a_lbl = "主力先発揃い(+{}%)".format(a_pct) if a_pct >= 2 else ("先発一部入替({}%)".format(a_pct) if a_pct < 0 else "基本布陣先発(+{}%)".format(a_pct) if a_pct > 0 else "標準先発(±0%)")
         return (
-            1.0 + h_pct * 0.01,
-            1.0 + a_pct * 0.01,
-            "✓スタメン発表済({}KO | H:{} / A:{})".format(ko_str, h_lbl, a_lbl)
+            1.0,
+            1.0,
+            "✓スタメン発表済({}KO | H:{} / A:{})".format(eff_ko, h_lbl, a_lbl)
         )
-    return 1.0, 1.0, "⏳スタメン未発表({}KO)".format(ko_str)
+    return 1.0, 1.0, "⏳スタメン未発表({}KO)".format(eff_ko)
 
 
 def calc_vote_league_dc(h_lam, a_lam):
     def pois(k, lam):
         return (lam ** k) * math.exp(-lam) / math.factorial(k)
     p1, p0, p2 = 0.0, 0.0, 0.0
-    for i in range(6):
-        for j in range(6):
+    for i in range(7):
+        for j in range(7):
             p = pois(i, h_lam) * pois(j, a_lam)
             if i > j:
                 p1 += p
@@ -609,9 +709,10 @@ def calc_vote_league_dc(h_lam, a_lam):
     return [r1, round(max(12.0, 100.0 - r1 - r2), 1), r2]
 
 
-def build_round_predictions(official_games, stats, home_adv, round_num_str, deadline_str, market_votes, actual_results, now_jst):
+def build_round_predictions(official_games, stats, home_adv, round_num_str, deadline_str, market_votes, actual_results, jleague_info, now_jst):
     if not official_games:
         return None
+    wds = ["月", "火", "水", "木", "金", "土", "日"]
     sorted_by_date = sorted(official_games, key=lambda x: x[1])
     udates = []
     for g in sorted_by_date:
@@ -623,13 +724,17 @@ def build_round_predictions(official_games, stats, home_adv, round_num_str, dead
     matches = []
     for g in official_games:
         f_idx, m_date, iso_d, ds, hn, an = g[0], g[1], g[2], g[3], g[4], g[5]
-        ko_str = g[6] if len(g) > 6 else "14:00"
+        jl = (jleague_info or {}).get((hn, an), {})
+        ko_str = jl.get("ko") or (g[6] if len(g) > 6 and g[6] else "14:00")
+        live_confirmed = bool(jl.get("announced", False))
+        ds_fixed = "{}月{}日({}) {}".format(m_date.month, m_date.day, wds[m_date.weekday()], ko_str)
+
         hs = stats.get(hn, {"div": "J1", "l_avg": 1.30, "atk": 1.30, "def_v": 1.30, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.0, "trend": ""})
         as_ = stats.get(an, {"div": "J1", "l_avg": 1.30, "atk": 1.30, "def_v": 1.30, "h_tilt": 1.0, "a_tilt": 1.0, "form_mult": 1.0, "trend": ""})
         l_avg = hs.get("l_avg", 1.30)
         w_mult, w_label = check_weather(hn, iso_d)
         travel_mult, travel_tag = calc_travel_penalty(hn, an)
-        lu_h_mult, lu_a_mult, lu_tag = evaluate_lineup_status(m_date, ko_str, hs, as_, now_jst)
+        lu_h_mult, lu_a_mult, lu_tag = evaluate_lineup_status(m_date, ko_str, hs, as_, now_jst, live_confirmed)
 
         away_adv = round(2.04 - home_adv, 3)
         h_rel = hs["atk"] * (as_["def_v"] / l_avg) * home_adv * hs["h_tilt"] * w_mult * lu_h_mult
@@ -645,7 +750,7 @@ def build_round_predictions(official_games, stats, home_adv, round_num_str, dead
         matches.append({
             "f": f_idx, "grp": grp, "h": hn, "a": an, "v": display_v,
             "h_xg": final_h_lam, "h_xga": final_a_lam, "a_xg": final_a_lam, "a_xga": final_h_lam,
-            "analysis": "[{} | 天候:{}{} | {}] H:{} {} / A:{} {}".format(ds, w_label, tr_note, lu_tag, hn, hs["trend"], an, as_["trend"])
+            "analysis": "[{} | 天候:{}{} | {}] H:{} {} / A:{} {}".format(ds_fixed, w_label, tr_note, lu_tag, hn, hs["trend"], an, as_["trend"])
         })
 
     rk = "{} (開催: {} / {})".format(round_num_str, d_label, deadline_str)
@@ -698,7 +803,6 @@ def main():
     if not st and isinstance(existing_data.get("club_stats"), dict):
         st = existing_data.get("club_stats", {})
 
-    # 既存開催回をベースとして保持しつつ新規取得分で更新
     rounds = dict(existing_rounds)
     official_rounds = get_official_toto_rounds(st, today, existing_rounds)
     most_recent_rk = ""
@@ -712,10 +816,11 @@ def main():
                 del rounds[old_k]
 
         mkt_votes = get_official_vote_rates(rid)
+        jleague_info = fetch_jleague_live_schedule_and_lineups(official_games, st, now_jst)
         actual_results = fetch_actual_results_for_round(rid, official_games, st, now_jst, prev_actuals)
 
         res = build_round_predictions(
-            official_games, st, home_adv, r_num, deadline_str, mkt_votes, actual_results, now_jst
+            official_games, st, home_adv, r_num, deadline_str, mkt_votes, actual_results, jleague_info, now_jst
         )
         if res:
             rk, obj = res
@@ -725,10 +830,8 @@ def main():
             if not most_recent_rk and max_d >= today:
                 most_recent_rk = rk
 
-    # 既存の全開催回（第1672回など）に対しても必ず試合結果(actual_results)を更新
     update_existing_rounds_actual_results(rounds, st, now_jst)
 
-    # 開催回キーを回号の昇順で整列
     sorted_keys = sorted(
         rounds.keys(),
         key=lambda k: int(re.search(r"第(\d{4})回", k).group(1)) if re.search(r"第(\d{4})回", k) else 9999
